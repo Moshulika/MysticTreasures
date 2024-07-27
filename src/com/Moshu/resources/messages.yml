@@ -1,0 +1,9 @@
+messages:
+  cannot-place-near-treasure: "&6&lTreasure&e&lHunt &fNu plasa blockuri langa comoara!"
+  cannot-break-near-treasure: "&6&lTreasure&e&lHunt &fNu plasa blockuri langa comoara!"
+  cannot-attack-near-treasure: "&6&lTreasure&e&lHunt &fNu plasa blockuri langa comoara!"
+  need-to-kill-all-mobs:
+    - ""
+    - "&6&lTreasure&e&lHunt &fComoara este protejata de magie!"
+    - "&6&lTreasure&e&lHunt &fOmoara toti inamicii din jur pentru a debloca comoara!"
+    - ""

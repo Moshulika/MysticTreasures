@@ -1,0 +1,22 @@
+settings:
+  positive-sound: "ENTITY_PLAYER_LEVELUP"
+  negative-sound: "BLOCK_ANVIL_BREAK"
+  enabled-worlds:
+    overworld:
+      world-name: "world"
+      treasure-block: ENDER_CHEST
+      require-all-mobs-dead: true
+      allow-flight-near-treasure: false
+      allow-god-near-treasure: false
+      allow-elytra-near-treasure: false
+      chance-for-treasure: 20
+      min-players-online: 15
+      interval: 30
+      duration: 20
+      cooldown: 15
+      mobs:
+        - "ZOMBIE:5"
+      item-rewards:
+        - "STONE:32"
+      command-rewards:
+        - "eco give %player% 100"
