@@ -14,6 +14,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.popcraft.chunkyborder.BorderData;
 
@@ -26,6 +27,7 @@ import java.util.Map;
 public class Locations {
 
     private static final ArrayList<Biome> blacklist = new ArrayList<>();
+    private static final ArrayList<Material> block_blacklist = new ArrayList<>();
 
     static
     {
@@ -209,11 +211,18 @@ public class Locations {
         return  isInBorder(loc) &&
                 !blacklistedBiome(loc) &&
                 !isLeaves(loc) &&
-                !isLiquidUnder(loc);
+                !isLiquidUnder(loc) &&
+                !allowedBlockUnder(loc);
 
 
     }
 
+
+    public static boolean allowedBlockUnder(Location loc)
+    {
+        Block b = loc.subtract(0, 1,0).getBlock();
+        return b.isPassable() || b.getType() == Material.SNOW;
+    }
 
 
     /**

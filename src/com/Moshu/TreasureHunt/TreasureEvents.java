@@ -28,19 +28,6 @@ import org.bukkit.potion.PotionEffectType;
 
 public class TreasureEvents implements Listener {
 
-    @EventHandler
-    public void onFallingBlockLand(EntityChangeBlockEvent e){
-
-        if(e.getEntity() instanceof FallingBlock f){
-
-            if(f.getMaterial() == Settings.getWorldMaterialUnknown(e.getEntity().getWorld().getName(), "treasure-block"))
-            {
-                e.setCancelled(true);
-                f.remove();
-
-        }
-    }
-}
 
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
@@ -195,10 +182,14 @@ public class TreasureEvents implements Listener {
 
                     if (Treasure.isNearTreasure(p)) {
 
-                        e.setCancelled(true);
-                        e.setDamage(0);
+                        if(!Settings.getWorldBooleanUnknown(p.getWorld().getName(), "allow-pvp-near-treasure")) {
 
-                        e.getDamager().sendMessage(Messages.get("cannot-attack-near-treasure"));
+                            e.setCancelled(true);
+                            e.setDamage(0);
+
+                            e.getDamager().sendMessage(Messages.get("cannot-attack-near-treasure"));
+
+                        }
 
                     }
 

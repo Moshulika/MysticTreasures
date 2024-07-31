@@ -91,6 +91,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
                     ArrayList<String> c = new ArrayList<>();
 
+                    c.add("here");
+
                     for(World w : Bukkit.getWorlds())
                     {
                         c.add(w.getName());

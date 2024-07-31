@@ -13,6 +13,7 @@ settings:
       treasure-animation: "orb" #none, spiral, orb
       treasure-icon: EMERALD #Only if DecentHolograms is not installed
       require-all-mobs-dead: true
+      allow-pvp-near-treasure: false
       allow-flight-near-treasure: false
       allow-god-near-treasure: false
       allow-elytra-near-treasure: false
@@ -27,7 +28,10 @@ settings:
       cooldown: 15
       mobs:
         - "ZOMBIE:5"
+        - "SKELETON:5"
+        - "SPIDER:3"
       item-rewards:
-        - "STONE:32"
+        - "DIAMOND:6"
+        - "EMERALD:1"
       command-rewards:
         - "eco give %player% 100"

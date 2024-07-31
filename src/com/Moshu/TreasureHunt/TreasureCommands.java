@@ -93,6 +93,29 @@ public class TreasureCommands implements CommandExecutor {
                 if(args[0].equalsIgnoreCase("start"))
                 {
 
+                    if(sender instanceof Player p) {
+
+                        if(args[1].equalsIgnoreCase("here"))
+                        {
+
+                            World w = p.getWorld();
+
+                            if(Hunt.isActive(w))
+                            {
+                                sender.sendMessage(Messages.get("hunt-already-active"));
+                                return true;
+                            }
+
+                            Hunt h = new Hunt(p.getLocation(), Settings.getWorldIntUnknown(w.getName(), "duration"));
+                            sender.sendMessage(Messages.get("generating-treasure"));
+
+                            h.start();
+                            sender.sendMessage(Messages.get("treasure-generated"));
+                            return true;
+                        }
+
+                    }
+
                     World w = Bukkit.getWorld(args[1]);
 
                     if(w == null)
@@ -100,32 +123,6 @@ public class TreasureCommands implements CommandExecutor {
                         sender.sendMessage(Messages.get("inexistent-world"));
                         return true;
                     }
-
-                    if(Hunt.isActive(w))
-                    {
-                        sender.sendMessage(Messages.get("hunt-already-active"));
-                        return true;
-                    }
-
-                    Hunt h = new Hunt(w, Settings.getWorldIntUnknown(w.getName(), "duration"));
-                    sender.sendMessage(Messages.get("generating-treasure"));
-
-                    BukkitRunnable run = new BukkitRunnable()
-                    {
-
-                        @Override
-                        public void run() {
-
-                            if(h.getLocation() == null) return;
-
-                            h.start();
-                            this.cancel();
-
-                        }
-                    };
-
-                    run.runTaskTimerAsynchronously(plugin, 0, 1);
-                    sender.sendMessage(Messages.get("treasure-generated"));
 
                 }
                 else if(args[0].equalsIgnoreCase("stop"))

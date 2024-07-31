@@ -107,6 +107,14 @@ public class Hunt {
 
     }
 
+    Hunt(Location location, int duration)
+    {
+        this.w = location.getWorld();
+        this.duration = duration;
+
+        this.l = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+    }
+
     public void start()
     {
 

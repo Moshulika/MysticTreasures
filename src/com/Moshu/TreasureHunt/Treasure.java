@@ -10,10 +10,13 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.checkerframework.checker.units.qual.A;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -172,12 +175,10 @@ public class Treasure {
                     mob = EntityType.valueOf(args[0]);
                     local_mobs.add(new TreasureKeeper(mob, amount));
 
-                    Bukkit.getConsoleSender().sendMessage("Added " + mob + "x" + amount);
 
 
                 }
 
-                Bukkit.getConsoleSender().sendMessage("Added in " + world_name + " " + local_mobs.size() + " mobs");
 
                 mobs.put(world_name, local_mobs);
             }
@@ -211,14 +212,6 @@ public class Treasure {
         try
         {
 
-            for(String s : mobs.keySet())
-            {
-                Bukkit.getConsoleSender().sendMessage(s);
-            }
-
-            Bukkit.getConsoleSender().sendMessage(getMobs(l.getWorld()).size() + "");
-            Bukkit.getConsoleSender().sendMessage(l.getWorld().getName());
-
             for(TreasureKeeper t : getMobs(l.getWorld()))
             {
 
@@ -229,7 +222,6 @@ public class Treasure {
                     e.setRemoveWhenFarAway(false);
                     spawnEntities.add(e);
 
-                    Bukkit.getConsoleSender().sendMessage("Mob added");
 
 
                 }
@@ -293,14 +285,18 @@ public class Treasure {
                     @Override
                     public void run() {
 
-                        if(!isActive())
+                        if(!isActive() || (Hunt.getHunt(l.getWorld()) == null) || (Hunt.getHunt(l.getWorld()) != null && !Hunt.isActive(l.getWorld())))
                         {
                             this.cancel();
                             return;
                         }
 
                         if (flare.equalsIgnoreCase("few")) {
-                            loc.getWorld().spawnParticle(p, loc.add(0,2,0), 1);
+
+                            for (int i = 0; i < 15; i++) {
+                                loc.getWorld().spawnParticle(p, Utils.getParticleLocation(loc).add(0, i, 0), 1);
+                            }
+
                         } else {
 
                             for (int i = 0; i < 50; i++) {
@@ -463,12 +459,13 @@ public class Treasure {
 
             Material mat = Settings.getWorldMaterialUnknown(w.getName(), "treasure-block");
 
-            FallingBlock animation = w.spawnFallingBlock(location.clone().add(0, 50, 0), mat, (byte) 0);
-            animation.setVelocity(new Vector(0, -0.01, 0));
-            animation.setHurtEntities(false);
-            animation.setCancelDrop(true);
-            animation.setVisibleByDefault(true);
-            animation.setInvisible(false);
+            ArmorStand animation = (ArmorStand) l.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
+
+            animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1));
+            animation.setBasePlate(false);
+            animation.setHelmet(new ItemStack(mat));
+            animation.setInvulnerable(true);
+            animation.setVisible(false);
 
             BukkitRunnable run_falling_particles = new BukkitRunnable() {
 
@@ -479,10 +476,7 @@ public class Treasure {
                     if(animation.isOnGround())
                     {
 
-                        Bukkit.getScheduler().runTask(plugin, ()->
-                        {
-                            animation.remove();
-                        });
+                        Bukkit.getScheduler().runTask(plugin, animation::remove);
 
                         w.spawnParticle(Particle.EXPLOSION, animation.getLocation(), 1);
 
@@ -491,7 +485,7 @@ public class Treasure {
                         return;
                     }
 
-                    w.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, animation.getLocation().add(0, 0.5, 0), 1);
+                    w.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, animation.getLocation().add(0, 3, 0), 1);
 
                 }
             };
@@ -614,6 +608,7 @@ public class Treasure {
 
         for(Hunt h : Hunt.getActiveHunts())
         {
+
             h.getTreasure().remove();
         }
 

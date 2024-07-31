@@ -37,7 +37,6 @@ public class Effects {
 
                 if(!Hunt.isActive(base_loc.getWorld()))
                 {
-                    Bukkit.getConsoleSender().sendMessage("Hunt not active");
                     this.cancel();
                     return;
                 }
@@ -47,7 +46,6 @@ public class Effects {
 
                     if(h.getTreasure() != null && h.getTreasure().isActive() && h.getTreasure().mobsCleared())
                     {
-                        Bukkit.getConsoleSender().sendMessage("Treasure not active");
                         this.cancel();
                         return;
                     }
@@ -110,7 +108,6 @@ public class Effects {
 
                 if(!Hunt.isActive(base_loc.getWorld()))
                 {
-                    Bukkit.getConsoleSender().sendMessage("Hunt not active");
                     this.cancel();
                     return;
                 }
@@ -142,8 +139,8 @@ public class Effects {
                     i += 0.01;
                 }
 
-                loc.getWorld().spawnParticle(Particle.DUST, loc.getX() + x, loc.getY() + i + 0.7, loc.getZ() + z, 0, dust);
-                loc.getWorld().spawnParticle(Particle.DUST, loc.getX() + x2, loc.getY() + i + 0.7, loc.getZ() + z2, 0, dust);
+                loc.getWorld().spawnParticle(Particle.DUST, loc.getX() + x + 0.5, loc.getY() + i + 0.7, loc.getZ() + z + 0.5, 0, dust);
+                loc.getWorld().spawnParticle(Particle.DUST, loc.getX() + x2 + 0.5, loc.getY() + i + 0.7, loc.getZ() + z2 + 0.5, 0, dust);
 
                 c += 0.18;
 
@@ -179,7 +176,6 @@ public class Effects {
 
                 if(!Hunt.isActive(base_loc.getWorld()))
                 {
-                    Bukkit.getConsoleSender().sendMessage("Hunt not active");
                     this.cancel();
                     return;
                 }
@@ -207,8 +203,8 @@ public class Effects {
 
                 y = loc.getY() + (step / 10D) - 0.5;
 
-                loc.getWorld().spawnParticle(org.bukkit.Particle.FLAME, loc.getX() + x, y , loc.getZ() + z, 0, 0,0,0, 0.0001);
-                loc.getWorld().spawnParticle(org.bukkit.Particle.FLAME, loc.getX() + x2, y , loc.getZ() + z2, 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(org.bukkit.Particle.FLAME, loc.getX() + x + 0.5, y , loc.getZ() + z + 0.5, 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(org.bukkit.Particle.FLAME, loc.getX() + x2 + 0.5, y , loc.getZ() + z2 + 0.5, 0, 0,0,0, 0.0001);
 
                 c += 0.2;
 
