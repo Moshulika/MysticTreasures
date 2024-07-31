@@ -24,6 +24,16 @@ public class Settings {
         return plugin.getConfig().getStringList("settings.allowed-worlds");
     }
 
+    public static boolean actionbar()
+    {
+        return plugin.getConfig().getBoolean("settings.actionbar.enabled", true);
+    }
+
+    public static int actionbarRefresh()
+    {
+        return plugin.getConfig().getInt("settings.actionbar.refresh", 2);
+    }
+
     public static String getWorldStringUnknown(String world, String setting)
     {
 
@@ -67,6 +77,32 @@ public class Settings {
 
     }
 
+    public static Particle getWorldParticleUnknown(String world, String setting)
+    {
+
+        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
+        {
+
+            if(getWorldString(s, "world-name").equals(world))
+            {
+
+                try
+                {
+                    return Particle.valueOf(plugin.getConfig().getString("settings.enabled-worlds." + s + "." + setting, "COMPOSTER"));
+                }
+                catch(Exception e)
+                {
+                    plugin.getLogger().log(Level.SEVERE, "Could not get Particle from " + s + "." + setting);
+                }
+
+            }
+
+        }
+
+        return Particle.COMPOSTER;
+
+    }
+
     public static boolean getWorldBooleanUnknown(String world, String setting)
     {
         for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
@@ -83,6 +119,7 @@ public class Settings {
 
     }
 
+
     public static int getWorldIntUnknown(String world, String setting)
     {
         for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
@@ -90,12 +127,12 @@ public class Settings {
 
             if(getWorldString(s, "world-name").equals(world))
             {
-                return plugin.getConfig().getInt("settings.enabled-worlds." + s + "." + setting, -1);
+                return plugin.getConfig().getInt("settings.enabled-worlds." + s + "." + setting, 0);
             }
 
         }
 
-        return -1;
+        return 0;
 
     }
 
@@ -111,7 +148,7 @@ public class Settings {
 
     public static int getCooldown()
     {
-        return plugin.getConfig().getInt("settings.cooldown", 10);
+        return plugin.getConfig().getInt("settings.cooldown", 1440);
     }
 
 }

@@ -1617,12 +1617,12 @@ public class Utils
 
         try
         {
-            s = Sound.valueOf(plugin.getConfig().getString("settings.positive-sound", "BLOCK_ANVIL_BREAK"));
+            s = Sound.valueOf(plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK"));
             p.playSound(p.getLocation(), s, 1.0F, 1.0F);
         }
         catch (IllegalArgumentException e)
         {
-            plugin.getLogger().log(Level.SEVERE, "Invalid positive sound", e);
+            plugin.getLogger().log(Level.SEVERE, "Invalid negative sound", e);
         }
 
     }

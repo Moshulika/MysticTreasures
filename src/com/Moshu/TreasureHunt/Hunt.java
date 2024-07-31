@@ -1,12 +1,15 @@
 package com.Moshu.TreasureHunt;
 
 import com.Moshu.Misc.Locations;
+import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Utils;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -21,8 +24,13 @@ public class Hunt {
 
     private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    private static ArrayList<ItemStack> items = new ArrayList<>();
+    private static HashMap<String, ArrayList<ItemStack>> items = new HashMap<>();
     private static ArrayList<Hunt> hunts = new ArrayList<>();
+
+    public ArrayList<ItemStack> getItems()
+    {
+        return items.get(w.getName());
+    }
 
     public static void initialize()
     {
@@ -30,33 +38,47 @@ public class Hunt {
         String[] args;
         ItemStack item;
 
-        for(String s : plugin.getConfig().getStringList("treasures.items"))
+        String world_name;
+
+        for(String world : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
         {
 
-            args = s.split(":");
+            world_name = plugin.getConfig().getString("settings.enabled-worlds." + world + ".world-name");
+            ArrayList<ItemStack> local_items = new ArrayList<>();
 
-            if(args.length < 2) {
-
-                plugin.getLogger().log(Level.SEVERE, "Invalid item in treasure prize configuration: " + s);
-                continue;
-            }
-
-            if(Material.matchMaterial(args[0]) == null)
+            for(String s : plugin.getConfig().getStringList("settings.enabled-worlds." + world + ".item-rewards"))
             {
-                plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + args[0]);
-                continue;
+                args = s.split(":");
+
+                if(args.length < 2) {
+
+                    plugin.getLogger().log(Level.SEVERE, "Invalid item in treasure prize configuration: " + s);
+                    continue;
+                }
+
+                if(Material.matchMaterial(args[0]) == null)
+                {
+                    plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + args[0]);
+                    continue;
+                }
+
+                if(!Utils.isInt(args[1]))
+                {
+                    plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
+                    continue;
+                }
+
+
+                item = new ItemStack(Material.matchMaterial(args[0]), Integer.parseInt(args[1]));
+                local_items.add(item);
             }
 
-            if(!Utils.isInt(args[1]))
-            {
-                plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
-                continue;
-            }
-
-
-            item = new ItemStack(Material.matchMaterial(args[0]), Integer.parseInt(args[1]));
-            items.add(item);
+            items.put(world_name, local_items);
         }
+
+        Treasure.loadMobs();
+        Treasure.loadCommands();
+
     }
 
     Hunt(World w, int duration)
@@ -90,13 +112,14 @@ public class Hunt {
 
         if(this.l == null)
         {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&cTreasure Hunt: Comoara nu a fost initializata inca, incearca mai tarziu."));
+            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5Treasures: &fLocation is null, something went wrong."));
             return;
         }
 
         Bukkit.getScheduler().runTask(plugin, () ->
         {
-            treasure = new Treasure(this, items);
+
+            treasure = new Treasure(this, getItems());
 
             this.starttime = System.currentTimeMillis();
             treasure.create();
@@ -107,10 +130,27 @@ public class Hunt {
             }
              */
 
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&cTreasure Hunt: &fA inceput vanatoarea de comori! Comoara se afla la X: " + getLocation().getBlockX() + " Z:" + getLocation().getBlockZ()));
+            Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation").replace("{x}", getLocation().getBlockX() + "")
+                    .replace("{z}", getLocation().getBlockZ() + "").replace("{world}", getLocation().getWorld().getName()));
 
             hunts.add(this);
-            treasure.hologram();
+
+            BukkitRunnable run = new BukkitRunnable() {
+                @Override
+                public void run() {
+
+                    if(Hunt.isActive(w) && treasure.isActive()) {
+
+                        treasure.hologram();
+                        treasure.enableEffects();
+                        treasure.flare();
+
+                        this.cancel();
+                    }
+                }
+            };
+
+            run.runTaskTimerAsynchronously(plugin, 0, 2);
 
         });
 
@@ -138,7 +178,7 @@ public class Hunt {
     {
         for(Hunt x : getHunts())
         {
-            if(x.getWorld().equals(w)) return x;
+            if(x.getWorld().getName().equals(w.getName())) return x;
         }
 
         return null;

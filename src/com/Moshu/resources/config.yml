@@ -1,14 +1,25 @@
 settings:
   positive-sound: "ENTITY_PLAYER_LEVELUP"
   negative-sound: "BLOCK_ANVIL_BREAK"
+  winner-cooldown: 1440 #In minutes
+  actionbar:
+    enabled: true
+    refresh: 2 #Ticks
   enabled-worlds:
     overworld:
       world-name: "world"
       treasure-block: ENDER_CHEST
+      treasure-particles: COMPOSTER
+      treasure-animation: "orb" #none, spiral, orb
+      treasure-icon: EMERALD #Only if DecentHolograms is not installed
       require-all-mobs-dead: true
       allow-flight-near-treasure: false
       allow-god-near-treasure: false
       allow-elytra-near-treasure: false
+      flare-type: "many" #Options: none, few, many
+      flare-particle: COMPOSTER
+      fireworks: true
+      delay: 200 #In ticks
       chance-for-treasure: 20
       min-players-online: 15
       interval: 30

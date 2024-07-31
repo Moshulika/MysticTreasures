@@ -45,8 +45,6 @@ public class TreasureTask {
 
                     if(chance < Settings.getWorldInt(s, "chance-for-treasure"))
                     {
-
-                        if(Hunt.isActive()) return;
                         if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < Settings.getWorldInt(s, "cooldown")) return;
 
                         w = Bukkit.getWorld(Settings.getWorldString(s, "world-name"));
@@ -57,7 +55,9 @@ public class TreasureTask {
                             return;
                         }
 
-                        Hunt h = new Hunt(w, Settings.getWorldInt(s, "duration"));
+                        if(Hunt.isActive(w)) return;
+
+                        Hunt h = new Hunt(w, Settings.getWorldIntUnknown(s, "duration"));
 
                         BukkitRunnable run = new BukkitRunnable()
                         {

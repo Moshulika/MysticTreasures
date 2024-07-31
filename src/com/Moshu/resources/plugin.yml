@@ -6,7 +6,7 @@
 
 main: com.Moshu.Main
 name: MysticTreasures
-version: 27.07.2024
+version: 31.07.2024
 description: The world is full of treasures!
 author: Moshu
 website: mc.b-zone.ro
@@ -15,10 +15,14 @@ api-version: "1.21"
 
 commands:
   hunt:
-    permission: mystictreasures.hunt
+    description: "Interact with the plugin"
 
 
 permissions:
-  mysticturfs.hunt:
-    default: op
+  mystictreasures.hunt:
+    default: true
     description: Use the main command
+  mystictreasures.admin:
+    default: op
+  mystictreasures.bypass:
+    default: op

@@ -1,6 +1,9 @@
 package com.Moshu.TreasureHunt;
 
+import com.Moshu.Main;
+import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.SendCenteredMessage;
+import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -14,7 +17,11 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class TreasureCommands implements CommandExecutor {
 
-    private Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static Main plugin;
+
+    public TreasureCommands(Main plugin) {
+        this.plugin = plugin;
+    }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
     {
@@ -22,68 +29,67 @@ public class TreasureCommands implements CommandExecutor {
         if(cmd.getName().equalsIgnoreCase("hunt"))
         {
 
-            if(sender instanceof Player p)
-            {
+            if(args.length == 0) {
 
-                if(!p.hasPermission("engine.treasurehunt"))
-                {
+                if (sender instanceof Player p) {
 
-                    if(Hunt.isActive(p.getWorld()))
-                    {
+                    if (p.hasPermission("mystictreasures.hunt")) {
 
-                        SendCenteredMessage scm = new SendCenteredMessage();
+                        if (Hunt.isActive(p.getWorld())) {
 
-                        p.sendMessage(" ");
-                        scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&6&lTreasure &e&lHunt"));
-                        p.sendMessage(" ");
-                        scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&fO comoara misterioasa a fost descoperita in lume!"));
-                        scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&fX: &7" + Hunt.getHunt(p.getWorld()).getLocation().getBlockX() + " &fZ: &7" + Hunt.getHunt(p.getWorld()).getLocation().getBlockZ()));
-                        scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&fMult noroc in a o gasi!"));
-                        p.sendMessage(" ");
-                        scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&7&o((Tip: Comoara va disparea in 20 de minute))"));
-                        p.sendMessage(" ");
+                            Hunt h = Hunt.getHunt(p.getWorld());
+                            SendCenteredMessage scm = new SendCenteredMessage();
+
+                            for (String s : Messages.getAndFormatList("messages.hunt-message")) {
+                                scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
+                                        .replace("{z}", h.getLocation().getBlockZ() + "")
+                                        .replace("{world}", h.getWorld() + "")
+                                        .replace("{duration}", h.getDuration() + ""));
+                            }
+
+                            return true;
+
+                        } else {
+                            p.sendMessage(Messages.get("no-hunt-in-this-world"));
+                        }
+
                         return true;
-
+                    } else {
+                        p.sendMessage(Messages.get("no-permission"));
                     }
 
-
-                    Utils.sendNoAccess(p);
-                    return true;
                 }
-
-            }
-
-            if(args.length == 0)
-            {
-
-                if(sender instanceof Player p && Hunt.isActive(p.getWorld()))
+                else
                 {
-                    SendCenteredMessage scm = new SendCenteredMessage();
 
-                    p.sendMessage(" ");
-                    scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&6&lTreasure &e&lHunt"));
-                    p.sendMessage(" ");
-                    scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&fO comoara misterioasa a fost descoperita in lume!"));
-                    scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&fX: &7" + Hunt.getHunt(p.getWorld()).getLocation().getBlockX() + " &fZ: &7" + Hunt.getHunt(p.getWorld()).getLocation().getBlockZ()));
-                    scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&fMult noroc in a o gasi!"));
-                    p.sendMessage(" ");
-                    scm.sendCenteredMessage(p, ChatColor.translateAlternateColorCodes('&', "&7&o((Tip: Comoara va disparea in 20 de minute))"));
-                    p.sendMessage(" ");
-                    return true;
+                    Bukkit.getConsoleSender().sendMessage(Utils.format("&5Treasures: &fHunts are active in the following worlds"));
+                    Bukkit.getConsoleSender().sendMessage(Utils.format("&5Treasures: &fUse /hunt start/stop (World) to control the hunts"));
+
+                    for(World w : Bukkit.getWorlds())
+                    {
+                        Bukkit.getConsoleSender().sendMessage(Utils.format("&5Treasures: &f" + w.getName() + " - " + Hunt.isActive(w)));
+                    }
+
                 }
 
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fFoloseste /hunt start/stop"));
-                return true;
             }
             else if(args.length == 1)
             {
-
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fFoloseste /hunt start/stop (World)"));
+                sender.sendMessage(Messages.get("wrong-command"));
                 return true;
-
             }
             else if(args.length == 2)
             {
+
+                if(sender instanceof Player p) {
+
+                    if(!p.hasPermission("mystictreasures.admin")) {
+                        p.sendMessage(Messages.get("no-permission"));
+                        return true;
+                    }
+
+                }
+
                 if(args[0].equalsIgnoreCase("start"))
                 {
 
@@ -91,19 +97,18 @@ public class TreasureCommands implements CommandExecutor {
 
                     if(w == null)
                     {
-
+                        sender.sendMessage(Messages.get("inexistent-world"));
                         return true;
                     }
 
                     if(Hunt.isActive(w))
                     {
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fDeja este o vanatoare de comori in desfasurare"));
+                        sender.sendMessage(Messages.get("hunt-already-active"));
                         return true;
                     }
 
-                    Hunt h = new Hunt(w, 20);
-
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fSe genereaza comoara.."));
+                    Hunt h = new Hunt(w, Settings.getWorldIntUnknown(w.getName(), "duration"));
+                    sender.sendMessage(Messages.get("generating-treasure"));
 
                     BukkitRunnable run = new BukkitRunnable()
                     {
@@ -120,8 +125,7 @@ public class TreasureCommands implements CommandExecutor {
                     };
 
                     run.runTaskTimerAsynchronously(plugin, 0, 1);
-
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fAi activat o vanatoare de comori!"));
+                    sender.sendMessage(Messages.get("treasure-generated"));
 
                 }
                 else if(args[0].equalsIgnoreCase("stop"))
@@ -131,28 +135,35 @@ public class TreasureCommands implements CommandExecutor {
 
                     if(w == null)
                     {
-
+                        sender.sendMessage(Messages.get("inexistent-world"));
                         return true;
                     }
 
                     if(!Hunt.isActive(w))
                     {
-                        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fNu este nici o vanatoare de comori in desfasurare"));
+                        sender.sendMessage(Messages.get("hunt-not-active"));
                         return true;
                     }
 
                     Hunt.getHunt(w).stop();
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fAi oprit vanatoarea de comori!"));
+                    sender.sendMessage(Messages.get("hunt-stopped"));
+
+                }
+                else if(args[0].equalsIgnoreCase("reload"))
+                {
+
+                    sender.sendMessage(Utils.format("&5Treasures: &fConfig reloaded!"));
+                    plugin.reloadFiles();
 
                 }
                 else
                 {
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fFoloseste /hunt start/stop"));
+                    sender.sendMessage(Messages.get("wrong-command"));
                 }
             }
             else
             {
-                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lTreasure&e&lHunt &fFoloseste /hunt start/stop"));
+                sender.sendMessage(Messages.get("wrong-command"));
             }
 
         }

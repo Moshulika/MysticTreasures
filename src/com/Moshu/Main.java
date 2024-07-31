@@ -1,13 +1,7 @@
 package com.Moshu;
-import com.Moshu.Misc.Cooldown;
-import com.Moshu.Misc.TabCompleter;
-import com.Moshu.Misc.Utils;
-import com.Moshu.TreasureHunt.Hunt;
-import com.Moshu.TreasureHunt.TreasureCommands;
-import com.Moshu.TreasureHunt.TreasureEvents;
-import com.Moshu.TreasureHunt.TreasureTask;
+import com.Moshu.Misc.*;
+import com.Moshu.TreasureHunt.*;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -39,8 +33,11 @@ public class Main extends JavaPlugin {
     public static Main plugin;
     public static boolean isLoaded = false;
 
+    Settings settings = new Settings(this);
+    Messages messagesClass = new Messages(this);
     Utils utils = new Utils(this);
     Cooldown cooldown = new Cooldown(this);
+    TreasureCommands treasureCommands = new TreasureCommands(this);
 
     @Override
     public void onEnable()
@@ -61,17 +58,19 @@ public class Main extends JavaPlugin {
 
         TabCompleter tabc = new TabCompleter();
 
-        getCommand("hunt").setExecutor(new TreasureCommands());
+        getCommand("hunt").setExecutor(treasureCommands);
         getCommand("hunt").setTabCompleter(tabc);
 
         Bukkit.getServer().getPluginManager().registerEvents(new TreasureEvents(), this);
 
-        s.sendMessage(Utils.format( "&5Treasures: &fHooking into Vault"));
         s.sendMessage(Utils.format( "&5Treasures: &fHooking into WorldGuard"));
         getWorldGuard();
 
+        delayedHooks();
+
         Hunt.initialize();
         TreasureTask.task();
+        ActionBar.start();
 
     }
 
@@ -79,6 +78,8 @@ public class Main extends JavaPlugin {
     @Override
     public void onDisable()
     {
+
+        Treasure.removeAll();
 
     }
 
@@ -101,14 +102,10 @@ public class Main extends JavaPlugin {
     }
 
 
-    private File configf, dataf, messagesf, cooldowndsf;
+    private File configf, messagesf, cooldowndsf;
 
-    private FileConfiguration config, data, messages, cooldowns;
+    private FileConfiguration config, messages, cooldowns;
 
-    public FileConfiguration getData()
-    {
-        return data;
-    }
     public FileConfiguration getCooldownsFile()
     {
         return cooldowns;
@@ -166,7 +163,6 @@ public class Main extends JavaPlugin {
     public void createDataFiles() {
 
         configf = new File(getDataFolder(), "config.yml");
-        dataf = new File(getDataFolder(), "data.yml");
         messagesf = new File(getDataFolder(), "messages.yml");
         cooldowndsf = new File(getDataFolder(), "cooldowns.yml");
 
@@ -174,13 +170,6 @@ public class Main extends JavaPlugin {
         {
             saveDefaultConfig();
             Bukkit.getConsoleSender().sendMessage(Utils.format( "&5Treasures: &fConfig.yml &fnot found, creating."));
-        }
-
-        if (!dataf.exists())
-        {
-            dataf.getParentFile().mkdirs();
-            saveResource("data.yml", false);
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5Treasures: &fData.yml &fnot found, creating."));
         }
 
         if (!messagesf.exists())
@@ -198,14 +187,12 @@ public class Main extends JavaPlugin {
         }
 
         config = new YamlConfiguration();
-        data = new YamlConfiguration();
         messages = new YamlConfiguration();
         cooldowns = new YamlConfiguration();
 
         try {
 
             config.load(configf);
-            data.load(dataf);
             messages.load(messagesf);
             cooldowns.load(cooldowndsf);
 

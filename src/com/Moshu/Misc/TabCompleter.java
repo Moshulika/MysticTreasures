@@ -1,6 +1,7 @@
 package com.Moshu.Misc;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -58,7 +59,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
 
-        if (cmd.getName().equalsIgnoreCase("turfs")) {
+        if (cmd.getName().equalsIgnoreCase("hunt")) {
 
             if (!(sender instanceof Player)) {
 
@@ -71,26 +72,11 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
                 ArrayList<String> c = new ArrayList<>();
 
-                c.add("menu");
-                c.add("claim");
-                c.add("delete");
-                c.add("locate");
-                c.add("visualise");
-                c.add("allow");
-                c.add("remove");
-                c.add("help");
-                c.add("map");
-                c.add("flags");
-                c.add("tokens");
-                c.add("deny");
-                c.add("denied");
-
-                if(p.hasPermission("mysticturfs.admin"))
+                if(p.hasPermission("mystictreasures.admin"))
                 {
-                    c.add("admin");
-                    c.add("info");
-                    c.add("block");
+                    c.add("start");
                     c.add("reload");
+                    c.add("stop");
                 }
 
                 ArrayList<String> completions = new ArrayList<>();
@@ -101,12 +87,13 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
             if (args.length == 2) {
 
-                if (args[0].equalsIgnoreCase("allow") || args[0].equalsIgnoreCase("remove")) {
+                if (args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("stop")) {
 
                     ArrayList<String> c = new ArrayList<>();
 
-                    for (Player k : Bukkit.getOnlinePlayers()) {
-                        c.add(k.getName());
+                    for(World w : Bukkit.getWorlds())
+                    {
+                        c.add(w.getName());
                     }
 
                     ArrayList<String> completions = new ArrayList<>();
@@ -115,114 +102,6 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
                 }
 
-                if (args[0].equalsIgnoreCase("deny")) {
-
-                    ArrayList<String> c = new ArrayList<>();
-
-                    for (Player k : Bukkit.getOnlinePlayers()) {
-                        c.add(k.getName());
-                    }
-
-                    ArrayList<String> completions = new ArrayList<>();
-
-                    return StringUtil.copyPartialMatches(args[1], c, completions);
-
-                }
-
-                if (args[0].equalsIgnoreCase("locate")) {
-
-                    ArrayList<String> c = new ArrayList<>();
-
-                    for (Player k : Bukkit.getOnlinePlayers()) {
-                        c.add(k.getName());
-                    }
-
-                    ArrayList<String> completions = new ArrayList<>();
-
-                    return StringUtil.copyPartialMatches(args[1], c, completions);
-
-                }
-
-                if (args[0].equalsIgnoreCase("visualise")) {
-
-                    ArrayList<String> c = new ArrayList<>();
-
-                    c.add("all");
-
-                    ArrayList<String> completions = new ArrayList<>();
-
-                    return StringUtil.copyPartialMatches(args[1], c, completions);
-
-                }
-
-                if (args[0].equalsIgnoreCase("info")) {
-                    ArrayList<String> c = new ArrayList<>();
-
-                    for (Player k : Bukkit.getOnlinePlayers()) {
-                        c.add(k.getName());
-                    }
-
-                    ArrayList<String> completions = new ArrayList<>();
-
-                    return StringUtil.copyPartialMatches(args[1], c, completions);
-                }
-
-                if (args[0].equalsIgnoreCase("claim")) {
-
-                    ArrayList<String> c = new ArrayList<>();
-
-                    c.add("4");
-                    c.add("5");
-                    c.add("6");
-                    c.add("7");
-                    c.add("8");
-                    c.add("9");
-
-                    ArrayList<String> completions = new ArrayList<>();
-
-                    return StringUtil.copyPartialMatches(args[1], c, completions);
-
-                }
-
-                if (args[0].equalsIgnoreCase("tokens")) {
-
-                    ArrayList<String> c = new ArrayList<>();
-
-                    for (Player k : Bukkit.getOnlinePlayers()) {
-                        c.add(k.getName());
-                    }
-
-                    ArrayList<String> completions = new ArrayList<>();
-                    return StringUtil.copyPartialMatches(args[1], c, completions);
-                }
-
-
-                return empty;
-
-            }
-            if (args.length == 3) {
-                if (args[0].equalsIgnoreCase("allow") || args[0].equalsIgnoreCase("remove")) {
-
-                    ArrayList<String> c = new ArrayList<>();
-
-                    c.add("all");
-
-                    ArrayList<String> completions = new ArrayList<>();
-
-                    return StringUtil.copyPartialMatches(args[2], c, completions);
-
-                }
-
-                if (args[0].equalsIgnoreCase("tokens")) {
-                    ArrayList<String> c = new ArrayList<>();
-
-                    c.add("add");
-                    c.add("remove");
-
-                    ArrayList<String> completions = new ArrayList<>();
-
-                    return StringUtil.copyPartialMatches(args[2], c, completions);
-                }
             }
 
             return empty;
