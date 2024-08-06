@@ -74,6 +74,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
                 if(p.hasPermission("mystictreasures.admin"))
                 {
+                    c.add("help");
                     c.add("start");
                     c.add("reload");
                     c.add("stop");

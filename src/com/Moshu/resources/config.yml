@@ -23,6 +23,8 @@ settings:
       delay: 200 #In ticks
       chance-for-treasure: 20
       min-players-online: 15
+      reward-all-players-who-participated: false
+      distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
       interval: 30
       duration: 20
       cooldown: 15

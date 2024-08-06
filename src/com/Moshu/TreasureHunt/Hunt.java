@@ -120,7 +120,7 @@ public class Hunt {
 
         if(this.l == null)
         {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5Treasures: &fLocation is null, something went wrong."));
+            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lMystic&d&lTreasures: &fLocation is null, something went wrong."));
             return;
         }
 
@@ -211,7 +211,7 @@ public class Hunt {
 
         for(Hunt h : getActiveHunts())
         {
-            if(h.getWorld() == w) return true;
+            if(h.getWorld().getName().equalsIgnoreCase(w.getName())) return true;
         }
 
         return false;

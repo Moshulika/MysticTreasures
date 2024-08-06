@@ -17,7 +17,7 @@ public class Messages {
 
     public static String get(String path)
     {
-        return Utils.format(plugin.getMessages().getString("messages." + path, "Null message, check messages.yml"));
+        return Utils.format(plugin.getMessages().getString("messages." + path, "&6&lTreasure&e&lHunt &fNull message, check messages.yml for " + path + " and add it!"));
     }
 
     public static ArrayList<String> getAndFormatList(String path)

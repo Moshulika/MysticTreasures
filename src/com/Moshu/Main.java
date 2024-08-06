@@ -33,6 +33,8 @@ public class Main extends JavaPlugin {
     public static Main plugin;
     public static boolean isLoaded = false;
 
+    Updater updater = new Updater(this);
+    FilesUpdater filesUpdater = new FilesUpdater(this);
     Settings settings = new Settings(this);
     Messages messagesClass = new Messages(this);
     Utils utils = new Utils(this);
@@ -54,7 +56,7 @@ public class Main extends JavaPlugin {
                 "          __/ |                                                             \n" +
                 "         |___/                                                              \n");
 
-        s.sendMessage(Utils.format( "&5Treasures: &fEnabling plugin.."));
+        s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fEnabling plugin.."));
 
         TabCompleter tabc = new TabCompleter();
 
@@ -62,9 +64,13 @@ public class Main extends JavaPlugin {
         getCommand("hunt").setTabCompleter(tabc);
 
         Bukkit.getServer().getPluginManager().registerEvents(new TreasureEvents(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(updater, this);
 
-        s.sendMessage(Utils.format( "&5Treasures: &fHooking into WorldGuard"));
+        s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fHooking into WorldGuard"));
         getWorldGuard();
+
+        createDataFiles();
+        FilesUpdater.update();
 
         delayedHooks();
 
@@ -91,10 +97,8 @@ public class Main extends JavaPlugin {
 
             CommandSender s = Bukkit.getConsoleSender();
 
-            s.sendMessage(Utils.format( "&5Treasures: &fStarting post-load setup"));
-            s.sendMessage(" ");
-
-            createDataFiles();
+            s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fStarting post-load setup"));
+            updater.check();
 
         }, 1);
 
@@ -114,6 +118,11 @@ public class Main extends JavaPlugin {
     public FileConfiguration getMessages()
     {
         return messages;
+    }
+
+    public FileConfiguration getConfigFile()
+    {
+        return config;
     }
 
     /**
@@ -169,21 +178,21 @@ public class Main extends JavaPlugin {
         if (!configf.exists())
         {
             saveDefaultConfig();
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5Treasures: &fConfig.yml &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fConfig.yml &fnot found, creating."));
         }
 
         if (!messagesf.exists())
         {
             messagesf.getParentFile().mkdirs();
             saveResource("messages.yml", false);
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5Treasures: &fMessages.yml &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fMessages.yml &fnot found, creating."));
         }
 
         if(!cooldowndsf.exists())
         {
             cooldowndsf.getParentFile().mkdirs();
             saveResource("cooldowns.yml", false);
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5Treasures: &fCooldowns.yml &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fCooldowns.yml &fnot found, creating."));
         }
 
         config = new YamlConfiguration();

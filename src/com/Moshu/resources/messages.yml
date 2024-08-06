@@ -1,6 +1,6 @@
 messages:
   no-permission: "&6&lTreasure&e&lHunt &fYou don't have permission to use this command."
-  wrong-command: "&6&lTreasure&e&lHunt &fWrong command! Try using /hunt start or stop (World)"
+  wrong-command: "&6&lTreasure&e&lHunt &fWrong command! Run &6/hunt help &ffor more info."
   inexistent-world: "&6&lTreasure&e&lHunt &fHunts are not enabled in this world"
   hunt-already-active: "&6&lTreasure&e&lHunt &fThere is already a hunt active in this world"
   hunt-not-active: "&6&lTreasure&e&lHunt &fThere is no hunt active at the moment"
@@ -18,6 +18,8 @@ messages:
   winner-console: "&6&lTreasure&e&lHunt &f{player} has claimed the treasure @ X: {x}, Z: {z}"
   winner-message: "&6&lTreasure&e&lHunt &fSweet! The treasure is all yours"
   winner-cooldown: "&6&lTreasure&e&lHunt &fYou need to wait {time} before claiming another treasure"
+  config-reload: "&6&lTreasure&e&lHunt &fConfig reloaded!"
+  participating: "&6&lTreasure&e&lHunt &fYou are now participating in this TreasureHunt!"
   winner-broadcast:
     - ""
     - "&6&lTreasure &e&lHunt"

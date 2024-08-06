@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +20,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -58,7 +60,15 @@ public class TreasureEvents implements Listener {
 
                     if (t.mobsCleared()) {
 
-                        t.awardPrize(e.getPlayer());
+                        if(Settings.getWorldBooleanUnknown(worldName, "reward-all-players-who-participated"))
+                        {
+                            t.awardPrizes();
+                        }
+                        else
+                        {
+                            t.awardPrize(e.getPlayer());
+                        }
+
                         t.remove();
 
                         Utils.sendLevelupSound(p);
@@ -79,7 +89,16 @@ public class TreasureEvents implements Listener {
                 else
                 {
                     Treasure t = Treasure.getTreasure(l);
-                    t.awardPrize(e.getPlayer());
+
+                    if(Settings.getWorldBooleanUnknown(worldName, "reward-all-players-who-participated"))
+                    {
+                        t.awardPrizes();
+                    }
+                    else
+                    {
+                        t.awardPrize(e.getPlayer());
+                    }
+
                     t.remove();
 
                     Utils.sendLevelupSound(p);
@@ -176,7 +195,7 @@ public class TreasureEvents implements Listener {
 
         if (Hunt.isActive(e.getEntity().getWorld())) {
 
-            if (e.getDamager() instanceof Player) {
+            if (e.getDamager() instanceof Player attacker) {
 
                 if (e.getEntity() instanceof Player p) {
 
@@ -195,6 +214,24 @@ public class TreasureEvents implements Listener {
 
 
                 }
+                else if(e.getEntity() instanceof LivingEntity victim)
+                {
+
+                    if(e.getFinalDamage() >= victim.getHealth())
+                    {
+
+                        Hunt h = Hunt.getHunt(victim.getWorld());
+
+                        if (h.getTreasure().isTreasureKeeper(victim)) {
+
+                            h.getTreasure().addParticipant(attacker);
+                            attacker.sendMessage(Messages.get("participating"));
+
+                        }
+                    }
+
+                }
+
             }
         }
 
@@ -287,7 +324,16 @@ public class TreasureEvents implements Listener {
 
                                 if (t.mobsCleared()) {
 
-                                    t.awardPrize(e.getPlayer());
+
+                                    if(Settings.getWorldBooleanUnknown(worldName, "reward-all-players-who-participated"))
+                                    {
+                                        t.awardPrizes();
+                                    }
+                                    else
+                                    {
+                                        t.awardPrize(e.getPlayer());
+                                    }
+
                                     t.remove();
 
                                     Utils.sendLevelupSound(p);
@@ -303,8 +349,18 @@ public class TreasureEvents implements Listener {
                                 }
 
                             } else {
+
                                 Treasure t = Treasure.getTreasure(l);
-                                t.awardPrize(e.getPlayer());
+
+                                if(Settings.getWorldBooleanUnknown(worldName, "reward-all-players-who-participated"))
+                                {
+                                    t.awardPrizes();
+                                }
+                                else
+                                {
+                                    t.awardPrize(e.getPlayer());
+                                }
+
                                 t.remove();
 
                                 Utils.sendLevelupSound(p);

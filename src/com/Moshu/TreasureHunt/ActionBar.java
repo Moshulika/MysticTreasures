@@ -37,12 +37,15 @@ public class ActionBar {
 
                     w = p.getWorld();
 
-                    if(Hunt.isActive(w))
+                    if(Hunt.isActive(w) && Hunt.getHunt(w) != null &&
+                            Hunt.getHunt(w).getTreasure() != null &&
+                            Hunt.getHunt(w).getTreasure().isActive())
                     {
 
                         if(Hunt.getHunt(w) == null) break;
 
-                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar").replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
+                                .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
                                 .replace("{x}", Hunt.getHunt(w).getLocation().getBlockX() + "")
                                 .replace("{z}", Hunt.getHunt(w).getLocation().getBlockZ() + "")));
                     }
