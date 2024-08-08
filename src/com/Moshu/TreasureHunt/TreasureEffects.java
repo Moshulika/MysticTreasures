@@ -52,9 +52,6 @@ public class TreasureEffects {
 
         BukkitRunnable run = new BukkitRunnable() {
 
-            String effect;
-            int mul;
-
             World w;
             Hunt h;
             int distance;
@@ -75,9 +72,14 @@ public class TreasureEffects {
 
                             if(p.getLocation().distance(h.getLocation()) <= distance) {
 
-                                for(PotionEffect effect : effects) {
-                                    p.addPotionEffect(effect);
-                                }
+                                Bukkit.getScheduler().runTask(plugin, ()->
+                                {
+
+                                    for(PotionEffect effect : effects) {
+                                        p.addPotionEffect(effect);
+                                    }
+
+                                });
 
                             }
 

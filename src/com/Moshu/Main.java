@@ -63,6 +63,10 @@ public class Main extends JavaPlugin {
         createDataFiles();
         FilesUpdater.update();
 
+        if(Utils.isEnabled("PlaceholderAPI")) {
+            new Placeholders().register();
+        }
+
         delayedHooks();
 
         TreasureEffects.check();

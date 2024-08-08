@@ -256,6 +256,20 @@ public class Treasure {
         return true;
     }
 
+    public int remainingMobs()
+    {
+
+        int i = 0;
+
+        for(Entity e : spawnEntities)
+        {
+            i++;
+        }
+
+        return i;
+
+    }
+
     public void spawnMobs()
     {
 
