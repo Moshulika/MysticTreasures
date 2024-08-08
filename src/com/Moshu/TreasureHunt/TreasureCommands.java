@@ -87,12 +87,13 @@ public class TreasureCommands implements CommandExecutor {
 
                         World w = p.getWorld();
 
-                        if(Hunt.isActive(w))
+                        if(Hunt.isActive(w) || Hunt.huntStarting(w))
                         {
                             sender.sendMessage(Messages.get("hunt-already-active"));
                             return true;
                         }
 
+                        Hunt.addHunt(w);
                         Hunt h = new Hunt(w, Settings.getWorldIntUnknown(w.getName(), "duration"));
                         sender.sendMessage(Messages.get("generating-treasure"));
 
@@ -196,12 +197,13 @@ public class TreasureCommands implements CommandExecutor {
 
                             World w = p.getWorld();
 
-                            if(Hunt.isActive(w))
+                            if(Hunt.isActive(w) || Hunt.huntStarting(w))
                             {
                                 sender.sendMessage(Messages.get("hunt-already-active"));
                                 return true;
                             }
 
+                            Hunt.addHunt(w);
                             Hunt h = new Hunt(p.getLocation(), Settings.getWorldIntUnknown(w.getName(), "duration"));
                             sender.sendMessage(Messages.get("generating-treasure"));
 
@@ -221,12 +223,13 @@ public class TreasureCommands implements CommandExecutor {
                         return true;
                     }
 
-                    if(Hunt.isActive(w))
+                    if(Hunt.isActive(w) || Hunt.huntStarting(w))
                     {
                         sender.sendMessage(Messages.get("hunt-already-active"));
                         return true;
                     }
 
+                    Hunt.addHunt(w);
                     Hunt h = new Hunt(w, Settings.getWorldIntUnknown(w.getName(), "duration"));
                     sender.sendMessage(Messages.get("generating-treasure"));
 

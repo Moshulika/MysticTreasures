@@ -40,6 +40,7 @@ public class Updater implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
+
         if (event.getPlayer().hasPermission("mystictreasures.admin")) {
 
             if (isAvailable) {
@@ -56,6 +57,7 @@ public class Updater implements Listener {
     }
 
     private boolean checkUpdate() {
+
         Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fChecking for updates.."));
 
         try {
@@ -75,12 +77,14 @@ public class Updater implements Listener {
             {
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fAn update is ready for you:"));
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&fhttps://www.spigotmc.org/resources/mystic-treasures-animated-feature-packed-and-lightweight.118535/updates"));
+                Bukkit.getConsoleSender().sendMessage(Utils.format("&5Your version: &f" + localVersion + "&5, remote version: &f" + remoteVersion));
+
                 return true;
             }
             else
             {
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fYour version is up to date"));
-                return true;
+                return false;
             }
 
         } catch (IOException e)

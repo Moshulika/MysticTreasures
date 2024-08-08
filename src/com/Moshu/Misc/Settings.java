@@ -77,6 +77,19 @@ public class Settings {
 
     }
 
+    public static Particle getCompatParticle(String setting) {
+
+
+        try {
+            return Particle.valueOf(plugin.getConfig().getString("settings.effects-particles." + setting, "COMPOSTER"));
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not get Particle " + setting);
+        }
+
+        return Particle.CRIT;
+
+    }
+
     public static Particle getWorldParticleUnknown(String world, String setting)
     {
 

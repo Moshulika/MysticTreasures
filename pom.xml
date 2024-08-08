@@ -6,7 +6,7 @@
 
     <groupId>com.Moshu.MysticTreasures</groupId>
     <artifactId>MysticTreasures</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -99,10 +99,6 @@
                 </executions>
             </plugin>
 
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-
         </plugins>
 
     </build>
@@ -147,6 +143,20 @@
     <dependencies>
 
         <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v1.18</artifactId>
+            <version>2.85.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.7.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
             <version>1.21-R0.1-SNAPSHOT</version>
@@ -187,20 +197,6 @@
             <artifactId>Mythic-Dist</artifactId>
             <version>5.6.1</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.seeseemelk</groupId>
-            <artifactId>MockBukkit-v1.16</artifactId>
-            <version>1.5.2</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>5.9.3</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>

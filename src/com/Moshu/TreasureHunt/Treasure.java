@@ -7,6 +7,7 @@ import eu.decentsoftware.holograms.api.holograms.Hologram;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
+import io.lumine.mythic.bukkit.utils.lib.jooq.impl.QOM;
 import io.lumine.mythic.core.mobs.ActiveMob;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -35,6 +36,11 @@ public class Treasure {
     private boolean isactive;
 
     private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+
+    private static final Particle EXPLOSION = Settings.getCompatParticle("treasure-spawn-particle");
+    private static final Particle EXPLOSION_EMITTER = Settings.getCompatParticle("treasure-remove-particle");
+    private static final Particle CAMPFIRE_SIGNAL_SMOKE = Settings.getCompatParticle("treasure-fall-particle");
+
 
     Treasure(Hunt h, ArrayList<ItemStack> items)
     {
@@ -417,13 +423,21 @@ public class Treasure {
         Bukkit.getScheduler().runTask(plugin, () ->
         {
             
-            Location location = getLocation().clone();
-            World w = location.getWorld();
+            Location temp_location = getLocation().clone();
+            Location location;
+            World w = temp_location.getWorld();
 
             Material mat = Settings.getWorldMaterialUnknown(w.getName(), "treasure-block");
             Particle part = Settings.getWorldParticleUnknown(w.getName(), "treasure-particles");
 
             int distance_to_spawn = Settings.getWorldIntUnknown(w.getName(), "distance-from-player-to-spawn-mobs");
+
+            if(temp_location.getBlock().getType().isSolid())
+            {
+                location = temp_location.clone().add(0, 1, 0);
+                this.l = location;
+            }
+            else location = temp_location.clone();
 
             location.getBlock().setType(mat);
             location.getWorld().playEffect(location, Effect.STEP_SOUND, Material.DIRT);
@@ -440,97 +454,107 @@ public class Treasure {
 
             this.isactive = true;
             
-            BukkitRunnable run = new BukkitRunnable() {
-
-                boolean spawned = false;
-
-                @Override
-                public void run() {
-
-                    try {
-
-                        if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - h.getStartTime()) >= h.getDuration()) {
-                            Bukkit.getScheduler().runTask(plugin, () -> remove());
-                        }
-
-                        if (location.getBlock().getType() == mat) {
-
-                            w.spawnParticle(part, Utils.getParticleLocation(location), 3);
-                            w.spawnParticle(part, Utils.getParticleLocation(location), 3);
-
-                            if (Utils.isEnabled("DecentHolograms")) {
-
-                                if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
-
-                                    Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
-
-                                    ArrayList<String> lines = new ArrayList<>();
-
-                                    for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
-                                        lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime())));
-                                    }
-
-                                    DHAPI.setHologramLines(h, lines);
-                                    h.updateAll();
-
-                                }
-
-                            }
-
-                            if(distance_to_spawn > 0 && !Utils.getNearbyPlayers(location, distance_to_spawn).isEmpty() && !spawned) {
-                                Bukkit.getScheduler().runTaskLater(plugin, () ->
-                                {
-                                    spawnMobs();
-                                    spawned = true;
-                                }, 1);
-                            }
-
-
-                        } else {
-                            Hunt.getHunts().remove(h);
-                            Bukkit.getScheduler().runTask(plugin, () -> l.getChunk().setForceLoaded(false));
-                            this.cancel();
-                        }
-
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                }
-
-            };
-
-            run.runTaskTimerAsynchronously(plugin, 0, 5);
-
-            SendCenteredMessage scm = new SendCenteredMessage();
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
-            {
-
-                for (Player p : Bukkit.getOnlinePlayers()) {
-
-                    for (String s : Messages.getAndFormatList("messages.hunt-message")) {
-                        scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
-                                .replace("{z}", h.getLocation().getBlockZ() + "")
-                                .replace("{world}", h.getWorld() + "")
-                                .replace("{duration}", h.getDuration() + ""));
-                    }
-
-                }
-
-            });
+            tickTreasure(location, mat, part, distance_to_spawn);
+            announceSpawnedTreasure();
 
         });
 
 
     }
 
-    public void create() {
+    private void tickTreasure(Location location, Material mat, Particle part, int distance_to_spawn)
+    {
 
-        Location location = getLocation().clone();
         World w = location.getWorld();
-        int delay = Settings.getWorldIntUnknown(w.getName(), "delay");
 
+        BukkitRunnable run = new BukkitRunnable() {
+
+            boolean spawned = false;
+
+            @Override
+            public void run() {
+
+                try {
+
+                    if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - h.getStartTime()) >= h.getDuration()) {
+                        Bukkit.getScheduler().runTask(plugin, () -> remove());
+                    }
+
+                    if (location.getBlock().getType() == mat) {
+
+                        w.spawnParticle(part, Utils.getParticleLocation(location), 3);
+                        w.spawnParticle(part, Utils.getParticleLocation(location), 3);
+
+                        if (Utils.isEnabled("DecentHolograms")) {
+
+                            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
+
+                                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
+
+                                ArrayList<String> lines = new ArrayList<>();
+
+                                for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
+                                    lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime())));
+                                }
+
+                                DHAPI.setHologramLines(h, lines);
+                                h.updateAll();
+
+                            }
+
+                        }
+
+                        if(distance_to_spawn > 0 && !Utils.getNearbyPlayers(location, distance_to_spawn).isEmpty() && !spawned) {
+                            Bukkit.getScheduler().runTaskLater(plugin, () ->
+                            {
+                                spawnMobs();
+                                spawned = true;
+                            }, 1);
+                        }
+
+
+                    } else {
+                        Hunt.getHunts().remove(h);
+                        Bukkit.getScheduler().runTask(plugin, () -> l.getChunk().setForceLoaded(false));
+                        this.cancel();
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+        };
+
+        run.runTaskTimerAsynchronously(plugin, 0, 5);
+    }
+
+    private void announceSpawnedTreasure()
+    {
+
+        SendCenteredMessage scm = new SendCenteredMessage();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
+        {
+
+            for (Player p : Bukkit.getOnlinePlayers()) {
+
+                for (String s : Messages.getAndFormatList("messages.hunt-message")) {
+                    scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
+                            .replace("{z}", h.getLocation().getBlockZ() + "")
+                            .replace("{world}", h.getWorld() + "")
+                            .replace("{duration}", h.getDuration() + ""));
+                }
+
+            }
+
+        });
+
+    }
+
+    private void announceUpcomingTreasure(int delay)
+    {
         if(delay > 0)
         {
 
@@ -540,14 +564,58 @@ public class Treasure {
             {
 
                 for (String s : Messages.getAndFormatList("messages.announce-treasure")) {
-                    scm.sendCenteredMessage(p, s.replace("{x}", location.getBlockX() + "")
-                            .replace("{z}", location.getBlockZ() + "")
-                            .replace("{world}", w + "")
+                    scm.sendCenteredMessage(p, s.replace("{x}", getLocation().getBlockX() + "")
+                            .replace("{z}", getLocation().getBlockZ() + "")
+                            .replace("{world}", getLocation().getWorld().getName() + "")
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
             }
         }
+    }
+
+    private void runAnimation(Location location, Material mat)
+    {
+
+        ArmorStand animation = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
+
+        animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
+        animation.setBasePlate(false);
+        animation.setHelmet(new ItemStack(mat));
+        animation.setInvulnerable(true);
+        animation.setVisible(false);
+
+        BukkitRunnable run_falling_particles = new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                if(animation.isOnGround())
+                {
+
+                    Bukkit.getScheduler().runTask(plugin, animation::remove);
+                    location.getWorld().spawnParticle(EXPLOSION, animation.getLocation(), 1);
+
+                    spawnTreasure();
+                    this.cancel();
+                    return;
+                }
+
+                location.getWorld().spawnParticle(CAMPFIRE_SIGNAL_SMOKE, animation.getLocation().add(0, 3, 0), 1);
+
+            }
+        };
+
+        run_falling_particles.runTaskTimerAsynchronously(plugin, 0, 1);
+    }
+
+    public void create() {
+
+        Location location = getLocation().clone();
+        World w = location.getWorld();
+        int delay = Settings.getWorldIntUnknown(w.getName(), "delay");
+
+        announceUpcomingTreasure(delay);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->
         {
@@ -556,39 +624,7 @@ public class Treasure {
             location.getChunk().setForceLoaded(true);
 
             Material mat = Settings.getWorldMaterialUnknown(w.getName(), "treasure-block");
-
-            ArmorStand animation = (ArmorStand) l.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
-
-            animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1));
-            animation.setBasePlate(false);
-            animation.setHelmet(new ItemStack(mat));
-            animation.setInvulnerable(true);
-            animation.setVisible(false);
-
-            BukkitRunnable run_falling_particles = new BukkitRunnable() {
-
-                @Override
-                public void run() {
-
-                    //Cand a ajuns jos sa spawneze chestu automat
-                    if(animation.isOnGround())
-                    {
-
-                        Bukkit.getScheduler().runTask(plugin, animation::remove);
-
-                        w.spawnParticle(Particle.EXPLOSION, animation.getLocation(), 1);
-
-                        spawnTreasure();
-                        this.cancel();
-                        return;
-                    }
-
-                    w.spawnParticle(Particle.CAMPFIRE_SIGNAL_SMOKE, animation.getLocation().add(0, 3, 0), 1);
-
-                }
-            };
-
-            run_falling_particles.runTaskTimerAsynchronously(plugin, 0, 1);
+            runAnimation(location, mat);
 
         },  Math.abs(delay));
 
@@ -784,7 +820,18 @@ public class Treasure {
     public void remove()
     {
         getLocation().getBlock().setType(Material.AIR);
-        getLocation().getWorld().spawnParticle(Particle.EXPLOSION_EMITTER, getLocation(), 3);
+
+        try
+        {
+            Particle explosion = Particle.valueOf(plugin.getConfig().getString("settings.effects-particles.treasure-remove-particle", "EXPLOSION_EMITTER"));
+            getLocation().getWorld().spawnParticle(explosion, getLocation(), 3);
+
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().log(Level.SEVERE, "Invalid particle for explosion!");
+        }
+
         getLocation().getWorld().strikeLightning(getLocation());
 
         if(Utils.isEnabled("DecentHolograms"))
@@ -874,14 +921,19 @@ public class Treasure {
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&aAncient Treasure"));
         itm.setItemMeta(meta);
 
-        Item i = l.getWorld().dropItem(l, itm);
+        Bukkit.getScheduler().runTask(plugin, ()->
+        {
 
-        i.setVelocity(new Vector(0, 0, 0));
-        i.setInvulnerable(true);
-        i.setPickupDelay(32767);
-        i.setCustomName(Messages.get("treasure-icon-text"));
-        i.setCustomNameVisible(true);
-        i.setPersistent(true);
+            Item i = l.getWorld().dropItem(l, itm);
+
+            i.setVelocity(new Vector(0, 0, 0));
+            i.setInvulnerable(true);
+            i.setPickupDelay(32767);
+            i.setCustomName(Messages.get("treasure-icon-text"));
+            i.setCustomNameVisible(true);
+            i.setPersistent(true);
+
+        });
 
     }
 

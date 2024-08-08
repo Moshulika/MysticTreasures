@@ -32,10 +32,16 @@ public class Locations {
     static
     {
 
+        String x;
+
         for(Biome b : Biome.values())
         {
 
-            if(b.toString().contains("OCEAN") || b.toString().contains("RIVER") || b.toString().contains("SNOW"))
+            x = b.toString().toUpperCase();
+
+            if(x.contains("OCEAN") ||
+                    x.contains("RIVER") ||
+                    x.contains("SNOW"))
             {
                 blacklist.add(b);
             }
@@ -171,7 +177,10 @@ public class Locations {
 
         loc2 = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ());
 
-        return loc.getWorld().getBlockAt(loc2).isLiquid() || loc.getWorld().getBlockAt(loc2).getType() == Material.WATER;
+        return loc.getWorld().getBlockAt(loc2).isLiquid() ||
+                loc.getWorld().getBlockAt(loc2).getType() == Material.WATER ||
+                loc.getBlock().isLiquid() ||
+                loc.getBlock().getType() == Material.WATER;
 
     }
 
@@ -209,6 +218,7 @@ public class Locations {
     {
 
         return  isInBorder(loc) &&
+                !isInRegion(loc) &&
                 !blacklistedBiome(loc) &&
                 !isLeaves(loc) &&
                 !isLiquidUnder(loc) &&
@@ -301,7 +311,14 @@ public class Locations {
 
         if(!Utils.isEnabled("ChunkyBorder"))
         {
-            return true;
+
+            int max_distance = Settings.getWorldIntUnknown(l.getWorld().getName(), "max-treasure-distance") - 10;
+            double world_border = l.getWorld().getWorldBorder().getSize() - 10;
+
+            if(l.getX() >= max_distance || l.getZ() >= max_distance) return false;
+            else if(l.getX() >= world_border || l.getZ() >= world_border) return false;
+            else return true;
+
         }
 
 
@@ -330,12 +347,12 @@ public class Locations {
 
     }
 
-    private final static int defaultborder = 15000;
 
-    public static int getBorder(org.bukkit.World w) {
+    public static double getBorder(org.bukkit.World w) {
+
+        double defaultborder = w.getWorldBorder().getSize();
 
         if (!Utils.isEnabled("ChunkyBorder")) {
-            Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&c&lError: &fChunkyBorder is not installed, /wild will not work."));
             return defaultborder;
         }
 
@@ -368,7 +385,7 @@ public class Locations {
      * @param distance the distance from the center of the world
      * @return the safe location
      */
-    public static Location getRandomLocationMoreThan(org.bukkit.World w, int distance, int min) {
+    public static Location getRandomLocationMoreThan(org.bukkit.World w, double distance, int min) {
 
         Location loc = Utils.randomCoordonatesMoreThan(w, distance, min);
 

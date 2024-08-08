@@ -9,6 +9,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -18,10 +19,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -110,6 +108,8 @@ public class TreasureEvents implements Listener {
 
                 if (Treasure.isNearTreasure(e.getPlayer())) {
 
+                    if(e.getPlayer().hasPermission("mystictreasures.bypass")) return;
+
                     e.setCancelled(true);
                     e.getPlayer().sendMessage(Messages.get("cannot-break-near-treasure"));
 
@@ -128,6 +128,8 @@ public class TreasureEvents implements Listener {
 
             if (Treasure.isNearTreasure(e.getPlayer())) {
 
+                if(e.getPlayer().hasPermission("mystictreasures.bypass")) return;
+
                 e.setCancelled(true);
                 e.getPlayer().sendMessage(Messages.get("cannot-place-near-treasure"));
             }
@@ -144,6 +146,8 @@ public class TreasureEvents implements Listener {
 
 
             if (Treasure.isNearTreasure(e.getPlayer())) {
+
+                if(e.getPlayer().hasPermission("mystictreasures.bypass")) return;
 
                 e.setCancelled(true);
                 e.getPlayer().sendMessage(Messages.get("cannot-place-near-treasure"));
@@ -200,6 +204,8 @@ public class TreasureEvents implements Listener {
                 if (e.getEntity() instanceof Player p) {
 
                     if (Treasure.isNearTreasure(p)) {
+
+                        if(attacker.hasPermission("mystictreasures.bypass")) return;
 
                         if(!Settings.getWorldBooleanUnknown(p.getWorld().getName(), "allow-pvp-near-treasure")) {
 
@@ -282,6 +288,50 @@ public class TreasureEvents implements Listener {
 
                 }
 
+
+            }
+
+        }
+
+    }
+
+    @EventHandler
+    public void onCombust(EntityCombustEvent e) {
+
+        if(Hunt.isActive(e.getEntity().getWorld())) {
+
+            if(e.getEntity() instanceof LivingEntity en)
+            {
+
+                if(en.getLastDamageCause() != null) {
+
+                    if (en.getLastDamageCause().getDamageSource().getCausingEntity() != null) {
+
+                        if (en.getLastDamageCause().getDamageSource().getCausingEntity() instanceof Player p) {
+
+                            if (p.getInventory().getItemInMainHand().containsEnchantment(Enchantment.FIRE_ASPECT))
+                                return;
+
+                        }
+
+                    }
+
+                }
+
+                Hunt h = Hunt.getHunt(en.getWorld());
+
+                if(h.getTreasure().isTreasureKeeper(en)) {
+
+                    boolean combust = Settings.getWorldBooleanUnknown(en.getWorld().getName(), "protect-mobs-from-sun");
+
+                    if(combust) {
+
+                        e.setCancelled(true);
+                        en.setFireTicks(0);
+                        en.setVisualFire(false);
+
+                    }
+                }
 
             }
 

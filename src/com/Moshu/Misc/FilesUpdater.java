@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class FilesUpdater {
 
@@ -31,6 +32,45 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".reward-all-players-who-participated", false);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".potion-effect-radius") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".potion-effect-radius", 20);
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".max-treasure-distance") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".max-treasure-distance", 15000);
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".protect-mobs-from-sun") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".protect-mobs-from-sun", true);
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".potion-effects") == null)
+            {
+
+                ArrayList<String> list = new ArrayList<String>();;
+                list.add("REGENERATION:1");
+
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".potion-effects", list);
+            }
+
+        }
+
+        if(plugin.getConfigFile().get("settings.effects-particles.dust") == null)
+        {
+            plugin.getConfigFile().set("settings.effects-particles.dust", "DUST");
+            plugin.getConfigFile().set("settings.effects-particles.wax_off", "WAX_OFF");
+            plugin.getConfigFile().set("settings.effects-particles.soul", "SOUL");
+            plugin.getConfigFile().set("settings.effects-particles.soul-fire-flame", "SOUL_FIRE_FLAME");
+            plugin.getConfigFile().set("settings.effects-particles.warped-spore", "WARPED_SPORE");
+            plugin.getConfigFile().set("settings.effects-particles.crit", "CRIT");
+            plugin.getConfigFile().set("settings.effects-particles.lava", "LAVA");
+            plugin.getConfigFile().set("settings.effects-particles.flame", "FLAME");
+            plugin.getConfigFile().set("settings.effects-particles.treasure-spawn-particle", "EXPLOSION");
+            plugin.getConfigFile().set("settings.effects-particles.treasure-fall-particle", "CAMPFIRE_SIGNAL_SMOKE");
+            plugin.getConfigFile().set("settings.effects-particles.treasure-remove-particle", "EXPLOSION_EMITTER");
         }
 
         if(plugin.getMessages().get("messages.config-reload") == null)

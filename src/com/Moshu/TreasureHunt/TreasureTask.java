@@ -30,34 +30,35 @@ public class TreasureTask {
         {
 
             delay = ThreadLocalRandom.current().nextInt(200, 1200);
+            World w = Bukkit.getWorld(Settings.getWorldString(s, "world-name"));
+
+            if(w == null)
+            {
+                plugin.getLogger().log(Level.SEVERE, "Invalid world name: " + w.getName());
+                return;
+            }
 
             BukkitRunnable run = new BukkitRunnable()
             {
 
-                World w;
-
                 @Override
                 public void run() {
 
-                    if(Bukkit.getOnlinePlayers().size() < Settings.getWorldInt(s, "min-players-online")) return;
+                    String worldName = w.getName();
+
+                    if(Bukkit.getOnlinePlayers().size() < Settings.getWorldIntUnknown(worldName, "min-players-online")) return;
 
                     int chance = Utils.chance();
 
-                    if(chance < Settings.getWorldInt(s, "chance-for-treasure"))
+                    if(chance < Settings.getWorldIntUnknown(worldName, "chance-for-treasure"))
                     {
-                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < Settings.getWorldInt(s, "cooldown")) return;
-
-                        w = Bukkit.getWorld(Settings.getWorldString(s, "world-name"));
-
-                        if(w == null)
-                        {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid world name: " + Settings.getWorldString(s, "world-name"));
-                            return;
-                        }
+                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < Settings.getWorldIntUnknown(worldName, "cooldown")) return;
 
                         if(Hunt.isActive(w)) return;
+                        if(Hunt.huntStarting(w)) return;
 
-                        Hunt h = new Hunt(w, Settings.getWorldIntUnknown(s, "duration"));
+                        Hunt.addHunt(w);
+                        Hunt h = new Hunt(w, Settings.getWorldIntUnknown(worldName, "duration"));
 
                         BukkitRunnable run = new BukkitRunnable()
                         {
@@ -81,7 +82,7 @@ public class TreasureTask {
                 }
             };
 
-            run.runTaskTimer(plugin, delay, (long) Settings.getWorldInt(s, "chance-for-treasure") * 1200);
+            run.runTaskTimer(plugin, delay, (long) Settings.getWorldIntUnknown(w.getName(), "interval") * 1200);
 
         }
 

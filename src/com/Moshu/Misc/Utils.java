@@ -857,30 +857,6 @@ public class Utils
         return 0.0D;
     }
 
-    /**
-     * Spawns fireworks at the specified location
-     * @param location the location
-     * @param amount how many fireworks are spawned
-     */
-    public static void spawnFireworks(Location location, int amount)
-    {
-
-        Location loc = location;
-        Firework fw = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK_ROCKET);
-        FireworkMeta fwm = fw.getFireworkMeta();
-
-        fw.setMetadata("christmas", new FixedMetadataValue(plugin, "chirstmas"));
-
-        fwm.setPower(1);
-        fwm.addEffect(FireworkEffect.builder().withColor(Color.RED, Color.WHITE, Color.GREEN).build());
-        fw.setFireworkMeta(fwm);
-        fw.detonate();
-
-        for (int i = 0; i < amount; i++) {
-            Firework fw2 = (Firework) loc.getWorld().spawnEntity(loc, EntityType.FIREWORK_ROCKET);
-            fw2.setFireworkMeta(fwm);
-        }
-    }
 
 
     public static Map<Player, String> playerjobs = new HashMap<>();
@@ -1510,21 +1486,6 @@ public class Utils
         return minutes + ":" + seconds;
     }
 
-    public static void hideAttributes(ItemStack is)
-    {
-
-        ItemMeta im = is.getItemMeta();
-        im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        im.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
-        im.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        im.addItemFlags(ItemFlag.HIDE_DESTROYS);
-        im.addItemFlags(ItemFlag.HIDE_DYE);
-        im.addItemFlags(ItemFlag.HIDE_PLACED_ON);
-        im.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
-        is.setItemMeta(im);
-
-    }
-
     /**
      * @hidden
      */
@@ -1801,6 +1762,18 @@ public class Utils
 
     }
 
+    public static void trySpawningParticle(Location location, Particle p)
+    {
+        try
+        {
+            location.getWorld().spawnParticle(p, location.clone().add(0, 3, 0), 1);
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().log(Level.SEVERE, "Invalid particle for falling treasure!");
+        }
+    }
+
     /**
      *
      * @param world, world to teleport into
@@ -1808,7 +1781,7 @@ public class Utils
      * @return the highest block at a locations
      */
 
-    public static Location randomCoordonatesMoreThan(World world, int max, int min)
+    public static Location randomCoordonatesMoreThan(World world, double max, int min)
     {
 
         int x = (int) (Math.random() * max + 1);
@@ -1821,106 +1794,6 @@ public class Utils
         }
 
         return getHighestBlock(world, x, z, world.getSpawnLocation());
-    }
-
-    /**
-     * Equips the armor found in the player's inventory, if he has any
-     * @param p the player
-     */
-    public static void equipArmor(Player p)
-    {
-
-        PlayerInventory inv = p.getInventory();
-
-        for(ItemStack i : inv.getContents())
-        {
-
-            if(i == null || i.getType() == Material.AIR) continue;
-
-            if(i.getType().name().endsWith("_HELMET"))
-            {
-                if(inv.getHelmet() != null) continue;
-
-                inv.setHelmet(i);
-                inv.remove(i);
-            }
-
-            if(i.getType().name().endsWith("_BOOTS"))
-            {
-
-                if(inv.getBoots() != null) continue;
-
-                inv.setBoots(i);
-                inv.remove(i);
-            }
-
-            if(i.getType().name().endsWith("_CHESTPLATE"))
-            {
-                if(inv.getChestplate() != null) continue;
-
-                inv.setChestplate(i);
-                inv.remove(i);
-            }
-
-            if(i.getType().name().endsWith("_LEGGINGS"))
-            {
-                if(inv.getLeggings() != null) continue;
-
-                inv.setLeggings(i);
-                inv.remove(i);
-            }
-
-        }
-
-    }
-
-    /**
-     * Attetion! If the array contains the player inventory's contents
-     * the items will be duplicated, see equipArmor(Player) for non duped items
-     * @param p the player
-     * @param is the items that he is gonna equip
-     */
-    public static void equipArmor(Player p, ItemStack[] is)
-    {
-
-        PlayerInventory inv = p.getInventory();
-
-        for(ItemStack i : is)
-        {
-
-            if(i == null || i.getType() == Material.AIR) continue;
-
-            if(i.getType().name().endsWith("_HELMET"))
-            {
-                if(inv.getHelmet() != null) continue;
-
-                inv.setHelmet(i);
-            }
-
-            if(i.getType().name().endsWith("_BOOTS"))
-            {
-
-                if(inv.getBoots() != null) continue;
-
-                inv.setBoots(i);
-            }
-
-            if(i.getType().name().endsWith("_CHESTPLATE"))
-            {
-                if(inv.getChestplate() != null) continue;
-
-                inv.setChestplate(i);
-            }
-
-            if(i.getType().name().endsWith("_LEGGINGS"))
-            {
-                if(inv.getLeggings() != null) continue;
-
-                inv.setLeggings(i);
-            }
-
-        }
-
     }
 
 

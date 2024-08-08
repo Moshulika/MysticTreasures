@@ -9,8 +9,6 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -18,13 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-
-
-/**
- *
- * TODO: Messages
- *
- */
 
 public class Main extends JavaPlugin {
 
@@ -73,6 +64,8 @@ public class Main extends JavaPlugin {
         FilesUpdater.update();
 
         delayedHooks();
+
+        TreasureEffects.check();
 
         Hunt.initialize();
         TreasureTask.task();

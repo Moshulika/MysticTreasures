@@ -2,6 +2,7 @@ package com.Moshu.TreasureHunt;
 
 import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Messages;
+import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
@@ -26,6 +27,22 @@ public class Hunt {
 
     private static HashMap<String, ArrayList<ItemStack>> items = new HashMap<>();
     private static ArrayList<Hunt> hunts = new ArrayList<>();
+
+    private static HashMap<World, Long> started_hunts = new HashMap<>();
+
+    public static void addHunt(World w)
+    {
+        started_hunts.put(w, System.currentTimeMillis());
+    }
+
+    public static boolean huntStarting(World w)
+    {
+
+        if(!started_hunts.containsKey(w)) return false;
+
+        long delay = (Settings.getWorldIntUnknown(w.getName(), "delay") + 5) / 20; //In seconds
+        return started_hunts.get(w) + TimeUnit.SECONDS.toMillis(delay) > System.currentTimeMillis();
+    }
 
     public ArrayList<ItemStack> getItems()
     {
@@ -87,20 +104,12 @@ public class Hunt {
         this.w = w;
         this.duration = duration;
 
-        int distance = 15000;
-        int min = 2500;
-
-        if(Utils.isEnabled("ChunkyBorder"))
-        {
-            distance = Locations.getBorder(w) - 10;
-        }
-
-        final int d = distance;
+        double distance = Math.min(Locations.getBorder(w) - 10, Settings.getWorldIntUnknown(w.getName(), "max-treasure-distance"));
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
 
-            CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, d, 2500));
+            CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, distance, 0));
             this.l = loc.join();
 
         });
@@ -131,12 +140,6 @@ public class Hunt {
 
             this.starttime = System.currentTimeMillis();
             treasure.create();
-
-            /*
-            if(Utils.isEnabled("DiscoBot")) {
-                Bot.sendTreasureHunt();
-            }
-             */
 
             Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation").replace("{x}", getLocation().getBlockX() + "")
                     .replace("{z}", getLocation().getBlockZ() + "").replace("{world}", getLocation().getWorld().getName()));

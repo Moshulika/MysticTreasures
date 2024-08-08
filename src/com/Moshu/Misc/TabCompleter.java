@@ -33,20 +33,6 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
     }
 
 
-    private boolean canExecute(Player p, String command) {
-
-        if (Utils.isPaper()) {
-            if (Bukkit.getCommandMap().getCommand(command) != null) {
-                return Bukkit.getCommandMap().getCommand(command).testPermission(p);
-            }
-
-        }
-
-        return true;
-
-    }
-
-
     private boolean staffOnly(String s) {
 
         if (Bukkit.getServer().getPluginCommand(s) == null) return true;
