@@ -1774,6 +1774,25 @@ public class Utils
         }
     }
 
+    public static ItemStack checkMaterial(String mat)
+    {
+
+        Material m;
+
+        try {
+
+            m = Material.getMaterial(mat);
+            return new ItemStack(m);
+
+        }
+        catch (NullPointerException e) {
+            plugin.getLogger().log(Level.SEVERE, "Invalid material " + mat  , e);
+        }
+
+        return new ItemStack(Material.STONE);
+
+    }
+
     /**
      *
      * @param world, world to teleport into

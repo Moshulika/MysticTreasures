@@ -2,6 +2,7 @@ package com.Moshu.TreasureHunt;
 
 import com.Moshu.Misc.*;
 import com.google.common.base.Joiner;
+import dev.lone.itemsadder.api.CustomStack;
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
 import io.lumine.mythic.api.mobs.MythicMob;
@@ -10,6 +11,7 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.utils.lib.jooq.impl.QOM;
 import io.lumine.mythic.core.mobs.ActiveMob;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -40,7 +42,10 @@ public class Treasure {
     private static final Particle EXPLOSION = Settings.getCompatParticle("treasure-spawn-particle");
     private static final Particle EXPLOSION_EMITTER = Settings.getCompatParticle("treasure-remove-particle");
     private static final Particle CAMPFIRE_SIGNAL_SMOKE = Settings.getCompatParticle("treasure-fall-particle");
-
+    private static final Particle LAVA = Settings.getCompatParticle("lava");
+    private static final Particle SOUL = Settings.getCompatParticle("soul");
+    private static final Particle SOUL_FIRE_FLAME = Settings.getCompatParticle("soul-fire-flame");
+    private static final Particle WARPED_SPORE = Settings.getCompatParticle("warped-spore");
 
     Treasure(Hunt h, ArrayList<ItemStack> items)
     {
@@ -129,8 +134,8 @@ public class Treasure {
     public Location getNearLocation()
     {
 
-        int x = Utils.randInt(1, 6);
-        int z = Utils.randInt(1, 6);
+        int x = Utils.randInt(-6, 6);
+        int z = Utils.randInt(-6, 6);
 
         return Utils.getHighestBlock(l.getWorld(), l.getBlockX(), l.getBlockZ(), l.getWorld().getSpawnLocation()).add(x, 0, z);
 
@@ -270,10 +275,11 @@ public class Treasure {
 
     }
 
-    public void spawnMobs()
+    public void spawnMobs(boolean animate)
     {
 
         LivingEntity e;
+        boolean animated = Settings.getWorldBooleanUnknown(l.getWorld().getName(), "animate-mob-spawning") && animate;
 
         try
         {
@@ -297,6 +303,9 @@ public class Treasure {
                                 ActiveMob knight = mob.spawn(BukkitAdapter.adapt(getNearLocation()),1);
                                 Entity entity = knight.getEntity().getBukkitEntity();
                                 entity.setMetadata("treasure-mob-" + l.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + l.getWorld().getName()));
+
+                                if(animated) smoothEntitySpawnFromGrave(entity);
+
                                 spawnEntities.add(entity);
                             }
 
@@ -306,6 +315,9 @@ public class Treasure {
                             e = (LivingEntity) l.getWorld().spawnEntity(getNearLocation(), t.getType());
                             e.setMetadata("treasure-mob-" + l.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + l.getWorld().getName()));
                             e.setRemoveWhenFarAway(false);
+
+                            if(animated) smoothEntitySpawnFromGrave(e);
+
                             spawnEntities.add(e);
                         }
 
@@ -316,6 +328,9 @@ public class Treasure {
                         e = (LivingEntity) l.getWorld().spawnEntity(getNearLocation(), t.getType());
                         e.setMetadata("treasure-mob-" + l.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + l.getWorld().getName()));
                         e.setRemoveWhenFarAway(false);
+
+                        if(animated) smoothEntitySpawnFromGrave(e);
+
                         spawnEntities.add(e);
 
                     }
@@ -436,12 +451,14 @@ public class Treasure {
 
         Bukkit.getScheduler().runTask(plugin, () ->
         {
-            
-            Location temp_location = getLocation().clone();
+
             Location location;
+            ItemStack stack;
+            Material mat;
+
+            Location temp_location = getLocation().clone();
             World w = temp_location.getWorld();
 
-            Material mat = Settings.getWorldMaterialUnknown(w.getName(), "treasure-block");
             Particle part = Settings.getWorldParticleUnknown(w.getName(), "treasure-particles");
 
             int distance_to_spawn = Settings.getWorldIntUnknown(w.getName(), "distance-from-player-to-spawn-mobs");
@@ -453,6 +470,9 @@ public class Treasure {
             }
             else location = temp_location.clone();
 
+            stack = fetchTreasureBlockStack(w.getName());
+            mat = stack.getType();
+
             location.getBlock().setType(mat);
             location.getWorld().playEffect(location, Effect.STEP_SOUND, Material.DIRT);
 
@@ -461,7 +481,7 @@ public class Treasure {
 
                 if(distance_to_spawn <= 0)
                 {
-                    spawnMobs();
+                    spawnMobs(false);
                 }
 
             }, 1);
@@ -521,7 +541,8 @@ public class Treasure {
                         if(distance_to_spawn > 0 && !Utils.getNearbyPlayers(location, distance_to_spawn).isEmpty() && !spawned) {
                             Bukkit.getScheduler().runTaskLater(plugin, () ->
                             {
-                                spawnMobs();
+                                w.strikeLightningEffect(location);
+                                spawnMobs(true);
                                 spawned = true;
                             }, 1);
                         }
@@ -543,6 +564,89 @@ public class Treasure {
         };
 
         run.runTaskTimerAsynchronously(plugin, 0, 5);
+    }
+
+    private void runAnimation(Location location, ItemStack is)
+    {
+
+        ArmorStand animation = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
+
+        animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
+        animation.setBasePlate(false);
+        animation.setHelmet(is);
+        animation.setInvulnerable(true);
+        animation.setVisible(false);
+
+        BukkitRunnable run_falling_particles = new BukkitRunnable() {
+
+            @Override
+            public void run() {
+
+                if(animation.isOnGround())
+                {
+
+                    Bukkit.getScheduler().runTask(plugin, animation::remove);
+                    location.getWorld().spawnParticle(EXPLOSION, animation.getLocation(), 1);
+
+                    spawnTreasure();
+                    this.cancel();
+                    return;
+                }
+
+                location.getWorld().spawnParticle(CAMPFIRE_SIGNAL_SMOKE, animation.getLocation().add(0, 3, 0), 1);
+
+            }
+        };
+
+        run_falling_particles.runTaskTimerAsynchronously(plugin, 0, 1);
+    }
+
+    public void create() {
+
+        Location location = getLocation().clone();
+        World w = location.getWorld();
+        int delay = Settings.getWorldIntUnknown(w.getName(), "delay");
+
+        announceUpcomingTreasure(delay);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->
+        {
+
+            location.getChunk().load();
+            location.getChunk().setForceLoaded(true);
+
+            ItemStack is = fetchTreasureBlockStack(w.getName());
+            runAnimation(location, is);
+
+        },  Math.abs(delay));
+
+    }
+
+    private ItemStack fetchTreasureBlockStack(String world)
+    {
+
+        String name = Settings.getWorldStringUnknown(world, "treasure-block");
+        boolean itemsAdder = Utils.isEnabled("ItemsAdder");
+
+        if(itemsAdder)
+        {
+
+            CustomStack stack = CustomStack.getInstance(name);
+
+            if(stack != null)
+            {
+                return stack.getItemStack();
+            }
+            else
+            {
+                return Utils.checkMaterial(name);
+            }
+
+        }
+        else {
+            return Utils.checkMaterial(name);
+        }
+
     }
 
     private void announceSpawnedTreasure()
@@ -586,62 +690,6 @@ public class Treasure {
 
             }
         }
-    }
-
-    private void runAnimation(Location location, Material mat)
-    {
-
-        ArmorStand animation = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
-
-        animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
-        animation.setBasePlate(false);
-        animation.setHelmet(new ItemStack(mat));
-        animation.setInvulnerable(true);
-        animation.setVisible(false);
-
-        BukkitRunnable run_falling_particles = new BukkitRunnable() {
-
-            @Override
-            public void run() {
-
-                if(animation.isOnGround())
-                {
-
-                    Bukkit.getScheduler().runTask(plugin, animation::remove);
-                    location.getWorld().spawnParticle(EXPLOSION, animation.getLocation(), 1);
-
-                    spawnTreasure();
-                    this.cancel();
-                    return;
-                }
-
-                location.getWorld().spawnParticle(CAMPFIRE_SIGNAL_SMOKE, animation.getLocation().add(0, 3, 0), 1);
-
-            }
-        };
-
-        run_falling_particles.runTaskTimerAsynchronously(plugin, 0, 1);
-    }
-
-    public void create() {
-
-        Location location = getLocation().clone();
-        World w = location.getWorld();
-        int delay = Settings.getWorldIntUnknown(w.getName(), "delay");
-
-        announceUpcomingTreasure(delay);
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->
-        {
-
-            location.getChunk().load();
-            location.getChunk().setForceLoaded(true);
-
-            Material mat = Settings.getWorldMaterialUnknown(w.getName(), "treasure-block");
-            runAnimation(location, mat);
-
-        },  Math.abs(delay));
-
     }
 
     public static boolean isNearTreasure(Player p)
@@ -837,16 +885,14 @@ public class Treasure {
 
         try
         {
-            Particle explosion = Particle.valueOf(plugin.getConfig().getString("settings.effects-particles.treasure-remove-particle", "EXPLOSION_EMITTER"));
-            getLocation().getWorld().spawnParticle(explosion, getLocation(), 3);
-
+            getLocation().getWorld().spawnParticle(EXPLOSION_EMITTER, getLocation(), 3);
         }
         catch (Exception e)
         {
             plugin.getLogger().log(Level.SEVERE, "Invalid particle for explosion!");
         }
 
-        getLocation().getWorld().strikeLightning(getLocation());
+        getLocation().getWorld().strikeLightningEffect(getLocation());
 
         if(Utils.isEnabled("DecentHolograms"))
         {
@@ -949,6 +995,84 @@ public class Treasure {
 
         });
 
+    }
+
+    private ArrayList<Entity> spawningEntities = new ArrayList<>();
+
+    private void smoothEntitySpawnFromGrave(final Entity ent) {
+
+        final Location particleLocation = ent.getLocation();
+        final Location entLoc = particleLocation.clone();
+        final Entity passenger = ent.getPassenger();
+
+        if (!entLoc.clone().add(0.0, -1.0, 0.0).getBlock().getType().isSolid() || entLoc.getBlock().getType().toString().contains("WATER")) {
+            if (!entLoc.clone().add(0.0, -1.0, 0.0).getBlock().getType().isAir())
+            {
+                return;
+            }
+            else
+            {
+                entLoc.add(0.0, -3.0, 0.0);
+            }
+        }
+        else
+        {
+            entLoc.add(0.0, -2.0, 0.0);
+        }
+
+        spawningEntities.add(ent);
+        ent.teleport(entLoc);
+
+        Block blockUnderEntity = particleLocation.clone().add(0.0, -1.0, 0.0).getBlock();
+        final Material particleMaterial = blockUnderEntity.getType();
+        final float step = 1.0f / 85f * 2.0f;
+
+        BukkitRunnable run = new BukkitRunnable() {
+
+            public void run() {
+
+                if (ent.isDead() || !ent.isValid() || !entLoc.getChunk().isLoaded()) {
+
+                    if (passenger != null) {
+                        ent.setPassenger(passenger);
+                    }
+
+                    spawningEntities.remove(ent);
+                    ent.remove();
+                    this.cancel();
+                    return;
+                }
+
+                if (entLoc.getBlock().getType().isSolid() || entLoc.clone().add(0.0, 1.0, 0.0).getBlock().getType().isSolid()) {
+
+                    spawnGraveParticles(entLoc.getWorld(), entLoc, particleMaterial);
+
+                } else {
+
+                    if (passenger != null) {
+                        ent.setPassenger(passenger);
+                    }
+
+                    spawningEntities.remove(ent);
+                    this.cancel();
+                    return;
+                }
+
+                entLoc.add(0.0, step, 0.0);
+                ent.teleport(entLoc);
+            }
+        };
+
+        run.runTaskTimer(plugin, 1L, 1L);
+
+    }
+
+    private void spawnGraveParticles(World w, Location entLoc, Material particleMaterial)
+    {
+        w.playEffect(entLoc, Effect.STEP_SOUND, particleMaterial);
+        w.spawnParticle(LAVA, entLoc, 1);
+        w.spawnParticle(SOUL, entLoc, 1);
+        w.spawnParticle(SOUL_FIRE_FLAME, entLoc, 1);
     }
 
 }

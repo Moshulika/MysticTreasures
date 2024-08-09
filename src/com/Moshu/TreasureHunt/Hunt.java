@@ -4,6 +4,7 @@ import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
+import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -55,7 +56,12 @@ public class Hunt {
         String[] args;
         ItemStack item;
 
+        Material mat;
+        int amount;
+
         String world_name;
+
+        boolean itemsAdder = Utils.isEnabled("ItemsAdder");
 
         for(String world : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
         {
@@ -85,8 +91,29 @@ public class Hunt {
                     continue;
                 }
 
+                amount = Integer.parseInt(args[1]);
 
-                item = new ItemStack(Material.matchMaterial(args[0]), Integer.parseInt(args[1]));
+                if(itemsAdder)
+                {
+
+                    CustomStack stack = CustomStack.getInstance(args[0]);
+
+                    if(stack != null)
+                    {
+                        item = stack.getItemStack();
+                        item.setAmount(amount);
+                    }
+                    else
+                    {
+                        item = new ItemStack(Material.matchMaterial(args[0]), amount);
+                    }
+
+                }
+                else
+                {
+                    item = new ItemStack(Material.matchMaterial(args[0]), amount);
+                }
+
                 local_items.add(item);
             }
 

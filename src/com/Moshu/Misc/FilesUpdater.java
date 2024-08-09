@@ -32,6 +32,11 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".reward-all-players-who-participated", false);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".animate-mob-spawning") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".animate-mob-spawning", true);
+            }
+
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".potion-effect-radius") == null)
             {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".potion-effect-radius", 20);
