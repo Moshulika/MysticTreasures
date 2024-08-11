@@ -10,7 +10,7 @@ settings:
       world-name: "world"
       treasure-block: ENDER_CHEST
       treasure-particles: COMPOSTER
-      treasure-animation: "orb" #none, spiral, orb
+      treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
       treasure-icon: EMERALD #Only if DecentHolograms is not installed
       require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
       allow-pvp-near-treasure: false
@@ -26,6 +26,7 @@ settings:
       min-players-online: 15 #Minimum players to have a chance to spawn a treasure
       reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
       distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
+      mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
       animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
       interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
       duration: 20 #The duration of the treasure before it despawns

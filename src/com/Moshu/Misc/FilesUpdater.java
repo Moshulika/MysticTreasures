@@ -32,6 +32,11 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".reward-all-players-who-participated", false);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".mob-wandering-distance") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".mob-wandering-distance", 20);
+            }
+
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".animate-mob-spawning") == null)
             {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".animate-mob-spawning", true);
@@ -86,6 +91,16 @@ public class FilesUpdater {
         if(plugin.getMessages().get("messages.participating") == null)
         {
             plugin.getMessages().set("messages.participating", "&6&lTreasure&e&lHunt &fYou are now participating in this TreasureHunt!");
+        }
+
+        if(plugin.getMessages().get("messages.participating-cleared-mobs") == null)
+        {
+            plugin.getMessages().set("messages.participating-cleared-mobs", "&6&lTreasure&e&lHunt &fYou killed all the Treasure Keepers! The reward is all yours!");
+        }
+
+        if(plugin.getMessages().get("messages.no-creative") == null)
+        {
+            plugin.getMessages().set("messages.no-creative", "&6&lTreasure&e&lHunt &fYou can't break Treasures in Creative mode");
         }
 
         try

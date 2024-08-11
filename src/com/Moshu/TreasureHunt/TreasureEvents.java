@@ -4,6 +4,8 @@ import com.Moshu.Misc.Cooldown;
 import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
+import dev.lone.itemsadder.api.CustomEntity;
+import dev.lone.itemsadder.api.CustomFurniture;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -23,6 +25,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -42,6 +45,13 @@ public class TreasureEvents implements Listener {
                 Location o = e.getBlock().getLocation();
                 Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
                 Player p = e.getPlayer();
+
+                if(p.getGameMode() != GameMode.SURVIVAL) {
+                    p.sendMessage(Messages.get("no-creative"));
+                    p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+                    Utils.sendBreakSound(e.getPlayer());
+                    return;
+                }
 
                 if(Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner"))
                 {
@@ -98,7 +108,6 @@ public class TreasureEvents implements Listener {
                     }
 
                     t.remove();
-
                     Utils.sendLevelupSound(p);
                 }
 
@@ -201,6 +210,22 @@ public class TreasureEvents implements Listener {
 
             if (e.getDamager() instanceof Player attacker) {
 
+                boolean itemsAdder = Utils.isEnabled("ItemsAdder");
+
+                if(itemsAdder) {
+
+                    if(Treasure.isTreasure(e.getEntity().getLocation())) {
+
+                        if (CustomEntity.isCustomEntity(e.getEntity())) {
+                            e.setCancelled(true);
+                        } else if (CustomFurniture.byAlreadySpawned(e.getEntity()) != null) {
+                            e.setCancelled(true);
+                        }
+
+                    }
+
+                }
+
                 if (e.getEntity() instanceof Player p) {
 
                     if (Treasure.isNearTreasure(p)) {
@@ -227,11 +252,23 @@ public class TreasureEvents implements Listener {
                     {
 
                         Hunt h = Hunt.getHunt(victim.getWorld());
+                        Treasure t = h.getTreasure();
 
-                        if (h.getTreasure().isTreasureKeeper(victim)) {
+                        if (t.isTreasureKeeper(victim)) {
 
-                            h.getTreasure().addParticipant(attacker);
-                            attacker.sendMessage(Messages.get("participating"));
+                            if(!t.getParticipants().contains(attacker)) {
+                                t.addParticipant(attacker);
+                                attacker.sendMessage(Messages.get("participating"));
+                            }
+
+                            if(t.remainingMobs() - 1 <= 0)
+                            {
+
+                                for(Player p : t.getParticipants()) {
+                                    p.sendMessage(Messages.get("participating-cleared-mobs"));
+                                }
+
+                            }
 
                         }
                     }
@@ -344,13 +381,13 @@ public class TreasureEvents implements Listener {
 
         if (Hunt.isActive(e.getPlayer().getWorld())) {
 
+            if(e.getHand() == EquipmentSlot.OFF_HAND) return;
+
             if (e.getPlayer().getGameMode() != GameMode.SPECTATOR) {
 
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
                     String worldName = e.getClickedBlock().getWorld().getName();
-
-                    if (e.getClickedBlock().getType() == Settings.getWorldMaterialUnknown(worldName, "treasure-block")) {
 
                         Location o = e.getClickedBlock().getLocation();
                         Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
@@ -369,7 +406,6 @@ public class TreasureEvents implements Listener {
 
                             if (Settings.getWorldBooleanUnknown(worldName, "require-all-mobs-dead")) {
 
-
                                 Treasure t = Treasure.getTreasure(l);
 
                                 if (t.mobsCleared()) {
@@ -385,7 +421,6 @@ public class TreasureEvents implements Listener {
                                     }
 
                                     t.remove();
-
                                     Utils.sendLevelupSound(p);
 
                                 } else {
@@ -412,13 +447,12 @@ public class TreasureEvents implements Listener {
                                 }
 
                                 t.remove();
-
                                 Utils.sendLevelupSound(p);
                             }
 
                         }
 
-                    }
+
                 }
             }
         }

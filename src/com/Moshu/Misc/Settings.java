@@ -161,7 +161,7 @@ public class Settings {
 
     public static int getCooldown()
     {
-        return plugin.getConfig().getInt("settings.cooldown", 1440);
+        return plugin.getConfig().getInt("settings.winner-cooldown", 1440);
     }
 
 }

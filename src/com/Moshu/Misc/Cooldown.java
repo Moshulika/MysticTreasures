@@ -191,7 +191,6 @@ public class Cooldown {
         String id = uuid.toString();
         String code = id + name;
 
-
         if(plugin.getCooldownsFile().get(id) == null) {
             return false;
         }
@@ -203,9 +202,7 @@ public class Cooldown {
         else
         {
             long l = plugin.getCooldownsFile().getLong(id + "." + code);
-
             return System.currentTimeMillis() < l;
-
         }
 
     }

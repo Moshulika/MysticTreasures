@@ -4,6 +4,7 @@ import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
+import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
@@ -79,42 +80,92 @@ public class Hunt {
                     continue;
                 }
 
-                if(Material.matchMaterial(args[0]) == null)
-                {
-                    plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + args[0]);
-                    continue;
-                }
-
-                if(!Utils.isInt(args[1]))
-                {
-                    plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
-                    continue;
-                }
-
-                amount = Integer.parseInt(args[1]);
-
-                if(itemsAdder)
+                if(args.length == 2)
                 {
 
-                    CustomStack stack = CustomStack.getInstance(args[0]);
-
-                    if(stack != null)
+                    if(!Utils.isInt(args[1]))
                     {
-                        item = stack.getItemStack();
-                        item.setAmount(amount);
+                        plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
+                        continue;
+                    }
+
+                    amount = Integer.parseInt(args[1]);
+
+                    if(itemsAdder)
+                    {
+
+                        CustomStack stack = CustomStack.getInstance(args[0]);
+
+                        if(stack != null)
+                        {
+                            item = stack.getItemStack();
+                            item.setAmount(amount);
+                        }
+                        else
+                        {
+
+                            if(Material.matchMaterial(args[0]) == null)
+                            {
+                                plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + args[0]);
+                                continue;
+                            }
+
+                            item = new ItemStack(Material.matchMaterial(args[0]), amount);
+                        }
+
                     }
                     else
                     {
+
+                        if(Material.matchMaterial(args[0]) == null)
+                        {
+                            plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + args[0]);
+                            continue;
+                        }
+
                         item = new ItemStack(Material.matchMaterial(args[0]), amount);
                     }
 
+                    local_items.add(item);
+
+                }
+                else if(args.length == 3)
+                {
+
+                    if(!Utils.isInt(args[2]))
+                    {
+                        plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[0] + ":" + args[1]);
+                        continue;
+                    }
+
+                    amount = Integer.parseInt(args[2]);
+
+                    if(itemsAdder)
+                    {
+                        CustomStack stack = CustomStack.getInstance(args[0] + ":" + args[1]);
+
+                        if(stack != null)
+                        {
+                            item = stack.getItemStack();
+                            item.setAmount(amount);
+                            local_items.add(item);
+                        }
+                        else
+                        {
+                            plugin.getLogger().log(Level.SEVERE, "Invalid ItemsAdder item in treasure prize configuration: " + args[0] + ":" + args[1]);
+                        }
+
+                    }
+                    else
+                    {
+                        plugin.getLogger().log(Level.SEVERE, "Invalid ItemsAdder item in treasure prize configuration: " + args[0] + ":" + args[1]);
+                    }
                 }
                 else
                 {
-                    item = new ItemStack(Material.matchMaterial(args[0]), amount);
+                    plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + s);
                 }
 
-                local_items.add(item);
             }
 
             items.put(world_name, local_items);
