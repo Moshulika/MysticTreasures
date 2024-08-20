@@ -83,6 +83,11 @@ public class FilesUpdater {
             plugin.getConfigFile().set("settings.effects-particles.treasure-remove-particle", "EXPLOSION_EMITTER");
         }
 
+        if(plugin.getConfigFile().get("settings.updater") == null)
+        {
+            plugin.getConfigFile().set("settings.updater", true);
+        }
+
         if(plugin.getMessages().get("messages.config-reload") == null)
         {
             plugin.getMessages().set("messages.config-reload", "&6&lTreasure&e&lHunt &fConfig reloaded!");

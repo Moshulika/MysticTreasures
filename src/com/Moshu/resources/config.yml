@@ -56,3 +56,4 @@ settings:
     treasure-spawn-particle: EXPLOSION
     treasure-fall-particle: CAMPFIRE_SIGNAL_SMOKE
     treasure-remove-particle: EXPLOSION_EMITTER
+  updater: true

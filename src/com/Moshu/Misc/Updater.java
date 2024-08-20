@@ -58,6 +58,11 @@ public class Updater implements Listener {
 
     private boolean checkUpdate() {
 
+        if(!plugin.getConfigFile().getBoolean("settings.updater", true))
+        {
+            return false;
+        }
+
         Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fChecking for updates.."));
 
         try {

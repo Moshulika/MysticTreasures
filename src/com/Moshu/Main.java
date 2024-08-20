@@ -158,9 +158,7 @@ public class Main extends JavaPlugin {
 
         if ((plugin == null) || (!(plugin instanceof WorldGuardPlugin)))
         {
-            consoleMessage("&c&lDependency Check: &fYou don't have WorldGuard installed. You'd better install it.");
-            consoleMessage("&c&lDependency Check: &fPlugin is shutting down..");
-            getServer().getPluginManager().disablePlugin(this);
+            consoleMessage("&c&lDependency Check: &fYou don't have WorldGuard installed.");
             return null;
         }
         return (WorldGuardPlugin) plugin;

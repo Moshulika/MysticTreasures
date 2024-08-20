@@ -340,20 +340,27 @@ public class TreasureEvents implements Listener {
             if(e.getEntity() instanceof LivingEntity en)
             {
 
-                if(en.getLastDamageCause() != null) {
+                try {
 
-                    if (en.getLastDamageCause().getDamageSource().getCausingEntity() != null) {
+                    if (en.getLastDamageCause() != null) {
 
-                        if (en.getLastDamageCause().getDamageSource().getCausingEntity() instanceof Player p) {
+                        if (en.getLastDamageCause().getDamageSource().getCausingEntity() != null) {
 
-                            if (p.getInventory().getItemInMainHand().containsEnchantment(Enchantment.FIRE_ASPECT))
-                                return;
+                            if (en.getLastDamageCause().getDamageSource().getCausingEntity() instanceof Player p) {
+
+                                if (p.getInventory().getItemInMainHand().containsEnchantment(Enchantment.FIRE_ASPECT))
+                                    return;
+
+                            }
 
                         }
 
                     }
 
                 }
+                catch (NoSuchMethodError err)
+                {}
+
 
                 Hunt h = Hunt.getHunt(en.getWorld());
 
