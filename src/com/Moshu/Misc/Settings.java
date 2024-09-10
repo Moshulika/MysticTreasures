@@ -66,7 +66,7 @@ public class Settings {
                 }
                 catch(Exception e)
                 {
-                    plugin.getLogger().log(Level.SEVERE, "Could not get Material from " + s + "." + setting);
+                    plugin.getLogger().log(Level.SEVERE, "Could not get Material from " + s + "." + setting + ". It is either missing or incorrect");
                 }
 
             }
@@ -83,7 +83,7 @@ public class Settings {
         try {
             return Particle.valueOf(plugin.getConfig().getString("settings.effects-particles." + setting, "COMPOSTER"));
         } catch (Exception e) {
-            plugin.getLogger().log(Level.SEVERE, "Could not get Particle " + setting);
+            plugin.getLogger().log(Level.SEVERE, "Could not get Particle " + setting + " it is either missing or not compatible with your version of minecraft. Please make sure your particle name exists on the version you're playing!");
         }
 
         return Particle.CRIT;
@@ -105,7 +105,7 @@ public class Settings {
                 }
                 catch(Exception e)
                 {
-                    plugin.getLogger().log(Level.SEVERE, "Could not get Particle from " + s + "." + setting);
+                    plugin.getLogger().log(Level.SEVERE, "Could not get Particle from " + s + "." + setting + ". It is either missing or incorrect");
                 }
 
             }

@@ -632,17 +632,39 @@ public class Treasure {
 
                 if(!CustomEntity.isCustomEntity(e) && CustomFurniture.byAlreadySpawned(e) == null)
                 {
+                    animation.setMetadata("treasure_stand", new FixedMetadataValue(plugin, "treasure_stand"));
+                    animation.setGravity(true);
+
+                    if(Utils.isPaper())
+                    {
+                        animation.setCanMove(true);
+                        animation.setCanTick(true);
+                    }
+
                     animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
                     animation.setBasePlate(false);
                     animation.setHelmet(is);
                     animation.setInvulnerable(true);
                     animation.setVisible(false);
                 }
+                else
+                {
+                    plugin.getLogger().log(Level.SEVERE, "Unkown error related to ItemsAdder, relate this to me in mc.b-zone.ro/discord");
+                }
 
             }
             else
             {
+                animation.setMetadata("treasure_stand", new FixedMetadataValue(plugin, "treasure_stand"));
                 animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
+                animation.setGravity(true);
+
+                if(Utils.isPaper())
+                {
+                    animation.setCanMove(true);
+                    animation.setCanTick(true);
+                }
+
                 animation.setBasePlate(false);
                 animation.setHelmet(is);
                 animation.setInvulnerable(true);
@@ -666,7 +688,14 @@ public class Treasure {
                     return;
                 }
 
-                location.getWorld().spawnParticle(CAMPFIRE_SIGNAL_SMOKE, e.getLocation().add(0, 3, 0), 1);
+                try
+                {
+                    location.getWorld().spawnParticle(CAMPFIRE_SIGNAL_SMOKE, e.getLocation().add(0, 3, 0), 1);
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
 
             }
         };
@@ -682,10 +711,19 @@ public class Treasure {
 
         if(getType() == TreasureType.VANILLA) {
 
-            ArmorStand animation = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
-            ItemStack is = new ItemStack(Utils.checkMaterial(s));
 
-            animate(location, animation, is);
+            if(Settings.getWorldBooleanUnknown(location.getWorld().getName(), "fall-from-the-sky"))
+            {
+                ArmorStand animation = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
+                ItemStack is = new ItemStack(Utils.checkMaterial(s));
+
+                animate(location, animation, is);
+            }
+            else
+            {
+                location.getWorld().spawnParticle(EXPLOSION_EMITTER, location, 1);
+                spawnTreasure();
+            }
 
         }
         else

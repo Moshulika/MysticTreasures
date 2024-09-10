@@ -6,12 +6,10 @@ import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -23,14 +21,17 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class TreasureEvents implements Listener {
 
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     @EventHandler
     public void onBreak(BlockBreakEvent e) {
@@ -325,6 +326,51 @@ public class TreasureEvents implements Listener {
 
                 }
 
+
+            }
+
+        }
+
+    }
+
+    @EventHandler
+    public void onDebug(PlayerInteractEntityEvent e) {
+
+        if (TreasureCommands.isDebugging(e.getPlayer())) {
+
+            if (e.getHand() == EquipmentSlot.HAND) {
+
+                if (e.getRightClicked() instanceof ArmorStand as) {
+
+                    e.setCancelled(true);
+                    Player p = e.getPlayer();
+
+                    as.setVisible(true);
+                    as.setGlowing(true);
+
+                    p.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fDebug"));
+                    p.sendMessage(" ");
+                    p.sendMessage(" - Gravity: " + as.hasGravity());
+                    p.sendMessage(" - Metadata: " + as.getMetadata("treasure_stand"));
+                    p.sendMessage(" - On ground: " + as.isOnGround());
+                    p.sendMessage(" - Velocity: " + as.getVelocity().toString());
+
+                    if(Utils.isPaper())
+                    {
+                        p.sendMessage(" - Physics: " + as.hasNoPhysics());
+                        p.sendMessage(" - Can move: " + as.canMove());
+                        p.sendMessage(" - Can tick: " + as.canMove());
+                    }
+
+                    p.sendMessage(" ");
+                    p.sendMessage(" *The ArmorStand will be removed in 1 minute");
+
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->
+                    {
+                        as.remove();
+                    }, 1200);
+
+                }
 
             }
 

@@ -57,6 +57,11 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".protect-mobs-from-sun", true);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".fall-from-the-sky") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".fall-from-the-sky", true);
+            }
+
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".potion-effects") == null)
             {
 

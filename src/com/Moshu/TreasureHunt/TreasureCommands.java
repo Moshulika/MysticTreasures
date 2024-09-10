@@ -15,12 +15,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
+
 public class TreasureCommands implements CommandExecutor {
 
     private static Main plugin;
 
     public TreasureCommands(Main plugin) {
         this.plugin = plugin;
+    }
+
+    private static ArrayList<Player> debugging = new ArrayList<Player>();
+
+    public static boolean isDebugging(Player p) {
+        return debugging.contains(p);
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
@@ -145,6 +153,29 @@ public class TreasureCommands implements CommandExecutor {
                     else
                     {
                         sender.sendMessage(Messages.get("wrong-command"));
+                    }
+
+                }
+                else if(args[0].equalsIgnoreCase("debug"))
+                {
+
+                    if(sender instanceof Player p) {
+
+                        if(debugging.contains(p))
+                        {
+                            p.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fYou've stopped debugging"));
+                            debugging.remove(p);
+                        }
+                        else
+                        {
+                            p.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fYou started debugging. Right click an ArmorStand (the falling treasure) to gain more information and remove it"));
+                            debugging.add(p);
+                        }
+
+                    }
+                    else
+                    {
+                        Utils.sendNotPlayer();
                     }
 
                 }

@@ -64,6 +64,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
                     c.add("start");
                     c.add("reload");
                     c.add("stop");
+                    c.add("debug");
                 }
 
                 ArrayList<String> completions = new ArrayList<>();
