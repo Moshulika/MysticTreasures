@@ -13,8 +13,11 @@ import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.utils.lib.jooq.impl.QOM;
 import io.lumine.mythic.core.mobs.ActiveMob;
+import io.th0rgal.oraxen.OraxenPlugin;
+import io.th0rgal.oraxen.api.OraxenFurniture;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
@@ -42,6 +45,7 @@ public class Treasure {
         ENTITY,
         BLOCK,
         FURNITURE,
+        ORAXEN_FURNITURE,
         OTHER
 
     }
@@ -628,48 +632,19 @@ public class Treasure {
 
         if(e instanceof ArmorStand animation) {
 
-            if(Utils.isEnabled("ItemsAdder")) {
+            animation.setMetadata("treasure_stand", new FixedMetadataValue(plugin, "treasure_stand"));
+            animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
+            animation.setGravity(true);
 
-                if(!CustomEntity.isCustomEntity(e) && CustomFurniture.byAlreadySpawned(e) == null)
-                {
-                    animation.setMetadata("treasure_stand", new FixedMetadataValue(plugin, "treasure_stand"));
-                    animation.setGravity(true);
-
-                    if(Utils.isPaper())
-                    {
-                        animation.setCanMove(true);
-                        animation.setCanTick(true);
-                    }
-
-                    animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
-                    animation.setBasePlate(false);
-                    animation.setHelmet(is);
-                    animation.setInvulnerable(true);
-                    animation.setVisible(false);
-                }
-                else
-                {
-                    plugin.getLogger().log(Level.SEVERE, "Unkown error related to ItemsAdder, relate this to me in mc.b-zone.ro/discord");
-                }
-
+            if (Utils.isPaper()) {
+                animation.setCanMove(true);
+                animation.setCanTick(true);
             }
-            else
-            {
-                animation.setMetadata("treasure_stand", new FixedMetadataValue(plugin, "treasure_stand"));
-                animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13
-                animation.setGravity(true);
 
-                if(Utils.isPaper())
-                {
-                    animation.setCanMove(true);
-                    animation.setCanTick(true);
-                }
-
-                animation.setBasePlate(false);
-                animation.setHelmet(is);
-                animation.setInvulnerable(true);
-                animation.setVisible(false);
-            }
+            animation.setBasePlate(false);
+            animation.setHelmet(is);
+            animation.setInvulnerable(true);
+            animation.setVisible(false);
 
         }
 
@@ -688,14 +663,8 @@ public class Treasure {
                     return;
                 }
 
-                try
-                {
-                    location.getWorld().spawnParticle(CAMPFIRE_SIGNAL_SMOKE, e.getLocation().add(0, 3, 0), 1);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
+                //Daca iar nu merge de aici era
+                location.getWorld().spawnParticle(CAMPFIRE_SIGNAL_SMOKE, e.getLocation().add(0, 3, 0), 1);
 
             }
         };
@@ -710,7 +679,6 @@ public class Treasure {
         String s = Settings.getWorldStringUnknown(location.getWorld().getName(), "treasure-block");
 
         if(getType() == TreasureType.VANILLA) {
-
 
             if(Settings.getWorldBooleanUnknown(location.getWorld().getName(), "fall-from-the-sky"))
             {
@@ -748,7 +716,7 @@ public class Treasure {
             location.getChunk().load();
             location.getChunk().setForceLoaded(true);
 
-            fetchTreasureType(w.getName());
+            setType(fetchTreasureType(w.getName()));
 
             runAnimation(location);
 
@@ -763,6 +731,7 @@ public class Treasure {
         Material mat;
 
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
+        boolean oraxen = Utils.isEnabled("Oraxen");
         String name = Settings.getWorldStringUnknown(world, "treasure-block");
 
         if(itemsAdder)
@@ -797,6 +766,22 @@ public class Treasure {
             }
 
         }
+        else if(oraxen)
+        {
+
+            if(getType() == TreasureType.ORAXEN_FURNITURE)
+            {
+                furnitureEntity = OraxenFurniture.place(name, location, Rotation.NONE, BlockFace.NORTH);
+            }
+            else
+            {
+                stack = Utils.checkMaterial(name);
+                mat = stack.getType();
+
+                location.getBlock().setType(mat);
+            }
+
+        }
         else
         {
             stack = Utils.checkMaterial(name);
@@ -813,34 +798,49 @@ public class Treasure {
 
         String name = Settings.getWorldStringUnknown(world, "treasure-block");
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
+        boolean oraxen = Utils.isEnabled("Oraxen");
 
         if (itemsAdder) {
 
             try {
 
                 if (CustomEntity.isInRegistry(name)) {
-                    setType(TreasureType.ENTITY);
                     return TreasureType.ENTITY;
                 } else if (CustomBlock.isInRegistry(name)) {
-                    setType(TreasureType.BLOCK);
                     return TreasureType.BLOCK;
                 } else if (CustomFurniture.isInRegistry(name)) {
-                    setType(TreasureType.FURNITURE);
                     return TreasureType.FURNITURE;
+                } else {
+                    return TreasureType.VANILLA;
+                }
+
+            } catch (NullPointerException | ClassCastException e) {
+
+                plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+                return TreasureType.VANILLA;
+
+            }
+
+        }
+        else if(oraxen)
+        {
+
+            try {
+
+                if (OraxenFurniture.isFurniture(name)) {
+                    return TreasureType.ORAXEN_FURNITURE;
                 } else {
                     return TreasureType.VANILLA;
                 }
 
 
             } catch (NullPointerException | ClassCastException e) {
-
                 plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
-
+                return TreasureType.VANILLA;
             }
 
         }
-
-        return TreasureType.VANILLA;
+        else return TreasureType.VANILLA;
     }
 
     private void announceSpawnedTreasure()
@@ -1086,6 +1086,10 @@ public class Treasure {
         else if(getType() == TreasureType.FURNITURE)
         {
             CustomFurniture.remove(furnitureEntity, false);
+        }
+        else if(getType() == TreasureType.ORAXEN_FURNITURE)
+        {
+            OraxenFurniture.remove(furnitureEntity, null);
         }
 
         getLocation().getBlock().setType(Material.AIR);
