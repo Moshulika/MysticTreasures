@@ -29,6 +29,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.HashMap;
+
 public class TreasureEvents implements Listener {
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
@@ -116,12 +118,16 @@ public class TreasureEvents implements Listener {
             else
             {
 
-                if (Treasure.isNearTreasure(e.getPlayer())) {
+                if(!Settings.getWorldBooleanUnknown(e.getPlayer().getWorld().getName(), "disable-griefing-protection")) {
 
-                    if(e.getPlayer().hasPermission("mystictreasures.bypass")) return;
+                    if (Treasure.isNearTreasure(e.getPlayer())) {
 
-                    e.setCancelled(true);
-                    e.getPlayer().sendMessage(Messages.get("cannot-break-near-treasure"));
+                        if (e.getPlayer().hasPermission("mystictreasures.bypass")) return;
+
+                        e.setCancelled(true);
+                        e.getPlayer().sendMessage(Messages.get("cannot-break-near-treasure"));
+
+                    }
 
                 }
 
@@ -135,13 +141,15 @@ public class TreasureEvents implements Listener {
 
         if (Hunt.isActive(e.getBlock().getWorld())) {
 
+            if(!Settings.getWorldBooleanUnknown(e.getPlayer().getWorld().getName(), "disable-griefing-protection")) {
 
-            if (Treasure.isNearTreasure(e.getPlayer())) {
+                if (Treasure.isNearTreasure(e.getPlayer())) {
 
-                if(e.getPlayer().hasPermission("mystictreasures.bypass")) return;
+                    if (e.getPlayer().hasPermission("mystictreasures.bypass")) return;
 
-                e.setCancelled(true);
-                e.getPlayer().sendMessage(Messages.get("cannot-place-near-treasure"));
+                    e.setCancelled(true);
+                    e.getPlayer().sendMessage(Messages.get("cannot-place-near-treasure"));
+                }
             }
 
         }
@@ -154,14 +162,16 @@ public class TreasureEvents implements Listener {
 
         if (Hunt.isActive(e.getPlayer().getWorld())) {
 
+            if(!Settings.getWorldBooleanUnknown(e.getPlayer().getWorld().getName(), "disable-griefing-protection")) {
 
-            if (Treasure.isNearTreasure(e.getPlayer())) {
+                if (Treasure.isNearTreasure(e.getPlayer())) {
 
-                if(e.getPlayer().hasPermission("mystictreasures.bypass")) return;
+                    if (e.getPlayer().hasPermission("mystictreasures.bypass")) return;
 
-                e.setCancelled(true);
-                e.getPlayer().sendMessage(Messages.get("cannot-place-near-treasure"));
+                    e.setCancelled(true);
+                    e.getPlayer().sendMessage(Messages.get("cannot-place-near-treasure"));
 
+                }
             }
         }
 
@@ -429,6 +439,24 @@ public class TreasureEvents implements Listener {
 
     }
 
+    private static HashMap<Hunt, HashMap<Player, Integer>> clicks = new HashMap<>();
+
+    private HashMap<Player, Integer> getHuntClicks(Hunt h)
+    {
+        clicks.putIfAbsent(h, new HashMap<>());
+        return clicks.get(h);
+    }
+
+    private int getClicks(Hunt h, Player p)
+    {
+        return getHuntClicks(h).get(p) == null ? 1 : getHuntClicks(h).get(p);
+    }
+
+    private void addClicks(Hunt h, Player p)
+    {
+        getHuntClicks(h).put(p, getClicks(h, p) + 1);
+    }
+
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
 
@@ -444,7 +472,9 @@ public class TreasureEvents implements Listener {
 
                         Location o = e.getClickedBlock().getLocation();
                         Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
+                        Hunt h = Hunt.getHunt(o.getWorld());
                         Player p = e.getPlayer();
+                        int needed_clicks = Settings.getWorldIntUnknown(worldName, "clicks-to-open");
 
                         if (Treasure.isTreasure(l)) {
 
@@ -457,12 +487,20 @@ public class TreasureEvents implements Listener {
                                 return;
                             }
 
+                            if(getClicks(h, e.getPlayer()) < needed_clicks) {
+                                e.getPlayer().sendMessage(Messages.get("remaining-clicks")
+                                        .replace("{current_clicks}", "" + getClicks(h, e.getPlayer()))
+                                        .replace("{needed_clicks}", "" + needed_clicks));
+                                addClicks(h, e.getPlayer());
+                                Utils.sendBreakSound(e.getPlayer());
+                                return;
+                            }
+
                             if (Settings.getWorldBooleanUnknown(worldName, "require-all-mobs-dead")) {
 
                                 Treasure t = Treasure.getTreasure(l);
 
                                 if (t.mobsCleared()) {
-
 
                                     if(Settings.getWorldBooleanUnknown(worldName, "reward-all-players-who-participated"))
                                     {

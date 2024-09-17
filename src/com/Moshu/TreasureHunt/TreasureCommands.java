@@ -1,10 +1,7 @@
 package com.Moshu.TreasureHunt;
 
 import com.Moshu.Main;
-import com.Moshu.Misc.Messages;
-import com.Moshu.Misc.SendCenteredMessage;
-import com.Moshu.Misc.Settings;
-import com.Moshu.Misc.Utils;
+import com.Moshu.Misc.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -195,7 +192,9 @@ public class TreasureCommands implements CommandExecutor {
                     sender.sendMessage(Utils.format("  &6/hunt start &eworld &8(&fStarts a hunt at a random location in the player's world&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt start &eworld &8(&fStops the hunt in that world&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt start &ehere &8(&fStarts a hunt at the player's location&8)"));
-                    sender.sendMessage(Utils.format("  &6/hunt reload &8(&fReloads the config & messages- not all config values can be reloaded&8)"));
+                    sender.sendMessage(Utils.format("  &6/hunt reload &8(&fReloads the config & messages - not all config values can be reloaded&8)"));
+                    sender.sendMessage(Utils.format("  &6/hunt clear (Player) &8(&fClears a player's winner cooldown&8)"));
+                    sender.sendMessage(Utils.format("  &6/hunt debug &8(&fEnter debug mode&8)"));
                     sender.sendMessage(" ");
 
 
@@ -302,6 +301,20 @@ public class TreasureCommands implements CommandExecutor {
 
                     Hunt.getHunt(w).stop();
                     sender.sendMessage(Messages.get("hunt-stopped"));
+
+                }
+                else if(args[0].equalsIgnoreCase("clear"))
+                {
+
+                    if(Bukkit.getPlayer(args[1]) == null)
+                    {
+                        sender.sendMessage(Messages.get("player-not-found"));
+                        return true;
+                    }
+
+                    Player t = Bukkit.getPlayer(args[1]);
+                    Cooldown.setCooldowns(t.getUniqueId(), "treasure-winner", 0);
+                    sender.sendMessage(Messages.get("cooldown-reset"));
 
                 }
                 else

@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -182,16 +183,33 @@ public class Hunt {
         this.w = w;
         this.duration = duration;
 
-        double distance = Math.min(Locations.getBorder(w) - 10, Settings.getWorldIntUnknown(w.getName(), "max-treasure-distance"));
+        if(Settings.getWorldBooleanUnknown(w.getName(), "spawn-to-certain-coords")) {
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
-        {
+            try
+            {
+                List<String> locations = Settings.getWorldStringListUnknown(w.getName(), "spawn-coords");
+                String locationString = locations.get(Utils.randInt(0, locations.size() - 1));
 
-            CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, distance, 0));
-            this.l = loc.join();
+                String[] args = locationString.split(":");
+                this.l = new Location(w, Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
+            }
+            catch(Exception e)
+            {
+                Bukkit.getLogger().log(Level.SEVERE, "Error while getting a location from 'spawn-coords'. Check your coordonates, please: " + e.getMessage());
+            }
+        }
+        else {
 
-        });
+            double distance = Math.min(Locations.getBorder(w) - 10, Settings.getWorldIntUnknown(w.getName(), "max-treasure-distance"));
 
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
+            {
+
+                CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, distance, 0));
+                this.l = loc.join();
+
+            });
+        }
     }
 
     Hunt(Location location, int duration)

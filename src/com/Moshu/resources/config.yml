@@ -18,6 +18,8 @@ settings:
       allow-flight-near-treasure: false
       allow-god-near-treasure: false
       allow-elytra-near-treasure: false
+      disable-griefing-protection: false
+      protection-radius: 50 #The radius in which the griefing protection works
       flare-type: "many" #Options: none, few, many
       flare-particle: COMPOSTER
       fireworks: true #Spawn fireworks upon clicking the treasure
@@ -32,6 +34,7 @@ settings:
       interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
       duration: 20 #The duration of the treasure before it despawns
       cooldown: 15 #Cooldown between treasures in minutes
+      clicks-to-open: 1 #How many right clicks are required to open the treasure?
       protect-mobs-from-sun: true #Should zombies not set on fire from the sun?
       potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects
       potion-effects:
@@ -45,6 +48,9 @@ settings:
         - "EMERALD:1"
       command-rewards:
         - "eco give %player% 100"
+      spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
+      spawn-coords:
+        - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z
   effects-particles: #You should change these only if they cause compatibility issues.
     dust: DUST
     wax_off: WAX_OFF

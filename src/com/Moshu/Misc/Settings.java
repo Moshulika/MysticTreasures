@@ -132,6 +132,22 @@ public class Settings {
 
     }
 
+    public static List<String> getWorldStringListUnknown(String world, String setting)
+    {
+        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
+        {
+
+            if(getWorldString(s, "world-name").equals(world))
+            {
+                return plugin.getConfig().getStringList("settings.enabled-worlds." + s + "." + setting);
+            }
+
+        }
+
+        return new ArrayList<>();
+
+    }
+
 
     public static int getWorldIntUnknown(String world, String setting)
     {

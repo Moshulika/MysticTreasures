@@ -577,8 +577,11 @@ public class Treasure {
                                     lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime())));
                                 }
 
-                                DHAPI.setHologramLines(h, lines);
-                                h.updateAll();
+                                Bukkit.getScheduler().runTask(plugin, ()->
+                                {
+                                    DHAPI.setHologramLines(h, lines);
+                                    h.updateAll();
+                                });
 
                             }
 
@@ -897,7 +900,7 @@ public class Treasure {
                     if (h.getLocation().getWorld() == p.getWorld())
                     {
 
-                        if (h.getLocation().distance(p.getLocation()) <= 50)
+                        if (h.getLocation().distance(p.getLocation()) <= Settings.getWorldIntUnknown(p.getWorld().getName(), "protection-radius"))
                         {
                             return true;
                         }

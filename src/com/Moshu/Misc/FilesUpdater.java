@@ -62,6 +62,26 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".fall-from-the-sky", true);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".clicks-to-open") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".clicks-to-open", 1);
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".protection-radius") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".protection-radius", 50);
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".spawn-to-certain-coords") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".spawn-to-certain-coords", false);
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".disable-griefing-protection") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".disable-griefing-protection", false);
+            }
+
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".potion-effects") == null)
             {
 
@@ -69,6 +89,15 @@ public class FilesUpdater {
                 list.add("REGENERATION:1");
 
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".potion-effects", list);
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".spawn-coords") == null)
+            {
+
+                ArrayList<String> list = new ArrayList<String>();;
+                list.add("0:0:0");
+
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".spawn-coords", list);
             }
 
         }
@@ -98,6 +127,11 @@ public class FilesUpdater {
             plugin.getMessages().set("messages.config-reload", "&6&lTreasure&e&lHunt &fConfig reloaded!");
         }
 
+        if(plugin.getMessages().get("messages.remaining-clicks") == null)
+        {
+            plugin.getMessages().set("messages.remaining-clicks", "&6&lTreasure&e&lHunt &fKeep on clicking! ({current_clicks}/{needed_clicks})");
+        }
+
         if(plugin.getMessages().get("messages.participating") == null)
         {
             plugin.getMessages().set("messages.participating", "&6&lTreasure&e&lHunt &fYou are now participating in this TreasureHunt!");
@@ -111,6 +145,16 @@ public class FilesUpdater {
         if(plugin.getMessages().get("messages.no-creative") == null)
         {
             plugin.getMessages().set("messages.no-creative", "&6&lTreasure&e&lHunt &fYou can't break Treasures in Creative mode");
+        }
+
+        if(plugin.getMessages().get("messages.cooldown-reset") == null)
+        {
+            plugin.getMessages().set("messages.cooldown-reset", "&6&lTreasure&e&lHunt &fThis player is not online!");
+        }
+
+        if(plugin.getMessages().get("messages.player-not-found") == null)
+        {
+            plugin.getMessages().set("messages.player-not-found", "&6&lTreasure&e&lHunt &fYou successfully reset the player's cooldown!");
         }
 
         try

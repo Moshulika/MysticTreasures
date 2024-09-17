@@ -1417,7 +1417,7 @@ public class Utils
 
         int i = 255;
 
-            while (i >= 60) {
+            while (i >= 0) {
                 if (!new Location(world, x, i, z).getBlock().isEmpty())
                 {
                     return new Location(world, x, i, z).add(0.0D, 1.0D, 0.0D);

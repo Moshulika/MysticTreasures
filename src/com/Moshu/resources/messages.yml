@@ -22,6 +22,9 @@ messages:
   no-creative: "&6&lTreasure&e&lHunt &fYou can't break Treasures in Creative mode"
   participating: "&6&lTreasure&e&lHunt &fYou are now participating in this TreasureHunt!"
   participating-cleared-mobs: "&6&lTreasure&e&lHunt &fYou killed all the Treasure Keepers! The reward is all yours!"
+  player-not-found: "&6&lTreasure&e&lHunt &fThis player is not online!"
+  cooldown-reset: "&6&lTreasure&e&lHunt &fYou successfully reset the player's cooldown!"
+  remaining-clicks: "&6&lTreasure&e&lHunt &fKeep on clicking! ({current_clicks}/{needed_clicks})"
   winner-broadcast:
     - ""
     - "&6&lTreasure &e&lHunt"
