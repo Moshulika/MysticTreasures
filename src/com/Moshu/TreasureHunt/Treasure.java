@@ -243,12 +243,27 @@ public class Treasure {
                         continue;
                     }
 
-                    if (!Utils.isInt(args[1])) {
-                        plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure configuration: " + args[1]);
-                        continue;
-                    }
+                    if(!Utils.isInt(args[1]))
+                    {
+                        //DIAMOND:5-10
+                        if(args[1].split("-").length == 2)
+                        {
 
-                    amount = Integer.parseInt(args[1]);
+                            int min = Integer.parseInt(args[1].split("-")[0]);
+                            int max = Integer.parseInt(args[1].split("-")[1]);
+
+                            amount = Utils.randInt(min, max);
+
+                        }
+                        else {
+                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
+                            continue;
+                        }
+
+                    }
+                    else {
+                        amount = Integer.parseInt(args[1]);
+                    }
 
                     if(mythicsEnabled) {
 

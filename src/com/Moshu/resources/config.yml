@@ -40,11 +40,11 @@ settings:
       potion-effects:
         - "REGENERATION:1"
       mobs:
-        - "ZOMBIE:5"
+        - "ZOMBIE:5-10" #You can set a random interval like this. So every hunt will have a slightly different difficulty
         - "SKELETON:5"
         - "SPIDER:3"
       item-rewards:
-        - "DIAMOND:6"
+        - "DIAMOND:1-10" #You can set a random interval like this. So every hunt will have a slightly different prize
         - "EMERALD:1"
       command-rewards:
         - "eco give %player% 100"

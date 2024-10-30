@@ -180,6 +180,7 @@ public class TreasureCommands implements CommandExecutor {
 
                     sender.sendMessage(Messages.get("config-reload"));
                     plugin.reloadFiles();
+                    Hunt.initialize();
 
                 }
                 else if(args[0].equalsIgnoreCase("help"))

@@ -52,9 +52,8 @@ public class Hunt {
         return items.get(w.getName());
     }
 
-    public static void initialize()
+    private static void loadItems()
     {
-
         String[] args;
         ItemStack item;
 
@@ -86,11 +85,25 @@ public class Hunt {
 
                     if(!Utils.isInt(args[1]))
                     {
-                        plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
-                        continue;
-                    }
+                        //DIAMOND:5-10
+                        if(args[1].split("-").length == 2)
+                        {
 
-                    amount = Integer.parseInt(args[1]);
+                            int min = Integer.parseInt(args[1].split("-")[0]);
+                            int max = Integer.parseInt(args[1].split("-")[1]);
+
+                            amount = Utils.randInt(min, max);
+
+                        }
+                        else {
+                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
+                            continue;
+                        }
+
+                    }
+                    else {
+                        amount = Integer.parseInt(args[1]);
+                    }
 
                     if(itemsAdder)
                     {
@@ -135,11 +148,25 @@ public class Hunt {
 
                     if(!Utils.isInt(args[2]))
                     {
-                        plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[0] + ":" + args[1]);
-                        continue;
-                    }
+                        //DIAMOND:5-10
+                        if(args[2].split("-").length == 2)
+                        {
 
-                    amount = Integer.parseInt(args[2]);
+                            int min = Integer.parseInt(args[2].split("-")[0]);
+                            int max = Integer.parseInt(args[2].split("-")[1]);
+
+                            amount = Utils.randInt(min, max);
+
+                        }
+                        else {
+                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[2]);
+                            continue;
+                        }
+
+                    }
+                    else {
+                        amount = Integer.parseInt(args[2]);
+                    }
 
                     if(itemsAdder)
                     {
@@ -171,6 +198,12 @@ public class Hunt {
 
             items.put(world_name, local_items);
         }
+    }
+
+    public static void initialize()
+    {
+
+        loadItems();
 
         Treasure.loadMobs();
         Treasure.loadCommands();
@@ -228,6 +261,8 @@ public class Hunt {
             Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lMystic&d&lTreasures: &fLocation is null, something went wrong."));
             return;
         }
+
+        initialize();
 
         Bukkit.getScheduler().runTask(plugin, () ->
         {
