@@ -82,6 +82,16 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".disable-griefing-protection", false);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".treasure-name") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".treasure-name", "Hidden Treasure");
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".enable-mob-tracker") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".enable-mob-tracker", true);
+            }
+
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".potion-effects") == null)
             {
 
@@ -122,6 +132,11 @@ public class FilesUpdater {
             plugin.getConfigFile().set("settings.updater", true);
         }
 
+        if(plugin.getConfigFile().get("settings.bstats") == null)
+        {
+            plugin.getConfigFile().set("settings.bstats", true);
+        }
+
         if(plugin.getMessages().get("messages.config-reload") == null)
         {
             plugin.getMessages().set("messages.config-reload", "&6&lTreasure&e&lHunt &fConfig reloaded!");
@@ -151,6 +166,23 @@ public class FilesUpdater {
         {
             plugin.getMessages().set("messages.cooldown-reset", "&6&lTreasure&e&lHunt &fThis player is not online!");
         }
+
+        if(plugin.getMessages().get("messages.actionbar-all-mobs-dead") == null)
+        {
+            plugin.getMessages().set("messages.actionbar-all-mobs-dead", "&8(&2❖&8) &fAll the Treasure Keepers are dead! Go and open the treasure!");
+        }
+
+        if(plugin.getMessages().get("messages.actionbar-mobs-remaining") == null)
+        {
+            plugin.getMessages().set("messages.actionbar-mobs-remaining", "&8(&2❖&8) &fThere are still {remaining_mobs} Treasure Keepers alive!");
+        }
+
+        if(plugin.getMessages().get("messages.actionbar-mobs-tracker") == null)
+        {
+            plugin.getMessages().set("messages.actionbar-mobs-tracker", "&8(&2❖&8) &fA Treasure Keeper is located at &7X: &f{x}, &7Y: &f{z} &7Z: &f{z}");
+        }
+
+
 
         if(plugin.getMessages().get("messages.player-not-found") == null)
         {

@@ -26,6 +26,7 @@ public class Hunt {
     private int duration;
     private long starttime = 0;
 
+
     private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     private static HashMap<String, ArrayList<ItemStack>> items = new HashMap<>();
@@ -94,6 +95,8 @@ public class Hunt {
 
                             amount = Utils.randInt(min, max);
 
+                            if(amount <= 0) continue;
+
                         }
                         else {
                             plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
@@ -156,6 +159,8 @@ public class Hunt {
                             int max = Integer.parseInt(args[2].split("-")[1]);
 
                             amount = Utils.randInt(min, max);
+
+                            if(amount <= 0) continue;
 
                         }
                         else {
@@ -324,6 +329,11 @@ public class Hunt {
         }
 
         return null;
+    }
+
+    public String getTreasureAlias()
+    {
+        return Settings.getWorldStringUnknown(w.getName(), "treasure-name");
     }
 
     public void stop()

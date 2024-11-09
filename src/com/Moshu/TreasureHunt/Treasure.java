@@ -58,6 +58,8 @@ public class Treasure {
     private TreasureType type;
     private Entity furnitureEntity;
 
+    private boolean spawned = false;
+
     private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     private static final Particle EXPLOSION = Settings.getCompatParticle("treasure-spawn-particle");
@@ -99,6 +101,11 @@ public class Treasure {
     public ArrayList<ItemStack> getItems()
     {
         return items;
+    }
+
+    public boolean haveTheMobsSpawned()
+    {
+        return spawned;
     }
 
     public boolean isActive()
@@ -254,6 +261,8 @@ public class Treasure {
 
                             amount = Utils.randInt(min, max);
 
+                            if(amount <= 0) continue;
+
                         }
                         else {
                             plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
@@ -406,6 +415,9 @@ public class Treasure {
 
                 }
             }
+
+            spawned = true;
+
         }
         catch (Exception ex)
         {
@@ -563,8 +575,6 @@ public class Treasure {
         int wandering_distance = Settings.getWorldIntUnknown(w.getName(), "mob-wandering-distance");
 
         BukkitRunnable run = new BukkitRunnable() {
-
-            boolean spawned = false;
 
             @Override
             public void run() {
@@ -874,6 +884,7 @@ public class Treasure {
                     scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
                             .replace("{z}", h.getLocation().getBlockZ() + "")
                             .replace("{world}", h.getWorld() + "")
+                            .replace("{alias}", h.getTreasureAlias() + "")
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
@@ -897,6 +908,7 @@ public class Treasure {
                     scm.sendCenteredMessage(p, s.replace("{x}", getLocation().getBlockX() + "")
                             .replace("{z}", getLocation().getBlockZ() + "")
                             .replace("{world}", getLocation().getWorld().getName() + "")
+                            .replace("{alias}", h.getTreasureAlias() + "")
                             .replace("{duration}", h.getDuration() + ""));
                 }
 

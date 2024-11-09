@@ -49,6 +49,7 @@ public class TreasureCommands implements CommandExecutor {
                                 scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
                                         .replace("{z}", h.getLocation().getBlockZ() + "")
                                         .replace("{world}", h.getWorld() + "")
+                                        .replace("{alias}", h.getTreasureAlias() + "")
                                         .replace("{duration}", h.getDuration() + ""));
                             }
 

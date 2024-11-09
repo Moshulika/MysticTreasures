@@ -75,6 +75,8 @@ public class Main extends JavaPlugin {
         TreasureTask.task();
         ActionBar.start();
 
+        metrics();
+
     }
 
 
@@ -146,6 +148,18 @@ public class Main extends JavaPlugin {
     public static void consoleMessage(String s)
     {
         Bukkit.getConsoleSender().sendMessage(Utils.format( s));
+    }
+
+    public void metrics()
+    {
+
+        if(getConfigFile().getBoolean("settings.bstats", true))
+        {
+            int pluginId = 23859;
+            Metrics metrics = new Metrics(this, pluginId);
+            Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fbStats is enabled"));
+        }
+
     }
 
     /**
