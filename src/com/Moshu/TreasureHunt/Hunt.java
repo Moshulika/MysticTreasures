@@ -276,9 +276,13 @@ public class Hunt {
 
             this.starttime = System.currentTimeMillis();
             treasure.create();
+            treasure.setAlias(getTreasureAlias());
 
-            Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation").replace("{x}", getLocation().getBlockX() + "")
-                    .replace("{z}", getLocation().getBlockZ() + "").replace("{world}", getLocation().getWorld().getName()));
+            Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
+                    .replace("{x}", getLocation().getBlockX() + "")
+                    .replace("{z}", getLocation().getBlockZ() + "")
+                    .replace("{alias}", treasure.getAlias() + "")
+                    .replace("{world}", getLocation().getWorld().getName()));
 
             hunts.add(this);
 

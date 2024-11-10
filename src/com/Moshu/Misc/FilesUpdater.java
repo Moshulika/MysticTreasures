@@ -182,6 +182,15 @@ public class FilesUpdater {
             plugin.getMessages().set("messages.actionbar-mobs-tracker", "&8(&2❖&8) &fA Treasure Keeper is located at &7X: &f{x}, &7Y: &f{z} &7Z: &f{z}");
         }
 
+        if(plugin.getMessages().get("messages.treasure-locked") == null)
+        {
+            plugin.getMessages().set("messages.treasure-locked", "&c&lLOCKED");
+        }
+
+        if(plugin.getMessages().get("messages.treasure-unlocked") == null)
+        {
+            plugin.getMessages().set("messages.treasure-unlocked", "&a&lUNLOCKED");
+        }
 
 
         if(plugin.getMessages().get("messages.player-not-found") == null)

@@ -59,6 +59,7 @@ public class Treasure {
     private Entity furnitureEntity;
 
     private boolean spawned = false;
+    private String alias = "Hidden Treasure";
 
     private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
@@ -82,6 +83,16 @@ public class Treasure {
     }
 
     private ArrayList<Player> participants = new ArrayList<>();
+
+    public void setAlias(String s)
+    {
+        alias = s;
+    }
+
+    public String getAlias()
+    {
+        return alias;
+    }
 
     public TreasureType getType()
     {
@@ -574,6 +585,9 @@ public class Treasure {
         World w = location.getWorld();
         int wandering_distance = Settings.getWorldIntUnknown(w.getName(), "mob-wandering-distance");
 
+        String unlocked =  Messages.get("treasure-unlocked");
+        String locked =  Messages.get("treasure-locked");
+
         BukkitRunnable run = new BukkitRunnable() {
 
             @Override
@@ -599,7 +613,11 @@ public class Treasure {
                                 ArrayList<String> lines = new ArrayList<>();
 
                                 for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
-                                    lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime())));
+                                    lines.add(s
+                                            .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
+                                            .replace("{status}", getRemainingMobs().isEmpty() ? unlocked : locked)
+                                            .replace("{alias}", getAlias())
+                                            .replace("{remaining_mobs}", getRemainingMobs().size() + ""));
                                 }
 
                                 Bukkit.getScheduler().runTask(plugin, ()->
@@ -884,7 +902,7 @@ public class Treasure {
                     scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
                             .replace("{z}", h.getLocation().getBlockZ() + "")
                             .replace("{world}", h.getWorld() + "")
-                            .replace("{alias}", h.getTreasureAlias() + "")
+                            .replace("{alias}", getAlias() + "")
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
@@ -908,7 +926,7 @@ public class Treasure {
                     scm.sendCenteredMessage(p, s.replace("{x}", getLocation().getBlockX() + "")
                             .replace("{z}", getLocation().getBlockZ() + "")
                             .replace("{world}", getLocation().getWorld().getName() + "")
-                            .replace("{alias}", h.getTreasureAlias() + "")
+                            .replace("{alias}", getAlias() + "")
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
