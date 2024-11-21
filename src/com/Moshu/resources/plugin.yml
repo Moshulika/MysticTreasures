@@ -6,11 +6,11 @@
 
 main: com.Moshu.Main
 name: MysticTreasures
-version: 1.41
+version: 1.42
 description: The world is full of treasures!
 author: Moshu
 website: mc.b-zone.ro
-softdepend: [Vault, WorldGuard, ChunkyBorder, EssentialsX, Citizens, LuckPerms, MythicMobs, ItemsAdder, Oraxen]
+softdepend: [Vault, WorldGuard, ChunkyBorder, EssentialsX, Citizens, LuckPerms, MythicMobs, ItemsAdder, Oraxen, DecentHolograms, FancyHolograms]
 api-version: "1.13"
 
 commands:

@@ -34,7 +34,7 @@ public class TreasureTask {
 
             if(w == null)
             {
-                plugin.getLogger().log(Level.SEVERE, "Invalid world name: " + w.getName());
+                plugin.getLogger().log(Level.SEVERE, "Invalid world name inside " + s + "'s treasure configuration. Make sure the world declared in `world-name` exists on your server!");
                 return;
             }
 

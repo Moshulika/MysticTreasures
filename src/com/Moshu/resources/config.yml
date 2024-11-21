@@ -13,7 +13,7 @@ settings:
       treasure-particles: COMPOSTER
       treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
       fall-from-the-sky: true
-      treasure-icon: EMERALD #Only if DecentHolograms is not installed
+      treasure-icon: EMERALD #Only if DecentHolograms or FancyHolograms is not installed
       require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
       allow-pvp-near-treasure: false
       allow-flight-near-treasure: false

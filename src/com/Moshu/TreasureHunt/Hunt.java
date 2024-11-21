@@ -275,8 +275,8 @@ public class Hunt {
             treasure = new Treasure(this, getItems());
 
             this.starttime = System.currentTimeMillis();
-            treasure.create();
             treasure.setAlias(getTreasureAlias());
+            treasure.create();
 
             Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
                     .replace("{x}", getLocation().getBlockX() + "")
