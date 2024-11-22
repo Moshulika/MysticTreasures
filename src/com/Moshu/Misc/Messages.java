@@ -12,7 +12,7 @@ public class Messages {
 
     public Messages(Main plugin)
     {
-        this.plugin = plugin;
+        Messages.plugin = plugin;
     }
 
     public static String get(String path)

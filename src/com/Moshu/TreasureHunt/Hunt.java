@@ -4,7 +4,6 @@ import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
-import dev.lone.itemsadder.api.CustomFurniture;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
@@ -21,18 +20,18 @@ import java.util.logging.Level;
 public class Hunt {
 
     private Treasure treasure;
-    private World w;
+    private final World w;
     private Location l;
-    private int duration;
+    private final int duration;
     private long starttime = 0;
 
 
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    private static HashMap<String, ArrayList<ItemStack>> items = new HashMap<>();
-    private static ArrayList<Hunt> hunts = new ArrayList<>();
+    private static final HashMap<String, ArrayList<ItemStack>> items = new HashMap<>();
+    private static final ArrayList<Hunt> hunts = new ArrayList<>();
 
-    private static HashMap<World, Long> started_hunts = new HashMap<>();
+    private static final HashMap<World, Long> started_hunts = new HashMap<>();
 
     public static void addHunt(World w)
     {
@@ -281,7 +280,7 @@ public class Hunt {
             Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
                     .replace("{x}", getLocation().getBlockX() + "")
                     .replace("{z}", getLocation().getBlockZ() + "")
-                    .replace("{alias}", treasure.getAlias() + "")
+                    .replace("{alias}", treasure.getAlias())
                     .replace("{world}", getLocation().getWorld().getName()));
 
             hunts.add(this);

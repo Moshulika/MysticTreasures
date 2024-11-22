@@ -16,7 +16,7 @@ public class Settings {
 
     public Settings(Main plugin)
     {
-        this.plugin = plugin;
+        Settings.plugin = plugin;
     }
 
     public static List<String> getAllowedWorlds()

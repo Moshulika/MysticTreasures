@@ -20,12 +20,12 @@ public class Updater implements Listener {
 
     public Updater(Main plugin)
     {
-        this.plugin = plugin;
+        Updater.plugin = plugin;
     }
 
 
-    private String url = "https://api.spigotmc.org/legacy/update.php?resource=";
-    private String id = "118535";
+    private final String url = "https://api.spigotmc.org/legacy/update.php?resource=";
+    private final String id = "118535";
 
     private boolean isAvailable;
 

@@ -6,7 +6,7 @@
 
     <groupId>com.Moshu.MysticTreasures</groupId>
     <artifactId>MysticTreasures</artifactId>
-    <version>1.4</version>
+    <version>1.42</version>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

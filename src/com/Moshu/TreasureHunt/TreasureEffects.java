@@ -14,9 +14,9 @@ import java.util.logging.Level;
 
 public class TreasureEffects {
 
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    private static ArrayList<PotionEffect> effects = new ArrayList<PotionEffect>();
+    private static final ArrayList<PotionEffect> effects = new ArrayList<PotionEffect>();
 
     private static void loadPotionEffects() {
 

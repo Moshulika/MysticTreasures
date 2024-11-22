@@ -1,0 +1,142 @@
+package com.Moshu.TreasureHunt;
+
+import com.Moshu.Misc.Messages;
+import com.Moshu.Misc.Utils;
+import de.oliver.fancyholograms.api.FancyHologramsPlugin;
+import de.oliver.fancyholograms.api.HologramManager;
+import de.oliver.fancyholograms.api.data.TextHologramData;
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+
+public class HologramHandler {
+
+    private static HologramHandler handler = null;
+    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+
+    public static HologramHandler getInstance()
+    {
+
+        if(handler == null)
+        {
+            handler = new HologramHandler();
+        }
+
+        return handler;
+
+    }
+
+    public void create(Location loc)
+    {
+
+        if(Utils.isEnabled("DecentHolograms"))
+        {
+            DHAPI.createHologram("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5,1.5,0.5), false).setDownOrigin(true);
+
+            Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
+
+            ArrayList<String> lines = new ArrayList<>();
+
+            for(String s : Messages.getAndFormatList("messages.treasure-hologram"))
+            {
+                lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(loc.getWorld()).getRemainingTime())));
+            }
+
+            h.enable();
+            h.setUpdateInterval(20);
+
+            DHAPI.setHologramLines(h, lines);
+            h.updateAll();
+        }
+        else if(Utils.isEnabled("FancyHolograms"))
+        {
+            HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
+
+            TextHologramData data = new TextHologramData("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5,1.5,0.5));
+            data.setBackground(Color.fromARGB(0, 0,0,0));
+            data.setVisibilityDistance(50);
+            de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.create(data);
+            hologramManager.addHologram(h);
+        }
+        else
+        {
+            Treasure.createItem(Treasure.getItemLocation(loc));
+        }
+
+    }
+
+    public void update(World w, ArrayList<String> lines)
+    {
+
+        if (Utils.isEnabled("DecentHolograms")) {
+
+            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
+
+                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
+
+                Bukkit.getScheduler().runTask(plugin, ()->
+                {
+                    DHAPI.setHologramLines(h, lines);
+                    h.updateAll();
+                });
+
+            }
+
+        }
+
+        else if(Utils.isEnabled("FancyHolograms"))
+        {
+
+            HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
+
+            if(hologramManager.getHologram("treasurehunt_" + w.getName()).isPresent())
+            {
+
+                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + w.getName()).get();
+
+                Bukkit.getScheduler().runTask(plugin, ()->
+                {
+
+                    TextHologramData data = (TextHologramData) h.getData();
+                    data.setText(lines);
+                    h.queueUpdate();
+
+                });
+
+            }
+
+        }
+    }
+
+    public void delete(Location loc)
+    {
+        if(Utils.isEnabled("DecentHolograms"))
+        {
+            Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
+            if(h != null) h.delete();
+        }
+
+        else if(Utils.isEnabled("FancyHolograms"))
+        {
+
+            HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
+
+            if(hologramManager.getHologram("treasurehunt_" + loc.getWorld().getName()).isPresent())
+            {
+
+                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + loc.getWorld().getName()).get();
+                hologramManager.removeHologram(h);
+                FancyHologramsPlugin.get().getHologramStorage().delete(h);
+
+            }
+
+        }
+    }
+
+}

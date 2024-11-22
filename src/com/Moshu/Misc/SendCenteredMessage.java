@@ -149,7 +149,7 @@ public class SendCenteredMessage {
             if(c == '§'){
                 previousCode = true;
                 continue;
-            }else if(previousCode == true){
+            }else if(previousCode){
                 previousCode = false;
                 if(c == 'l' || c == 'L'){
                     isBold = true;

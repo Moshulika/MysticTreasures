@@ -13,7 +13,7 @@ import java.util.logging.Level;
 
 public class TreasureTask {
 
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
     private static long lastHunt;
 
     public static void updateLastHunt()

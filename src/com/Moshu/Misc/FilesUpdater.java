@@ -13,7 +13,7 @@ public class FilesUpdater {
 
     public FilesUpdater(Main plugin)
     {
-        this.plugin = plugin;
+        FilesUpdater.plugin = plugin;
     }
 
     public static void update()
@@ -95,7 +95,7 @@ public class FilesUpdater {
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".potion-effects") == null)
             {
 
-                ArrayList<String> list = new ArrayList<String>();;
+                ArrayList<String> list = new ArrayList<String>();
                 list.add("REGENERATION:1");
 
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".potion-effects", list);
@@ -104,7 +104,7 @@ public class FilesUpdater {
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".spawn-coords") == null)
             {
 
-                ArrayList<String> list = new ArrayList<String>();;
+                ArrayList<String> list = new ArrayList<String>();
                 list.add("0:0:0");
 
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".spawn-coords", list);

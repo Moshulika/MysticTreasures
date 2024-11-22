@@ -363,7 +363,7 @@ public class TreasureEvents implements Listener {
                     p.sendMessage(" - Gravity: " + as.hasGravity());
                     p.sendMessage(" - Metadata: " + as.getMetadata("treasure_stand"));
                     p.sendMessage(" - On ground: " + as.isOnGround());
-                    p.sendMessage(" - Velocity: " + as.getVelocity().toString());
+                    p.sendMessage(" - Velocity: " + as.getVelocity());
 
                     if(Utils.isPaper())
                     {
@@ -439,7 +439,7 @@ public class TreasureEvents implements Listener {
 
     }
 
-    private static HashMap<Hunt, HashMap<Player, Integer>> clicks = new HashMap<>();
+    private static final HashMap<Hunt, HashMap<Player, Integer>> clicks = new HashMap<>();
 
     private HashMap<Player, Integer> getHuntClicks(Hunt h)
     {

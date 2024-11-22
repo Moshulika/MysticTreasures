@@ -19,10 +19,10 @@ public class TreasureCommands implements CommandExecutor {
     private static Main plugin;
 
     public TreasureCommands(Main plugin) {
-        this.plugin = plugin;
+        TreasureCommands.plugin = plugin;
     }
 
-    private static ArrayList<Player> debugging = new ArrayList<Player>();
+    private static final ArrayList<Player> debugging = new ArrayList<Player>();
 
     public static boolean isDebugging(Player p) {
         return debugging.contains(p);
@@ -49,7 +49,7 @@ public class TreasureCommands implements CommandExecutor {
                                 scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
                                         .replace("{z}", h.getLocation().getBlockZ() + "")
                                         .replace("{world}", h.getWorld() + "")
-                                        .replace("{alias}", h.getTreasure().getAlias() + "")
+                                        .replace("{alias}", h.getTreasure().getAlias())
                                         .replace("{duration}", h.getDuration() + ""));
                             }
 

@@ -7,9 +7,9 @@ import org.bukkit.entity.EntityType;
 public class TreasureKeeper
 {
 
-    private MythicMob mythicMob;
-    private EntityType type;
-    private int amount;
+    private final MythicMob mythicMob;
+    private final EntityType type;
+    private final int amount;
 
     public TreasureKeeper(EntityType type, int amount)
     {

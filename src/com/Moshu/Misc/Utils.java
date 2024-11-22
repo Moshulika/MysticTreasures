@@ -156,11 +156,7 @@ public class Utils
                     return false;
                 }
             }
-            if ( ip.endsWith(".") ) {
-                return false;
-            }
-
-            return true;
+            return !ip.endsWith(".");
         } catch (NumberFormatException nfe) {
             return false;
         }
@@ -539,8 +535,6 @@ public class Utils
 
             }
 
-            return;
-
         }
         else
         {
@@ -822,8 +816,6 @@ public class Utils
                 im.setDisplayName(format( initialname));
                 is.setItemMeta(im);
             }, 100);
-
-            return;
 
         }
     }
@@ -1268,22 +1260,19 @@ public class Utils
     {
         ArrayList<Entity> en = new ArrayList<>();
 
-        if(l.getChunk().getEntities().length != 0) {
+        l.getChunk().getEntities();
+        for (Entity e : l.getChunk().getEntities()) {
 
+            if (e instanceof Item) {
 
-            for (Entity e : l.getChunk().getEntities()) {
+                if (l.distance(e.getLocation()) <= radius) {
 
-                if(e instanceof Item) {
-
-                    if (l.distance(e.getLocation()) <= radius) {
-
-                        en.add(e);
-
-                    }
+                    en.add(e);
 
                 }
 
             }
+
         }
         return en;
     }
@@ -1356,7 +1345,7 @@ public class Utils
     {
 
         if(i < 1000) return "" + i;
-        else return (int) i/1000 + "k";
+        else return i /1000 + "k";
 
     }
 
@@ -1725,7 +1714,7 @@ public class Utils
                 p.setInvulnerable(false);
             }
 
-        }, seconds * 20);
+        }, seconds * 20L);
 
     }
 

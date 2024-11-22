@@ -316,8 +316,7 @@ public class Locations {
             double world_border = l.getWorld().getWorldBorder().getSize() - 10;
 
             if(l.getX() >= max_distance || l.getZ() >= max_distance) return false;
-            else if(l.getX() >= world_border || l.getZ() >= world_border) return false;
-            else return true;
+            else return !(l.getX() >= world_border) && !(l.getZ() >= world_border);
 
         }
 

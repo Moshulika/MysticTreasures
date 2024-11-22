@@ -10,7 +10,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Effects {
 
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     private static final Particle DUST = Settings.getCompatParticle("dust");
     private static final Particle WAX_OFF = Settings.getCompatParticle("wax_off");
@@ -32,9 +32,9 @@ public class Effects {
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            int radius = 1;
+            final int radius = 1;
 
-            double i = 0;
+            final double i = 0;
             boolean rev;
             int step = 0;
             double x, y, z;
@@ -103,8 +103,8 @@ public class Effects {
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            int radius = 1;
-            Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(255, 255, 0), 1);
+            final int radius = 1;
+            final Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(255, 255, 0), 1);
 
             double c = 0;
             double i = 0;
@@ -171,8 +171,8 @@ public class Effects {
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            int radius = 1;
-            Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(0, 128, 255), 1);
+            final int radius = 1;
+            final Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(0, 128, 255), 1);
 
             int step = 0;
             boolean rev;

@@ -2,23 +2,13 @@ package com.Moshu.TreasureHunt;
 
 import com.Moshu.Misc.*;
 import com.google.common.base.Joiner;
-import de.oliver.fancyholograms.api.FancyHologramsPlugin;
-import de.oliver.fancyholograms.api.HologramManager;
-import de.oliver.fancyholograms.api.data.HologramData;
-import de.oliver.fancyholograms.api.data.TextHologramData;
-import de.oliver.fancyholograms.api.hologram.HologramType;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
-import dev.lone.itemsadder.api.CustomStack;
-import eu.decentsoftware.holograms.api.DHAPI;
-import eu.decentsoftware.holograms.api.holograms.Hologram;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.bukkit.utils.lib.jooq.impl.QOM;
 import io.lumine.mythic.core.mobs.ActiveMob;
-import io.th0rgal.oraxen.OraxenPlugin;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -33,9 +23,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
-import org.checkerframework.checker.units.qual.A;
-
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -57,8 +44,8 @@ public class Treasure {
 
 
     private Location l;
-    private ArrayList<ItemStack> items;
-    private Hunt h;
+    private final ArrayList<ItemStack> items;
+    private final Hunt h;
     private boolean isactive;
     private TreasureType type;
     private Entity furnitureEntity;
@@ -66,7 +53,7 @@ public class Treasure {
     private boolean spawned = false;
     private String alias = "Hidden Treasure";
 
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     private static final Particle EXPLOSION = Settings.getCompatParticle("treasure-spawn-particle");
     private static final Particle EXPLOSION_EMITTER = Settings.getCompatParticle("treasure-remove-particle");
@@ -87,7 +74,7 @@ public class Treasure {
 
     }
 
-    private ArrayList<Player> participants = new ArrayList<>();
+    private final ArrayList<Player> participants = new ArrayList<>();
 
     public void setAlias(String s)
     {
@@ -199,7 +186,7 @@ public class Treasure {
 
     }
 
-    private static HashMap<String, ArrayList<String>> command_rewards = new HashMap<>();
+    private static final HashMap<String, ArrayList<String>> command_rewards = new HashMap<>();
 
     public ArrayList<String> getCommandRewards()
     {
@@ -233,7 +220,7 @@ public class Treasure {
 
     }
 
-    private static HashMap<String, ArrayList<TreasureKeeper>> mobs = new HashMap<>();
+    private static final HashMap<String, ArrayList<TreasureKeeper>> mobs = new HashMap<>();
 
     public ArrayList<TreasureKeeper> getMobs(World w)
     {
@@ -451,40 +438,7 @@ public class Treasure {
     {
         
         Location loc = getLocation().clone();
-
-        if(Utils.isEnabled("DecentHolograms"))
-        {
-            DHAPI.createHologram("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5,1.5,0.5), false).setDownOrigin(true);
-
-            Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
-
-            ArrayList<String> lines = new ArrayList<>();
-
-            for(String s : Messages.getAndFormatList("messages.treasure-hologram"))
-            {
-                lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(loc.getWorld()).getRemainingTime())));
-            }
-
-            h.enable();
-            h.setUpdateInterval(20);
-
-            DHAPI.setHologramLines(h, lines);
-            h.updateAll();
-        }
-        else if(Utils.isEnabled("FancyHolograms"))
-        {
-            HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
-
-            TextHologramData data = new TextHologramData("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5,1.5,0.5));
-            data.setBackground(Color.fromARGB(0, 0,0,0));
-            data.setVisibilityDistance(50);
-            de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.create(data);
-            hologramManager.addHologram(h);
-        }
-        else
-        {
-            createItem(getItemLocation(l));
-        }
+        HologramHandler.getInstance().create(loc);
 
     }
 
@@ -499,7 +453,7 @@ public class Treasure {
 
                 BukkitRunnable run = new BukkitRunnable() {
 
-                    Particle p = Settings.getWorldParticleUnknown(loc.getWorld().getName(), "flare-particle");
+                    final Particle p = Settings.getWorldParticleUnknown(loc.getWorld().getName(), "flare-particle");
 
                     @Override
                     public void run() {
@@ -630,43 +584,7 @@ public class Treasure {
                                     .replace("{remaining_mobs}", getRemainingMobs().size() + ""));
                         }
 
-                        if (Utils.isEnabled("DecentHolograms")) {
-
-                            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
-
-                                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
-
-                                Bukkit.getScheduler().runTask(plugin, ()->
-                                {
-                                    DHAPI.setHologramLines(h, lines);
-                                    h.updateAll();
-                                });
-
-                            }
-
-                        }
-                        else if(Utils.isEnabled("FancyHolograms"))
-                        {
-
-                            HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
-
-                            if(hologramManager.getHologram("treasurehunt_" + w.getName()).isPresent())
-                            {
-
-                                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + w.getName()).get();
-
-                                Bukkit.getScheduler().runTask(plugin, ()->
-                                {
-
-                                    TextHologramData data = (TextHologramData) h.getData();
-                                    data.setText(lines);
-                                    h.queueUpdate();
-
-                                });
-
-                            }
-
-                        }
+                        HologramHandler.getInstance().update(w, lines);
 
                         if(distance_to_spawn > 0 && !Utils.getNearbyPlayers(location, distance_to_spawn).isEmpty() && !spawned) {
                             Bukkit.getScheduler().runTaskLater(plugin, () ->
@@ -940,7 +858,7 @@ public class Treasure {
                     scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
                             .replace("{z}", h.getLocation().getBlockZ() + "")
                             .replace("{world}", h.getWorld() + "")
-                            .replace("{alias}", getAlias() + "")
+                            .replace("{alias}", getAlias())
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
@@ -963,8 +881,8 @@ public class Treasure {
                 for (String s : Messages.getAndFormatList("messages.announce-treasure")) {
                     scm.sendCenteredMessage(p, s.replace("{x}", getLocation().getBlockX() + "")
                             .replace("{z}", getLocation().getBlockZ() + "")
-                            .replace("{world}", getLocation().getWorld().getName() + "")
-                            .replace("{alias}", getAlias() + "")
+                            .replace("{world}", getLocation().getWorld().getName())
+                            .replace("{alias}", getAlias())
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
@@ -1184,26 +1102,7 @@ public class Treasure {
 
         isactive = false;
 
-        if(Utils.isEnabled("DecentHolograms"))
-        {
-            Hologram h = DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName());
-            if(h != null) h.delete();
-        }
-        else if(Utils.isEnabled("FancyHolograms"))
-        {
-
-            HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
-
-            if(hologramManager.getHologram("treasurehunt_" + getLocation().getWorld().getName()).isPresent())
-            {
-
-                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + getLocation().getWorld().getName()).get();
-                hologramManager.removeHologram(h);
-                FancyHologramsPlugin.get().getHologramStorage().delete(h);
-
-            }
-
-        }
+        HologramHandler.getInstance().delete(getLocation());
 
         removeItem();
         clearMobs();
@@ -1301,7 +1200,7 @@ public class Treasure {
 
     }
 
-    private ArrayList<Entity> spawningEntities = new ArrayList<>();
+    private final ArrayList<Entity> spawningEntities = new ArrayList<>();
 
     private void smoothEntitySpawnFromGrave(final Entity ent) {
 
