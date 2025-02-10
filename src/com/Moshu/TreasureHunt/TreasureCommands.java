@@ -28,13 +28,11 @@ public class TreasureCommands implements CommandExecutor {
         return debugging.contains(p);
     }
 
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args)
-    {
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 
-        if(cmd.getName().equalsIgnoreCase("hunt"))
-        {
+        if (cmd.getName().equalsIgnoreCase("hunt")) {
 
-            if(args.length == 0) {
+            if (args.length == 0) {
 
                 if (sender instanceof Player p) {
 
@@ -64,37 +62,31 @@ public class TreasureCommands implements CommandExecutor {
                         p.sendMessage(Messages.get("no-permission"));
                     }
 
-                }
-                else
-                {
+                } else {
 
                     Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fHunts are active in the following worlds"));
                     Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fUse /hunt start/stop (World) to control the hunts"));
 
-                    for(World w : Bukkit.getWorlds())
-                    {
+                    for (World w : Bukkit.getWorlds()) {
                         Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &f" + w.getName() + " - " + Hunt.isActive(w)));
                     }
 
                 }
 
-            }
-            else if(args.length == 1) {
+            } else if (args.length == 1) {
 
-                if(args[0].equalsIgnoreCase("start"))
-                {
+                if (args[0].equalsIgnoreCase("start")) {
 
-                    if(sender instanceof Player p) {
+                    if (sender instanceof Player p) {
 
-                        if(!p.hasPermission("mystictreasures.admin")) {
+                        if (!p.hasPermission("mystictreasures.admin")) {
                             p.sendMessage(Messages.get("no-permission"));
                             return true;
                         }
 
                         World w = p.getWorld();
 
-                        if(Hunt.isActive(w) || Hunt.huntStarting(w))
-                        {
+                        if (Hunt.isActive(w) || Hunt.huntStarting(w)) {
                             sender.sendMessage(Messages.get("hunt-already-active"));
                             return true;
                         }
@@ -103,13 +95,12 @@ public class TreasureCommands implements CommandExecutor {
                         Hunt h = new Hunt(w, Settings.getWorldIntUnknown(w.getName(), "duration"));
                         sender.sendMessage(Messages.get("generating-treasure"));
 
-                        BukkitRunnable run = new BukkitRunnable()
-                        {
+                        BukkitRunnable run = new BukkitRunnable() {
 
                             @Override
                             public void run() {
 
-                                if(h.getLocation() == null) return;
+                                if (h.getLocation() == null) return;
 
                                 sender.sendMessage(Messages.get("treasure-generated"));
                                 h.start();
@@ -120,26 +111,21 @@ public class TreasureCommands implements CommandExecutor {
 
                         run.runTaskTimerAsynchronously(plugin, 0, 1);
 
-                    }
-                    else
-                    {
+                    } else {
                         sender.sendMessage(Messages.get("wrong-command"));
                     }
 
-                }
-                else if(args[0].equalsIgnoreCase("stop"))
-                {
+                } else if (args[0].equalsIgnoreCase("stop")) {
 
-                    if(sender instanceof Player p) {
+                    if (sender instanceof Player p) {
 
-                        if(!p.hasPermission("mystictreasures.admin")) {
+                        if (!p.hasPermission("mystictreasures.admin")) {
                             p.sendMessage(Messages.get("no-permission"));
                             return true;
                         }
 
                         World w = p.getWorld();
-                        if(!Hunt.isActive(w))
-                        {
+                        if (!Hunt.isActive(w)) {
                             sender.sendMessage(Messages.get("hunt-not-active"));
                             return true;
                         }
@@ -147,45 +133,33 @@ public class TreasureCommands implements CommandExecutor {
                         Hunt.getHunt(w).stop();
                         sender.sendMessage(Messages.get("hunt-stopped"));
 
-                    }
-                    else
-                    {
+                    } else {
                         sender.sendMessage(Messages.get("wrong-command"));
                     }
 
-                }
-                else if(args[0].equalsIgnoreCase("debug"))
-                {
+                } else if (args[0].equalsIgnoreCase("debug")) {
 
-                    if(sender instanceof Player p) {
+                    if (sender instanceof Player p) {
 
-                        if(debugging.contains(p))
-                        {
+                        if (debugging.contains(p)) {
                             p.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fYou've stopped debugging"));
                             debugging.remove(p);
-                        }
-                        else
-                        {
+                        } else {
                             p.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fYou started debugging. Right click an ArmorStand (the falling treasure) to gain more information and remove it"));
                             debugging.add(p);
                         }
 
-                    }
-                    else
-                    {
+                    } else {
                         Utils.sendNotPlayer();
                     }
 
-                }
-                else if (args[0].equalsIgnoreCase("reload")) {
+                } else if (args[0].equalsIgnoreCase("reload")) {
 
                     sender.sendMessage(Messages.get("config-reload"));
                     plugin.reloadFiles();
                     Hunt.initialize();
 
-                }
-                else if(args[0].equalsIgnoreCase("help"))
-                {
+                } else if (args[0].equalsIgnoreCase("help")) {
 
                     sender.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fHelp page"));
                     sender.sendMessage(" ");
@@ -196,41 +170,38 @@ public class TreasureCommands implements CommandExecutor {
                     sender.sendMessage(Utils.format("  &6/hunt start &ehere &8(&fStarts a hunt at the player's location&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt reload &8(&fReloads the config & messages - not all config values can be reloaded&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt clear (Player) &8(&fClears a player's winner cooldown&8)"));
+                    sender.sendMessage(Utils.format("  &6/hunt key (Player) (World) [Amount] &8(&fGives a player a key for that world's treasure&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt debug &8(&fEnter debug mode&8)"));
                     sender.sendMessage(" ");
 
 
-                }
-                else {
+                } else if (args[0].equalsIgnoreCase("key")) {
+                    sender.sendMessage(Messages.get("wrong-command"));
+                } else {
                     sender.sendMessage(Messages.get("wrong-command"));
                 }
 
                 return true;
-            }
-            else if(args.length == 2)
-            {
+            } else if (args.length == 2) {
 
-                if(sender instanceof Player p) {
+                if (sender instanceof Player p) {
 
-                    if(!p.hasPermission("mystictreasures.admin")) {
+                    if (!p.hasPermission("mystictreasures.admin")) {
                         p.sendMessage(Messages.get("no-permission"));
                         return true;
                     }
 
                 }
 
-                if(args[0].equalsIgnoreCase("start"))
-                {
+                if (args[0].equalsIgnoreCase("start")) {
 
-                    if(sender instanceof Player p) {
+                    if (sender instanceof Player p) {
 
-                        if(args[1].equalsIgnoreCase("here"))
-                        {
+                        if (args[1].equalsIgnoreCase("here")) {
 
                             World w = p.getWorld();
 
-                            if(Hunt.isActive(w) || Hunt.huntStarting(w))
-                            {
+                            if (Hunt.isActive(w) || Hunt.huntStarting(w)) {
                                 sender.sendMessage(Messages.get("hunt-already-active"));
                                 return true;
                             }
@@ -249,14 +220,12 @@ public class TreasureCommands implements CommandExecutor {
 
                     World w = Bukkit.getWorld(args[1]);
 
-                    if(w == null)
-                    {
+                    if (w == null) {
                         sender.sendMessage(Messages.get("inexistent-world"));
                         return true;
                     }
 
-                    if(Hunt.isActive(w) || Hunt.huntStarting(w))
-                    {
+                    if (Hunt.isActive(w) || Hunt.huntStarting(w)) {
                         sender.sendMessage(Messages.get("hunt-already-active"));
                         return true;
                     }
@@ -265,13 +234,12 @@ public class TreasureCommands implements CommandExecutor {
                     Hunt h = new Hunt(w, Settings.getWorldIntUnknown(w.getName(), "duration"));
                     sender.sendMessage(Messages.get("generating-treasure"));
 
-                    BukkitRunnable run = new BukkitRunnable()
-                    {
+                    BukkitRunnable run = new BukkitRunnable() {
 
                         @Override
                         public void run() {
 
-                            if(h.getLocation() == null) return;
+                            if (h.getLocation() == null) return;
 
                             sender.sendMessage(Messages.get("treasure-generated"));
                             h.start();
@@ -283,20 +251,16 @@ public class TreasureCommands implements CommandExecutor {
                     run.runTaskTimerAsynchronously(plugin, 0, 1);
 
 
-                }
-                else if(args[0].equalsIgnoreCase("stop"))
-                {
+                } else if (args[0].equalsIgnoreCase("stop")) {
 
                     World w = Bukkit.getWorld(args[1]);
 
-                    if(w == null)
-                    {
+                    if (w == null) {
                         sender.sendMessage(Messages.get("inexistent-world"));
                         return true;
                     }
 
-                    if(!Hunt.isActive(w))
-                    {
+                    if (!Hunt.isActive(w)) {
                         sender.sendMessage(Messages.get("hunt-not-active"));
                         return true;
                     }
@@ -304,12 +268,9 @@ public class TreasureCommands implements CommandExecutor {
                     Hunt.getHunt(w).stop();
                     sender.sendMessage(Messages.get("hunt-stopped"));
 
-                }
-                else if(args[0].equalsIgnoreCase("clear"))
-                {
+                } else if (args[0].equalsIgnoreCase("clear")) {
 
-                    if(Bukkit.getPlayer(args[1]) == null)
-                    {
+                    if (Bukkit.getPlayer(args[1]) == null) {
                         sender.sendMessage(Messages.get("player-not-found"));
                         return true;
                     }
@@ -318,14 +279,70 @@ public class TreasureCommands implements CommandExecutor {
                     Cooldown.setCooldowns(t.getUniqueId(), "treasure-winner", 0);
                     sender.sendMessage(Messages.get("cooldown-reset"));
 
+                } else if (args[0].equalsIgnoreCase("key")) {
+                    sender.sendMessage(Messages.get("wrong-command"));
+                } else {
+                    sender.sendMessage(Messages.get("wrong-command"));
                 }
-                else
-                {
+
+
+            }
+            else if(args.length == 3) {
+                if (args[0].equalsIgnoreCase("key")) {
+
+
+                    if(Bukkit.getPlayer(args[1]) == null) {
+                        sender.sendMessage(Messages.get("player-not-found"));
+                        return true;
+                    }
+
+                    Player t = Bukkit.getPlayer(args[1]);
+
+                    if(Bukkit.getWorld(args[2]) == null) {
+                        sender.sendMessage(Messages.get("world-not-found"));
+                        return true;
+                    }
+
+                    World w = Bukkit.getWorld(args[2]);
+                    Utils.addToInventory(t, TreasureKey.getTreasureKey(w));
+
+
+                } else {
                     sender.sendMessage(Messages.get("wrong-command"));
                 }
             }
-            else
-            {
+            else if(args.length == 4) {
+                if (args[0].equalsIgnoreCase("key")) {
+
+
+                    if(Bukkit.getPlayer(args[1]) == null) {
+                        sender.sendMessage(Messages.get("player-not-found"));
+                        return true;
+                    }
+
+                    Player t = Bukkit.getPlayer(args[1]);
+
+                    if(Bukkit.getWorld(args[2]) == null) {
+                        sender.sendMessage(Messages.get("world-not-found"));
+                        return true;
+                    }
+
+                    if(!Utils.isInt(args[3]))
+                    {
+                        sender.sendMessage(Messages.get("wrong-command"));
+                        return true;
+                    }
+
+                    int amount = Integer.parseInt(args[3]);
+                    World w = Bukkit.getWorld(args[2]);
+
+                    Utils.addToInventory(t, TreasureKey.getTreasureKey(w, amount));
+
+                } else {
+                    sender.sendMessage(Messages.get("wrong-command"));
+                }
+            }
+            else {
                 sender.sendMessage(Messages.get("wrong-command"));
             }
 

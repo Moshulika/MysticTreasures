@@ -32,7 +32,7 @@ public class HologramHandler {
 
     }
 
-    public void create(Location loc)
+    public void createDecentHologram(Location loc)
     {
 
         if(Utils.isEnabled("DecentHolograms"))
@@ -54,7 +54,18 @@ public class HologramHandler {
             DHAPI.setHologramLines(h, lines);
             h.updateAll();
         }
-        else if(Utils.isEnabled("FancyHolograms"))
+
+    }
+
+    public void createDefaultHologram(Location loc)
+    {
+        Treasure.createItem(Treasure.getItemLocation(loc));
+    }
+
+    public void createFancyHologram(Location loc)
+    {
+
+        if(Utils.isEnabled("FancyHolograms"))
         {
             HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
@@ -64,43 +75,20 @@ public class HologramHandler {
             de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.create(data);
             hologramManager.addHologram(h);
         }
-        else
-        {
-            Treasure.createItem(Treasure.getItemLocation(loc));
-        }
 
     }
 
-    public void update(World w, ArrayList<String> lines)
-    {
+    public void update(World w, ArrayList<String> lines) {
 
-        if (Utils.isEnabled("DecentHolograms")) {
-
-            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
-
-                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
-
-                Bukkit.getScheduler().runTask(plugin, ()->
-                {
-                    DHAPI.setHologramLines(h, lines);
-                    h.updateAll();
-                });
-
-            }
-
-        }
-
-        else if(Utils.isEnabled("FancyHolograms"))
-        {
+        if (Utils.isEnabled("FancyHolograms")) {
 
             HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
-            if(hologramManager.getHologram("treasurehunt_" + w.getName()).isPresent())
-            {
+            if (hologramManager.getHologram("treasurehunt_" + w.getName()).isPresent()) {
 
                 de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + w.getName()).get();
 
-                Bukkit.getScheduler().runTask(plugin, ()->
+                Bukkit.getScheduler().runTask(plugin, () ->
                 {
 
                     TextHologramData data = (TextHologramData) h.getData();
@@ -114,21 +102,12 @@ public class HologramHandler {
         }
     }
 
-    public void delete(Location loc)
-    {
-        if(Utils.isEnabled("DecentHolograms"))
-        {
-            Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
-            if(h != null) h.delete();
-        }
-
-        else if(Utils.isEnabled("FancyHolograms"))
-        {
+    public void delete(Location loc) {
+        if (Utils.isEnabled("FancyHolograms")) {
 
             HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
-            if(hologramManager.getHologram("treasurehunt_" + loc.getWorld().getName()).isPresent())
-            {
+            if (hologramManager.getHologram("treasurehunt_" + loc.getWorld().getName()).isPresent()) {
 
                 de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + loc.getWorld().getName()).get();
                 hologramManager.removeHologram(h);

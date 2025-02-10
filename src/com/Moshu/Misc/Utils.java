@@ -231,6 +231,24 @@ public class Utils
 
     }
 
+    public static ItemMeta setMeta(ItemMeta meta, String displayName, List<String> lore)
+    {
+
+        meta.setDisplayName(Utils.format(displayName));
+
+        ArrayList<String> coloredLore = new ArrayList<>();
+
+        for(String s : lore)
+        {
+            coloredLore.add(Utils.format(s));
+        }
+
+        meta.setLore(coloredLore);
+
+        return meta;
+
+    }
+
     /**
      * Get a list of all the online players name
      * @return a list with all the online players namr
@@ -240,6 +258,22 @@ public class Utils
         ArrayList<String> x = new ArrayList<>();
 
         for(Player k : Bukkit.getOnlinePlayers())
+        {
+            x.add(k.getName());
+        }
+
+        return x;
+    }
+
+    /**
+     * Get a list of all the online players name
+     * @return a list with all the online players namr
+     */
+    public static ArrayList<String> getWorldsNames()
+    {
+        ArrayList<String> x = new ArrayList<>();
+
+        for(World k : Bukkit.getWorlds())
         {
             x.add(k.getName());
         }

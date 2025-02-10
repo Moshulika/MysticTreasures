@@ -110,6 +110,20 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".spawn-coords", list);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s + ".treasure-key") == null)
+            {
+                ArrayList<String> list = new ArrayList<String>();
+                list.add("&7&oOpen a treasure chest");
+                list.add("&7&ousing this mysterious key");
+
+                plugin.getConfigFile().addDefault("settings.enabled-worlds." + s + ".treasure-key","");
+                plugin.getConfigFile().set("settings.enabled-worlds." + s + ".treasure-key.enabled", false);
+                plugin.getConfigFile().set("settings.enabled-worlds." + s + ".treasure-key.item", "TRIPWIRE_HOOK");
+                plugin.getConfigFile().set("settings.enabled-worlds." + s + ".treasure-key.name", "&c&l&oTREASURE KEY");
+                plugin.getConfigFile().set("settings.enabled-worlds." + s + ".treasure-key.lore", list);
+
+            }
+
         }
 
         if(plugin.getConfigFile().get("settings.effects-particles.dust") == null)
@@ -162,6 +176,11 @@ public class FilesUpdater {
             plugin.getMessages().set("messages.no-creative", "&6&lTreasure&e&lHunt &fYou can't break Treasures in Creative mode");
         }
 
+        if(plugin.getMessages().get("messages.no-key") == null)
+        {
+            plugin.getMessages().set("messages.no-key", "&6&lTreasure&e&lHunt &fThis treasure requires a key!");
+        }
+
         if(plugin.getMessages().get("messages.cooldown-reset") == null)
         {
             plugin.getMessages().set("messages.cooldown-reset", "&6&lTreasure&e&lHunt &fThis player is not online!");
@@ -195,7 +214,12 @@ public class FilesUpdater {
 
         if(plugin.getMessages().get("messages.player-not-found") == null)
         {
-            plugin.getMessages().set("messages.player-not-found", "&6&lTreasure&e&lHunt &fYou successfully reset the player's cooldown!");
+            plugin.getMessages().set("messages.player-not-found", "&6&lTreasure&e&lHunt &fThis player is not online!");
+        }
+
+        if(plugin.getMessages().get("messages.world-not-found") == null)
+        {
+            plugin.getMessages().set("messages.world-not-found", "&6&lTreasure&e&lHunt &fThis world doesn't exist!");
         }
 
         try

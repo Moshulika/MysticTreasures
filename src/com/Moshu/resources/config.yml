@@ -37,17 +37,36 @@ settings:
       duration: 20 #The duration of the treasure before it despawns
       cooldown: 15 #Cooldown between treasures in minutes
       clicks-to-open: 1 #How many right clicks are required to open the treasure?
+      treasure-key:
+        enabled: false
+        item: TRIPWIRE_HOOK
+        name: "&c&l&oTREASURE KEY"
+        lore:
+          - "&7&oOpen a treasure chest"
+          - "&7&ousing this mysterious key"
       protect-mobs-from-sun: true #Should zombies not set on fire from the sun?
       potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects
       potion-effects:
         - "REGENERATION:1"
       mobs:
-        - "ZOMBIE:5-10" #You can set a random interval like this. So every hunt will have a slightly different difficulty
+        - "ZOMBIE:5-10" #You can set a random interval like this. So every hunt will have a slightly different difficulty.
         - "SKELETON:5"
         - "SPIDER:3"
       item-rewards:
-        - "DIAMOND:1-10" #You can set a random interval like this. So every hunt will have a slightly different prize
-        - "EMERALD:1"
+        diamond: #Can be any text, it doesn't count. It's a reward identifier.
+          item: DIAMOND #Material name
+          name: "&6&l&oREWARD #1" #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
+          lore:                   #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
+            - "&7&oHave fun with this reward!"
+          amount: 1-10 #Between 1 and 10 diamonds
+          chance: 40 #Percentage (60%)
+        emerald: #Can be any text, it doesn't count. It's a reward identifier.
+          item: EMERALD #Material name
+          name: "&6&l&oREWARD #1"
+          lore:
+            - "&7&oHave fun with this reward!"
+          amount: 1-10 #Between 1 and 10 diamonds
+          chance: 100 #Percentage (60%)
       command-rewards:
         - "eco give %player% 100"
       spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below

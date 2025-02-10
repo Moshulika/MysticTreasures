@@ -2,9 +2,14 @@ package com.Moshu.TreasureHunt;
 
 import com.Moshu.Misc.*;
 import com.google.common.base.Joiner;
+import de.oliver.fancyholograms.api.FancyHologramsPlugin;
+import de.oliver.fancyholograms.api.HologramManager;
+import de.oliver.fancyholograms.api.data.TextHologramData;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
+import eu.decentsoftware.holograms.api.DHAPI;
+import eu.decentsoftware.holograms.api.holograms.Hologram;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -25,6 +30,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
@@ -44,7 +50,7 @@ public class Treasure {
 
 
     private Location l;
-    private final ArrayList<ItemStack> items;
+    private final HashMap<ItemStack, Double> items;
     private final Hunt h;
     private boolean isactive;
     private TreasureType type;
@@ -63,7 +69,7 @@ public class Treasure {
     private static final Particle SOUL_FIRE_FLAME = Settings.getCompatParticle("soul-fire-flame");
     private static final Particle WARPED_SPORE = Settings.getCompatParticle("warped-spore");
 
-    Treasure(Hunt h, ArrayList<ItemStack> items)
+    Treasure(Hunt h, HashMap<ItemStack, Double> items)
     {
 
         this.h = h;
@@ -101,7 +107,7 @@ public class Treasure {
         return l;
     }
 
-    public ArrayList<ItemStack> getItems()
+    public HashMap<ItemStack, Double> getItems()
     {
         return items;
     }
@@ -438,7 +444,34 @@ public class Treasure {
     {
         
         Location loc = getLocation().clone();
-        HologramHandler.getInstance().create(loc);
+
+        if(Utils.isEnabled("DecentHolograms")) {
+
+            DHAPI.createHologram("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5, 1.5, 0.5), false).setDownOrigin(true);
+            Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
+
+            ArrayList<String> lines = new ArrayList<>();
+
+            for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
+                lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(loc.getWorld()).getRemainingTime())));
+            }
+
+            h.enable();
+            h.setUpdateInterval(20);
+
+            DHAPI.setHologramLines(h, lines);
+            h.updateAll();
+
+        }
+        else if(Utils.isEnabled("FancyHolograms"))
+        {
+            HologramHandler handler = HologramHandler.getInstance();
+            handler.createFancyHologram(loc);
+        }
+        else
+        {
+            createItem(getItemLocation(loc));
+        }
 
     }
 
@@ -584,7 +617,28 @@ public class Treasure {
                                     .replace("{remaining_mobs}", getRemainingMobs().size() + ""));
                         }
 
-                        HologramHandler.getInstance().update(w, lines);
+                        if (Utils.isEnabled("DecentHolograms")) {
+
+                            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
+
+                                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
+
+                                Bukkit.getScheduler().runTask(plugin, ()->
+                                {
+                                    DHAPI.setHologramLines(h, lines);
+                                    h.updateAll();
+                                });
+
+                            }
+
+                        }
+
+                        else if(Utils.isEnabled("FancyHolograms"))
+                        {
+
+                            HologramHandler.getInstance().update(w, lines);
+
+                        }
 
                         if(distance_to_spawn > 0 && !Utils.getNearbyPlayers(location, distance_to_spawn).isEmpty() && !spawned) {
                             Bukkit.getScheduler().runTaskLater(plugin, () ->
@@ -958,9 +1012,15 @@ public class Treasure {
         launchFireworks();
 
         int cooldown = Settings.getCooldown();
+        World w = getLocation().getWorld();
 
         for(Player p : getParticipants())
         {
+
+            if(TreasureKey.requiresKey(w.getName()))
+            {
+                Utils.substractItem(p, TreasureKey.getTreasureKey(w), 1);
+            }
 
             if(Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner"))
             {
@@ -980,7 +1040,9 @@ public class Treasure {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
             }
 
-            for (ItemStack a : getItems()) {
+            for (ItemStack a : getItems().keySet()) {
+
+                if(getItems().get(a) <= Utils.chance()) continue;
 
                 if (!Utils.hasFullInventory(p)) {
 
@@ -1007,6 +1069,12 @@ public class Treasure {
     {
 
         int cooldown = Settings.getCooldown();
+        World w = getLocation().getWorld();
+
+        if(TreasureKey.requiresKey(w.getName()))
+        {
+            Utils.substractItem(p, TreasureKey.getTreasureKey(w), 1);
+        }
 
         if(cooldown != 0)
         {
@@ -1022,7 +1090,9 @@ public class Treasure {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
         }
 
-        for (ItemStack a : getItems()) {
+        for (ItemStack a : getItems().keySet()) {
+
+            if(getItems().get(a) <= Utils.chance()) continue;
 
             if (!Utils.hasFullInventory(p)) {
 
@@ -1102,7 +1172,18 @@ public class Treasure {
 
         isactive = false;
 
-        HologramHandler.getInstance().delete(getLocation());
+        if(Utils.isEnabled("DecentHolograms"))
+        {
+            Hologram h = DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName());
+            if(h != null) h.delete();
+        }
+
+        else if(Utils.isEnabled("FancyHolograms"))
+        {
+
+            HologramHandler.getInstance().delete(getLocation());
+
+        }
 
         removeItem();
         clearMobs();

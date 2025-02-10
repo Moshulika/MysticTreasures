@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -61,6 +62,14 @@ public class TreasureEvents implements Listener {
                     p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
                     Utils.sendBreakSound(e.getPlayer());
                     p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
+                    return;
+                }
+
+                if(TreasureKey.requiresKey(worldName))
+                {
+                    p.sendMessage(Messages.get("no-key"));
+                    p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+                    Utils.sendBreakSound(e.getPlayer());
                     return;
                 }
 
@@ -485,6 +494,21 @@ public class TreasureEvents implements Listener {
                                 Utils.sendBreakSound(e.getPlayer());
                                 p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
                                 return;
+                            }
+
+                            if(TreasureKey.requiresKey(worldName))
+                            {
+
+                                ItemStack itemInHand = p.getInventory().getItemInMainHand();
+
+                                if(!TreasureKey.isTreasureKey(p.getWorld(), itemInHand))
+                                {
+                                    p.sendMessage(Messages.get("no-key"));
+                                    Utils.sendBreakSound(e.getPlayer());
+                                    p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+                                    return;
+                                }
+
                             }
 
                             if(getClicks(h, e.getPlayer()) < needed_clicks) {

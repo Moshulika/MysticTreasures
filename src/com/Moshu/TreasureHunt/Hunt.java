@@ -7,12 +7,14 @@ import com.Moshu.Misc.Utils;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.*;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -29,6 +31,7 @@ public class Hunt {
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     private static final HashMap<String, ArrayList<ItemStack>> items = new HashMap<>();
+    private static final HashMap<String, HashMap<ItemStack, Double>> itemsWithChance = new HashMap<>();
     private static final ArrayList<Hunt> hunts = new ArrayList<>();
 
     private static final HashMap<World, Long> started_hunts = new HashMap<>();
@@ -47,11 +50,116 @@ public class Hunt {
         return started_hunts.get(w) + TimeUnit.SECONDS.toMillis(delay) > System.currentTimeMillis();
     }
 
-    public ArrayList<ItemStack> getItems()
+    public Set<ItemStack> getItems()
     {
-        return items.get(w.getName());
+        return itemsWithChance.get(w.getName()).keySet();
     }
 
+    public HashMap<ItemStack, Double> getItemsWithChances()
+    {
+        return itemsWithChance.get(w.getName());
+    }
+
+    private static void loadItemsReworked() {
+
+        ItemStack item;
+        int amount;
+        double chance;
+        String world_name;
+
+        boolean itemsAdder = Utils.isEnabled("ItemsAdder");
+
+        for (String world : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false)) {
+
+            world_name = plugin.getConfig().getString("settings.enabled-worlds." + world + ".world-name");
+            HashMap<ItemStack, Double> local_items_chance = new HashMap<>();
+
+            for (String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds." + world + ".item-rewards").getKeys(false)) {
+
+
+                try {
+
+                    String materialName = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".item", "STONE");
+                    String amountString = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".amount", "1-10");
+                    String amountChance = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".chance", "0.6");
+                    String displayName = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".name", "&6&l&oREWARD #1");
+                    List<String> lore = plugin.getConfig().getStringList("settings.enabled-worlds." + world + ".item-rewards." + s + ".lore");
+
+                    if (Utils.isDouble(amountChance)) {
+                        chance = Double.parseDouble(amountChance);
+                    } else {
+                        chance = 100;
+                        plugin.getLogger().log(Level.SEVERE, "Invalid chance in treasure prize configuration: " + amountChance);
+                    }
+
+                    if (!Utils.isInt(amountString)) {
+                        //DIAMOND:5-10
+                        if (amountString.split("-").length == 2) {
+
+                            int min = Integer.parseInt(amountString.split("-")[0]);
+                            int max = Integer.parseInt(amountString.split("-")[1]);
+
+                            amount = Utils.randInt(min, max);
+
+                            if (amount <= 0) continue;
+
+                        } else {
+                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + amountString);
+                            continue;
+                        }
+
+                    } else {
+                        amount = Integer.parseInt(amountString);
+                    }
+
+                    if (itemsAdder) {
+
+                        CustomStack stack = CustomStack.getInstance(materialName);
+
+                        if (stack != null) {
+                            item = stack.getItemStack();
+                            item.setAmount(amount);
+                        } else {
+
+                            if (Material.matchMaterial(materialName) == null) {
+                                plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + materialName);
+                                continue;
+                            }
+
+                            item = new ItemStack(Material.matchMaterial(materialName), amount);
+                            item.setItemMeta(Utils.setMeta(item.getItemMeta(), displayName, lore));
+
+
+                        }
+
+                    } else {
+
+                        if (Material.matchMaterial(materialName) == null) {
+                            plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + materialName);
+                            continue;
+                        }
+
+                        item = new ItemStack(Material.matchMaterial(materialName), amount);
+                        item.setItemMeta(Utils.setMeta(item.getItemMeta(), displayName, lore));
+
+                    }
+
+                    local_items_chance.put(item, chance);
+
+                } catch (Exception e) {
+                    plugin.getLogger().log(Level.SEVERE, "Invalid item in treasure prize configuration: " + s);
+                }
+
+
+            }
+
+            itemsWithChance.put(world_name, local_items_chance);
+        }
+
+
+    }
+
+    @Deprecated
     private static void loadItems()
     {
         String[] args;
@@ -69,11 +177,14 @@ public class Hunt {
 
             world_name = plugin.getConfig().getString("settings.enabled-worlds." + world + ".world-name");
             ArrayList<ItemStack> local_items = new ArrayList<>();
+            HashMap<ItemStack, Double> local_items_chance = new HashMap<>();
 
             for(String s : plugin.getConfig().getStringList("settings.enabled-worlds." + world + ".item-rewards"))
             {
+
                 args = s.split(":");
 
+                //String-ul are prea putine informatii
                 if(args.length < 2) {
 
                     plugin.getLogger().log(Level.SEVERE, "Invalid item in treasure prize configuration: " + s);
@@ -207,7 +318,7 @@ public class Hunt {
     public static void initialize()
     {
 
-        loadItems();
+        loadItemsReworked();
 
         Treasure.loadMobs();
         Treasure.loadCommands();
@@ -271,7 +382,7 @@ public class Hunt {
         Bukkit.getScheduler().runTask(plugin, () ->
         {
 
-            treasure = new Treasure(this, getItems());
+            treasure = new Treasure(this, getItemsWithChances());
 
             this.starttime = System.currentTimeMillis();
             treasure.setAlias(getTreasureAlias());

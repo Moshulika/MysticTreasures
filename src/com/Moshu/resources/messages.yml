@@ -26,8 +26,10 @@ messages:
   participating: "&6&lTreasure&e&lHunt &fYou are now participating in this TreasureHunt!"
   participating-cleared-mobs: "&6&lTreasure&e&lHunt &fYou killed all the Treasure Keepers! The reward is all yours!"
   player-not-found: "&6&lTreasure&e&lHunt &fThis player is not online!"
+  world-not-found: "&6&lTreasure&e&lHunt &fThis world doesn't exist!"
   cooldown-reset: "&6&lTreasure&e&lHunt &fYou successfully reset the player's cooldown!"
   remaining-clicks: "&6&lTreasure&e&lHunt &fKeep on clicking! ({current_clicks}/{needed_clicks})"
+  no-key: "&6&lTreasure&e&lHunt &fThis treasure requires a key!"
   treasure-locked: "&c&lLOCKED"
   treasure-unlocked: "&a&lUNLOCKED"
   winner-broadcast:

@@ -60,8 +60,9 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
                 {
                     c.add("help");
                     c.add("start");
-                    c.add("reload");
                     c.add("stop");
+                    c.add("key");
+                    c.add("reload");
                     c.add("debug");
                     c.add("clear");
                 }
@@ -90,7 +91,40 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
                     return StringUtil.copyPartialMatches(args[1], c, completions);
 
                 }
+                else if(args[0].equalsIgnoreCase("key"))
+                {
+                    ArrayList<String> completions = new ArrayList<>();
 
+                    return StringUtil.copyPartialMatches(args[1], Utils.getOnlinePlayersNames(), completions);
+                }
+
+            }
+
+            if(args.length == 3) {
+                if (args[0].equalsIgnoreCase("key")) {
+                    ArrayList<String> completions = new ArrayList<>();
+
+                    return StringUtil.copyPartialMatches(args[2], Utils.getWorldsNames(), completions);
+                }
+            }
+
+            if(args.length == 4) {
+                if (args[0].equalsIgnoreCase("key")) {
+                    ArrayList<String> c = new ArrayList<>();
+
+                    c.add("1");
+                    c.add("2");
+                    c.add("3");
+                    c.add("4");
+                    c.add("5");
+                    c.add("10");
+                    c.add("16");
+                    c.add("32");
+
+                    ArrayList<String> completions = new ArrayList<>();
+
+                    return StringUtil.copyPartialMatches(args[3], c, completions);
+                }
             }
 
             return empty;
