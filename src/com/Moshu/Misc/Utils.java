@@ -1823,16 +1823,24 @@ public class Utils
      * @return the highest block at a locations
      */
 
-    public static Location randomCoordonatesMoreThan(World world, double max, int min)
+    public static Location randomCoordonatesMoreThan(World world, double max, double min)
     {
 
-        int x = (int) (Math.random() * max + 1);
-        int z = (int) (Math.random() * max + 1);
 
-        while(x < min || z < min)
+
+        //num = (Math.random() * (2 * MAX + 1)) - MAX;
+        int x = (int) ((Math.random() * 2 * max + 1) - min);
+        int z = (int) ((Math.random() * 2 * max + 1) - min);
+
+        //plugin.getLogger().log(Level.INFO, "Debug: Initial spawn location candidate - X: " + x + ", Z: " + z);
+
+        double negativeMin = -1 * min;
+
+        while(x < negativeMin || z < negativeMin || x > max || z > max)
         {
-            x = (int) (Math.random() * max + 1);
-            z = (int) (Math.random() * max + 1);
+            //plugin.getLogger().log(Level.INFO, "Debug: Spawn location candidate - X: " + x + ", Z: " + z);
+            x = (int) ((Math.random() * 2 * max + 1) - min);
+            z = (int) ((Math.random() * 2 * max + 1) - min);
         }
 
         return getHighestBlock(world, x, z, world.getSpawnLocation());

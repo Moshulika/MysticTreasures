@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
 public class Locations {
@@ -31,23 +32,18 @@ public class Locations {
 
     static
     {
-
-        String x;
-
-        for(Biome b : Biome.values())
-        {
-
-            x = b.toString().toUpperCase();
-
-            if(x.contains("OCEAN") ||
-                    x.contains("RIVER") ||
-                    x.contains("SNOW"))
-            {
-                blacklist.add(b);
-            }
-
-        }
-
+        blacklist.add(Biome.COLD_OCEAN);
+        blacklist.add(Biome.DEEP_OCEAN);
+        blacklist.add(Biome.DEEP_DARK);
+        blacklist.add(Biome.DEEP_FROZEN_OCEAN);
+        blacklist.add(Biome.DEEP_LUKEWARM_OCEAN);
+        blacklist.add(Biome.DEEP_OCEAN);
+        blacklist.add(Biome.FROZEN_OCEAN);
+        blacklist.add(Biome.FROZEN_RIVER);
+        blacklist.add(Biome.ICE_SPIKES);
+        blacklist.add(Biome.LUKEWARM_OCEAN);
+        blacklist.add(Biome.OCEAN);
+        blacklist.add(Biome.RIVER);
     }
 
     public static boolean isAllowedWorld(org.bukkit.World w)
@@ -384,7 +380,7 @@ public class Locations {
      * @param distance the distance from the center of the world
      * @return the safe location
      */
-    public static Location getRandomLocationMoreThan(org.bukkit.World w, double distance, int min) {
+    public static Location getRandomLocationMoreThan(org.bukkit.World w, double distance, double min) {
 
         Location loc = Utils.randomCoordonatesMoreThan(w, distance, min);
 

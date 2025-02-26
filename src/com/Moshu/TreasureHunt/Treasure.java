@@ -3,13 +3,14 @@ package com.Moshu.TreasureHunt;
 import com.Moshu.Misc.*;
 import com.google.common.base.Joiner;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
-import de.oliver.fancyholograms.api.HologramManager;
+import de.oliver.fancyholograms.api.data.HologramData;
 import de.oliver.fancyholograms.api.data.TextHologramData;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
+import eu.decentsoftware.holograms.api.holograms.HologramManager;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -447,6 +448,12 @@ public class Treasure {
 
         if(Utils.isEnabled("DecentHolograms")) {
 
+
+            if(DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName()) != null)
+            {
+                DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName()).delete();
+            }
+
             DHAPI.createHologram("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5, 1.5, 0.5), false).setDownOrigin(true);
             Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
 
@@ -465,7 +472,14 @@ public class Treasure {
         }
         else if(Utils.isEnabled("FancyHolograms"))
         {
+
+            if(FancyHologramsPlugin.get().getHologramManager().getHologram("treasurehunt_" + loc.getWorld().getName()).isPresent())
+            {
+                HologramHandler.getInstance().delete(getLocation());
+            }
+
             HologramHandler handler = HologramHandler.getInstance();
+
             handler.createFancyHologram(loc);
         }
         else
@@ -1172,18 +1186,7 @@ public class Treasure {
 
         isactive = false;
 
-        if(Utils.isEnabled("DecentHolograms"))
-        {
-            Hologram h = DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName());
-            if(h != null) h.delete();
-        }
 
-        else if(Utils.isEnabled("FancyHolograms"))
-        {
-
-            HologramHandler.getInstance().delete(getLocation());
-
-        }
 
         removeItem();
         clearMobs();

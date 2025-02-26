@@ -349,11 +349,12 @@ public class Hunt {
         else {
 
             double distance = Math.min(Locations.getBorder(w) - 10, Settings.getWorldIntUnknown(w.getName(), "max-treasure-distance"));
+            double negativeDistance = -1 * distance;
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
             {
 
-                CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, distance, 0));
+                CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, distance, distance));
                 this.l = loc.join();
 
             });
