@@ -32,6 +32,38 @@ public class HologramHandler {
 
     }
 
+    public void cleanup()
+    {
+
+        boolean decent = Utils.isEnabled("DecentHolograms");
+        boolean fancy = Utils.isEnabled("FancyHolograms");
+
+        for(World world : Bukkit.getWorlds())
+        {
+
+            if(decent)
+            {
+                Hologram h = DHAPI.getHologram("treasurehunt_" + world.getName());
+                if(h != null) h.delete();
+            }
+
+            if(fancy)
+            {
+
+                HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
+
+                if (hologramManager.getHologram("treasurehunt_" + world.getName()).isPresent()) {
+                    de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + world.getName()).get();
+                    hologramManager.removeHologram(h);
+                    FancyHologramsPlugin.get().getHologramStorage().delete(h);
+                }
+
+            }
+
+        }
+
+    }
+
     public void createDecentHologram(Location loc)
     {
 

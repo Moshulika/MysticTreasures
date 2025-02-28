@@ -1020,43 +1020,38 @@ public class Treasure {
 
     }
 
-    public void awardPrizes()
-    {
+    public void awardPrizes() {
 
         launchFireworks();
 
         int cooldown = Settings.getCooldown();
         World w = getLocation().getWorld();
 
-        for(Player p : getParticipants())
-        {
+        for (Player p : getParticipants()) {
 
-            if(TreasureKey.requiresKey(w.getName()))
-            {
+            if (TreasureKey.requiresKey(w.getName())) {
                 Utils.substractItem(p, TreasureKey.getTreasureKey(w), 1);
             }
 
-            if(Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner"))
-            {
+            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
                 p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
                 return;
             }
 
-            if(cooldown != 0)
-            {
+            if (cooldown != 0) {
                 Cooldown cd = new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60);
                 cd.set();
             }
 
-            for(String s : getCommandRewards())
-            {
+            for (String s : getCommandRewards()) {
                 s = Utils.setInternalPlaceholders(p, s);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
             }
 
             for (ItemStack a : getItems().keySet()) {
 
-                if(getItems().get(a) <= Utils.chance()) continue;
+                if (getItems().get(a) <= Utils.chance()) continue;
+
 
                 if (!Utils.hasFullInventory(p)) {
 
@@ -1072,6 +1067,7 @@ public class Treasure {
                     p.sendMessage(Messages.get("full-inventory").replace("{amount}", a.getAmount() + "").replace("{item}", Utils.setCapitals(a.getType().toString().toLowerCase().replace("_", " "))));
 
                 }
+
             }
 
             announceWinners();
@@ -1104,23 +1100,53 @@ public class Treasure {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
         }
 
+        int xOffset = (int) ((Math.random() * 2 * 5 + 1) - 5);
+        int zOffset = (int) ((Math.random() * 2 * 5 + 1) - 5);
+        Location dropLocation = Utils.getHighestBlock(w, getLocation().getBlockX() + xOffset, getLocation().getBlockZ() + zOffset, getLocation());
+
+        int x = 1;
+
         for (ItemStack a : getItems().keySet()) {
 
             if(getItems().get(a) <= Utils.chance()) continue;
 
-            if (!Utils.hasFullInventory(p)) {
+            if (Settings.getWorldBooleanUnknown(w.getName(), "drop-items-on-ground")) {
 
-                if (a == null || a.getType() == Material.AIR) continue;
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->
+                {
 
-                p.getInventory().addItem(a);
+                    Item i = w.dropItemNaturally(dropLocation, a);
 
-            } else {
+                    i.setGlowing(true);
+                    i.setInvisible(false);
+                    i.setVisibleByDefault(true);
+                    i.setInvulnerable(true);
+                    i.setCanMobPickup(false);
+                    i.setCustomNameVisible(true);
 
-                if (a == null || a.getType() == Material.AIR) continue;
+                    i.setCustomName(ChatColor.translateAlternateColorCodes('&', "&6Treasure Loot"));
 
-                p.getWorld().dropItemNaturally(p.getLocation(), a);
-                p.sendMessage(Messages.get("full-inventory").replace("{amount}", a.getAmount() + "").replace("{item}", Utils.setCapitals(a.getType().toString().toLowerCase().replace("_", " "))));
+                }, 20L * x);
 
+                x++;
+
+            }
+            else {
+
+                if (!Utils.hasFullInventory(p)) {
+
+                    if (a == null || a.getType() == Material.AIR) continue;
+
+                    p.getInventory().addItem(a);
+
+                } else {
+
+                    if (a == null || a.getType() == Material.AIR) continue;
+
+                    p.getWorld().dropItemNaturally(p.getLocation(), a);
+                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", a.getAmount() + "").replace("{item}", Utils.setCapitals(a.getType().toString().toLowerCase().replace("_", " "))));
+
+                }
             }
         }
 
@@ -1186,7 +1212,18 @@ public class Treasure {
 
         isactive = false;
 
+        if(Utils.isEnabled("DecentHolograms"))
+        {
+            Hologram h = DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName());
+            if(h != null) h.delete();
+        }
 
+        else if(Utils.isEnabled("FancyHolograms"))
+        {
+
+            HologramHandler.getInstance().delete(getLocation());
+
+        }
 
         removeItem();
         clearMobs();

@@ -32,6 +32,11 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".reward-all-players-who-participated", false);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".drop-items-on-ground") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".drop-items-on-ground", false);
+            }
+
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".mob-wandering-distance") == null)
             {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".mob-wandering-distance", 20);

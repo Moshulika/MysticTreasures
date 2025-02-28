@@ -29,6 +29,7 @@ settings:
       chance-for-treasure: 20 #The chance to spawn a random treasure
       min-players-online: 15 #Minimum players to have a chance to spawn a treasure
       reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
+      drop-items-on-ground: false #Only works when 'reward-all-players-who-participated' is false
       distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
       mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
       enable-mob-tracker: true

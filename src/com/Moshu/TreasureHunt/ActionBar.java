@@ -42,13 +42,13 @@ public class ActionBar {
                 {
 
                     w = p.getWorld();
+                    if(Hunt.getHunt(w) == null) break;
 
                     if(Hunt.isActive(w) && Hunt.getHunt(w) != null &&
                             Hunt.getHunt(w).getTreasure() != null &&
                             Hunt.getHunt(w).getTreasure().isActive())
                     {
 
-                        if(Hunt.getHunt(w) == null) break;
                         Hunt h = Hunt.getHunt(w);
 
                         if(h.getLocation().distance(p.getLocation()) < Settings.getWorldIntUnknown(w.getName(), "mob-wandering-distance")) //Inside the mob area
@@ -79,7 +79,7 @@ public class ActionBar {
                                 if(Settings.getWorldBooleanUnknown(w.getName(), "enable-mob-tracker"))
                                 {
 
-                                    Entity first = h.getTreasure().getRemainingMobs().getFirst();
+                                    Entity first = h.getTreasure().getRemainingMobs().get(0);
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-mobs-tracker")
                                             .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")

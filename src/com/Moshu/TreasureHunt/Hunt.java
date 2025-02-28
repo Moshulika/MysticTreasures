@@ -11,10 +11,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -418,10 +415,10 @@ public class Hunt {
 
     }
 
-    public static ArrayList<Hunt> getActiveHunts()
+    public static List<Hunt> getActiveHunts()
     {
 
-        ArrayList<Hunt> h = new ArrayList<>();
+        List<Hunt> h = Collections.synchronizedList(new ArrayList<Hunt>());
 
         for(Hunt x : getHunts())
         {
