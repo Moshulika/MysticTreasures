@@ -33,11 +33,13 @@ settings:
       distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
       mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
       enable-mob-tracker: true
+      broadcast-to-all-worlds: false #Send the actionbar message to all the worlds. If multiple treasures are started only one treasure will appear in the actionbar.
       animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
       interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
       duration: 20 #The duration of the treasure before it despawns
       cooldown: 15 #Cooldown between treasures in minutes
       clicks-to-open: 1 #How many right clicks are required to open the treasure?
+      dropped-item-name: "&6Treasure Loot"
       treasure-key:
         enabled: false
         item: TRIPWIRE_HOOK

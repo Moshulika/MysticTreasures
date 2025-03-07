@@ -1,6 +1,7 @@
 package com.Moshu.Misc;
 
 import com.Moshu.Main;
+import net.kyori.adventure.key.Key;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
@@ -233,6 +234,8 @@ public class Utils
 
     public static ItemMeta setMeta(ItemMeta meta, String displayName, List<String> lore)
     {
+
+        if(displayName.isEmpty() || lore.isEmpty()) return meta;
 
         meta.setDisplayName(Utils.format(displayName));
 
@@ -1597,17 +1600,42 @@ public class Utils
     public static void sendBreakSound(Player p)
     {
 
+        String originalName = plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK");
+        String soundName = originalName.toLowerCase().replace("_", ".");
+        Sound sound = null;
+
+        try {
+
+            NamespacedKey key = NamespacedKey.minecraft(soundName);
+            sound = Registry.SOUNDS.get(key);
+
+        } catch (NoClassDefFoundError | NoSuchMethodError e) {
+            try {
+                sound = Sound.valueOf(originalName);
+            } catch (IllegalArgumentException ex) {
+                plugin.getLogger().warning("Invalid sound: " + soundName);
+            }
+        }
+
+        if (sound != null) {
+            p.playSound(p.getLocation(), sound, 1.0F, 1.0F);
+        }
+
+        /*
         Sound s;
 
         try
         {
-            s = Sound.valueOf(plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK"));
+            String soundString = plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK");
+            s = Registry.SOUNDS.get(Key.key(soundString));
             p.playSound(p.getLocation(), s, 1.0F, 1.0F);
         }
         catch (IllegalArgumentException e)
         {
             plugin.getLogger().log(Level.SEVERE, "Invalid negative sound", e);
         }
+
+         */
 
     }
 
@@ -1617,16 +1645,25 @@ public class Utils
     public static void sendLevelupSound(Player p)
     {
 
-        Sound s;
+        String originalName = plugin.getConfig().getString("settings.positive-sound", "ENTITY_PLAYER_LEVELUP");
+        String soundName = originalName.toLowerCase().replace("_", ".");
+        Sound sound = null;
 
-        try
-        {
-            s = Sound.valueOf(plugin.getConfig().getString("settings.positive-sound", "ENTITY_PLAYER_LEVELUP"));
-            p.playSound(p.getLocation(), s, 1.0F, 1.0F);
+        try {
+
+            NamespacedKey key = NamespacedKey.minecraft(soundName);
+            sound = Registry.SOUNDS.get(key);
+
+        } catch (NoClassDefFoundError | NoSuchMethodError e) {
+            try {
+                sound = Sound.valueOf(originalName);
+            } catch (IllegalArgumentException ex) {
+                plugin.getLogger().warning("Invalid sound: " + soundName);
+            }
         }
-        catch (IllegalArgumentException e)
-        {
-            plugin.getLogger().log(Level.SEVERE, "Invalid positive sound", e);
+
+        if (sound != null) {
+            p.playSound(p.getLocation(), sound, 1.0F, 1.0F);
         }
 
     }

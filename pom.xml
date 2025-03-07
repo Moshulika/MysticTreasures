@@ -6,7 +6,7 @@
 
     <groupId>com.Moshu.MysticTreasures</groupId>
     <artifactId>MysticTreasures</artifactId>
-    <version>1.45</version>
+    <version>1.47</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -153,6 +153,12 @@
             <url>https://maven.devs.beer/</url>
         </repository>
 
+        <repository>
+            <id>purpur</id>
+            <name>Purpur Maven Repo</name>
+            <url>https://repo.purpurmc.org/snapshots</url>
+        </repository>
+
     </repositories>
 
     <dependencies>
@@ -163,6 +169,7 @@
             <version>1.21.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
 
         <dependency>
             <groupId>com.pop</groupId>

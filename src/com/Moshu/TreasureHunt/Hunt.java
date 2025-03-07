@@ -23,6 +23,7 @@ public class Hunt {
     private Location l;
     private final int duration;
     private long starttime = 0;
+    private boolean broadcast_to_all_worlds = false;
 
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
@@ -32,6 +33,11 @@ public class Hunt {
     private static final ArrayList<Hunt> hunts = new ArrayList<>();
 
     private static final HashMap<World, Long> started_hunts = new HashMap<>();
+
+    public boolean broadcastToAllWorlds()
+    {
+        return broadcast_to_all_worlds;
+    }
 
     public static void addHunt(World w)
     {
@@ -328,6 +334,8 @@ public class Hunt {
         this.w = w;
         this.duration = duration;
 
+        this.broadcast_to_all_worlds = Settings.getWorldBooleanUnknown(w.getName(), "broadcast-to-all-worlds");
+
         if(Settings.getWorldBooleanUnknown(w.getName(), "spawn-to-certain-coords")) {
 
             try
@@ -362,6 +370,7 @@ public class Hunt {
     {
         this.w = location.getWorld();
         this.duration = duration;
+        this.broadcast_to_all_worlds = Settings.getWorldBooleanUnknown(w.getName(), "broadcast-to-all-worlds");
 
         this.l = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }

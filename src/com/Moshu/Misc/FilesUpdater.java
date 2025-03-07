@@ -37,6 +37,16 @@ public class FilesUpdater {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".drop-items-on-ground", false);
             }
 
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".dropped-item-name") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".dropped-item-name", "&6Treasure Loot");
+            }
+
+            if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".broadcast-to-all-worlds") == null)
+            {
+                plugin.getConfigFile().set("settings.enabled-worlds." + s +".broadcast-to-all-worlds", false);
+            }
+
             if(plugin.getConfigFile().get("settings.enabled-worlds." + s +".mob-wandering-distance") == null)
             {
                 plugin.getConfigFile().set("settings.enabled-worlds." + s +".mob-wandering-distance", 20);

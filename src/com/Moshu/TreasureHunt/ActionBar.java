@@ -19,11 +19,6 @@ public class ActionBar {
 
     public static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    private static void sendNearTreasure()
-    {
-
-    }
-
     public static void start()
     {
 
@@ -42,8 +37,6 @@ public class ActionBar {
                 {
 
                     w = p.getWorld();
-                    if(Hunt.getHunt(w) == null) break;
-
                     if(Hunt.isActive(w) && Hunt.getHunt(w) != null &&
                             Hunt.getHunt(w).getTreasure() != null &&
                             Hunt.getHunt(w).getTreasure().isActive())
@@ -61,6 +54,7 @@ public class ActionBar {
                                 {
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-all-mobs-dead")
                                             .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
+                                            .replace("{world}", w.getName())
                                             .replace("{x}", Hunt.getHunt(w).getLocation().getBlockX() + "")
                                             .replace("{z}", Hunt.getHunt(w).getLocation().getBlockZ() + "")));
                                 }
@@ -68,6 +62,7 @@ public class ActionBar {
                                 {
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
                                             .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
+                                            .replace("{world}", w.getName())
                                             .replace("{x}", Hunt.getHunt(w).getLocation().getBlockX() + "")
                                             .replace("{z}", Hunt.getHunt(w).getLocation().getBlockZ() + "")));
                                 }
@@ -83,6 +78,7 @@ public class ActionBar {
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-mobs-tracker")
                                             .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
+                                            .replace("{world}", w.getName())
                                             .replace("{x}", first.getLocation().getBlockX() + "")
                                             .replace("{y}", first.getLocation().getBlockY() + "")
                                             .replace("{z}", first.getLocation().getBlockZ() + "")));
@@ -102,8 +98,33 @@ public class ActionBar {
                             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
                                     .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
                                     .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
+                                    .replace("{world}", w.getName())
                                     .replace("{x}", Hunt.getHunt(w).getLocation().getBlockX() + "")
                                     .replace("{z}", Hunt.getHunt(w).getLocation().getBlockZ() + "")));
+                        }
+
+                    }
+                    else {
+
+                        for(Hunt h : Hunt.getHunts())
+                        {
+
+                            if(!h.broadcastToAllWorlds()) continue;
+
+                            if(h.getTreasure() != null && h.getTreasure().isActive())
+                            {
+
+                                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
+                                        .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
+                                        .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
+                                        .replace("{world}", w.getName())
+                                        .replace("{x}", h.getLocation().getBlockX() + "")
+                                        .replace("{z}", h.getLocation().getBlockZ() + "")));
+
+                                break;
+
+                            }
+
                         }
 
                     }
