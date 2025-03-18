@@ -136,34 +136,6 @@ public class Utils
     }
 
     /**
-     * Check if ip is a true IPv4 adress
-     * @param ip
-     * @return
-     */
-    public static boolean validIP (String ip) {
-        try {
-            if ( ip == null || ip.isEmpty() ) {
-                return false;
-            }
-
-            String[] parts = ip.split( "\\." );
-            if ( parts.length != 4 ) {
-                return false;
-            }
-
-            for ( String s : parts ) {
-                int i = Integer.parseInt( s );
-                if ( (i < 0) || (i > 255) ) {
-                    return false;
-                }
-            }
-            return !ip.endsWith(".");
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-    }
-
-    /**
      * Get a list of the nearby blocks
      * @param location the location you want to seach
      * @param radius the radius
@@ -857,168 +829,6 @@ public class Utils
         }
     }
 
-    /**
-     * Check if an entity is spawned by a mob spawner
-     * @param e the entity
-     * @return true/false
-     */
-    public static boolean isSpawnedBySpawner(Entity e)
-    {
-        return e.hasMetadata("SpawnedBySpawner");
-    }
-
-    /**
-     * Gets how used the CPU is
-     * @return the percentage of the CPU load
-     */
-    public static double getUsedCPU() {
-        try {
-            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-            ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
-            AttributeList list = mbs.getAttributes(name, new String[]{"ProcessCpuLoad"});
-            Attribute att = (Attribute) list.get(0);
-            Double value = (Double) att.getValue();
-
-            return (int) (value.doubleValue() * 1000.0D) / 10.0D;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0.0D;
-    }
-
-
-
-    public static Map<Player, String> playerjobs = new HashMap<>();
-
-    /**
-     * A list containing all the players and their jobs
-     * @return
-     */
-    public static Map<Player, String> getPlayersJobs()
-    {
-        return playerjobs;
-    }
-
-    /**
-     * Get the player's current job name
-     * @param p the player
-     * @return the job name, returns "none" if he has no job
-     */
-    public static String getCurrentJob(Player p)
-    {
-        if(playerjobs.containsKey(p))
-        {
-            if(playerjobs.get(p) == null)
-            {
-                return "none";
-            }
-            else {
-                return playerjobs.get(p);
-            }
-        }
-
-        return "none";
-    }
-
-
-    /**
-     * Get the number of entities present in that world
-     * @param w the world
-     * @return the number of entities present in that world
-     */
-    public static int getEntities(World w)
-    {
-        return w.getEntities().size();
-    }
-
-    /**
-     * Get the number of loaded chunks in the world
-     * @param w the world
-     * @return number of loaded chunks in the world
-     */
-    public static int getChunks(World w)
-    {
-        return w.getLoadedChunks().length;
-    }
-
-    /**
-     * Get max available memory for the JVM
-     * @return the maximum available memory for the JVM
-     */
-    public static long getMaxMemory()
-    {
-        try
-        {
-            Runtime r = Runtime.getRuntime();
-            return r.maxMemory() / 1048576L;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return 0L;
-    }
-
-    /**
-     * Get how much memory is used in the JVM
-     * @return how much memory is used
-     */
-    public static long getMemoryUsed()
-    {
-        try
-        {
-            Runtime r = Runtime.getRuntime();
-            return (r.totalMemory() - r.freeMemory()) / 1048576L;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return 0L;
-    }
-
-    /**
-     * Check if a block is a shulker
-     * @param b the block
-     * @return true/false
-     */
-    public static boolean isShulker(Block b)
-    {
-
-        return b instanceof ShulkerBox;
-
-    }
-
-    /**
-     * Check if a day has passed since the last time we looked
-     * @return true/false
-     */
-    public static boolean passedDay()
-    {
-        Date now = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
-
-        return !sdf.format(now).equals(plugin.getConfig().getString("day"));
-
-    }
-
-
-    /**
-     * Sets the dat value in the config to the current day
-     */
-    public static void setConfigDay()
-    {
-
-        Date now = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
-
-        plugin.getConfig().set("day", sdf.format(now));
-
-        plugin.saveConfig();
-
-    }
-
-    //private static final Pattern pattern = Pattern.compile("(?<!\\\\)(#[a-fA-F0-9]{6})");
 
     /**
      * Formats a message with legacy color codes and also HEX
@@ -1109,16 +919,6 @@ public class Utils
     }
 
     /**
-     * Loads the chunk at the specified location
-     * @param loc the location
-     */
-    public static void loadNearChunks(Location loc)
-    {
-        //loc.getWorld().getChunkAtAsync(loc.getChunk().getX(), loc.getChunk().getZ());
-        loc.getWorld().getChunkAt(loc.getChunk().getX(), loc.getChunk().getZ());
-    }
-
-    /**
      * Check if a plugin is enabled
      * @param plugin the plugin to check
      * @return true/false
@@ -1145,15 +945,6 @@ public class Utils
     }
 
     /**
-     * Reset unslept nights
-     * @param p the player
-     */
-    public static void resetPhantoms(Player p)
-    {
-        p.setStatistic(Statistic.TIME_SINCE_REST, 0);
-    }
-
-    /**
      * Generate a random number 1-100
      * @return a random number 1-100
      */
@@ -1163,30 +954,6 @@ public class Utils
         Random r = new Random();
         return r.nextInt(101);
 
-    }
-
-    /**
-     * Gets a player head with the player's skin applied
-     * @param name the player's name
-     * @return the head
-     */
-    public static ItemStack getPlayerHead(String name)
-    {
-        ItemStack itm = new ItemStack(Material.LEGACY_SKULL_ITEM, 1, (short)3);
-        SkullMeta meta = (SkullMeta)itm.getItemMeta();
-        meta.setDisplayName(Utils.format( "&c" + name));
-        meta.setOwner(name);
-        itm.setItemMeta(meta);
-        return itm;
-    }
-
-    /**
-     * Get the time the process has started
-     * @return
-     */
-    public static long getStarttime()
-    {
-        return ManagementFactory.getRuntimeMXBean().getStartTime();
     }
 
     /**
@@ -1314,33 +1081,6 @@ public class Utils
         return en;
     }
 
-    /**
-     * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
-     * @param radius the radius
-     * @return the list containing all the entities
-     */
-    public static ArrayList<Entity> getNearbyRaiders(Location l, int radius)
-    {
-        ArrayList<Entity> en = new ArrayList<>();
-
-        if(l.getWorld().getEntities().size() != 0) {
-
-
-            for (Entity e : l.getWorld().getEntities()) {
-
-                if(!(e instanceof Raider)) continue;
-
-                if (l.distance(e.getLocation()) <= radius) {
-
-                    en.add(e);
-
-                }
-
-            }
-        }
-        return en;
-    }
 
     /**
      * Get a list of all the living entities near the location in a radius
@@ -1376,14 +1116,6 @@ public class Utils
     public static String formatItemStack(ItemStack is)
     {
         return is.getType().toString().toLowerCase().replace("_", " ");
-    }
-
-    public static String formatBigInt(int i)
-    {
-
-        if(i < 1000) return "" + i;
-        else return i /1000 + "k";
-
     }
 
     /**
@@ -1515,57 +1247,9 @@ public class Utils
     /**
      * @hidden
      */
-    public static void setMaxStackSize(Item item, int i){
-        try {
-
-            Field field = Item.class.getDeclaredField("maxStackSize");
-            field.setAccessible(true);
-            field.setInt(item, i);
-
-        } catch (Exception e) {}
-}
-
-    /**
-     * @hidden
-     */
-    public static void sendNoAccess(Player p)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( "&fYou don't have permission");
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
-    }
-
-    public static void sendBuy(Player p, String command)
-    {
-
-        p.sendMessage("");
-        p.sendMessage(format(" #00FF00&lDonate"));
-        p.sendMessage("");
-        p.sendMessage(format(" &fDoresti sa ai acces la comanda #00FF00/" + command + "&f?"));
-        p.sendMessage(format(" &fDoneaza acum si bucura-te de beneficii incredibile!"));
-        p.sendMessage(format(" #00FF00TE ASTEPTAM PE SITE &7| #00FF00&L/BUY"));
-        p.sendMessage("");
-
-    }
-
-    /**
-     * @hidden
-     */
     public static void sendNotPlayer()
     {
         Bukkit.getConsoleSender().sendMessage(Utils.format( "&c&lConsole > &fYou need to be a player in order to use this command."));
-    }
-
-    /**
-     * @hidden
-     */
-    public static void sendTargetNull(Player p)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( "&fPlayer is offline");
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
     }
 
     /**
@@ -1669,17 +1353,6 @@ public class Utils
     }
 
     /**
-     * @hidden
-     */
-    public static void sendNotInt(Player p)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( "&fArgumentul trebuie sa fie un numar");
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
-    }
-
-    /**
      * Check if a string contains only letters
      * @param s the string
      * @return true/false
@@ -1707,33 +1380,6 @@ public class Utils
         Matcher matcher = pattern.matcher(s);
 
         return matcher.matches();
-    }
-
-    /**
-     * @hidden
-     */
-    public static void sendError(Player p, String s)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( s);
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
-    }
-
-    /**
-     * @hidden
-     */
-    public static String[] wrapText(String s)
-    {
-
-        StringBuilder sb = new StringBuilder(s);
-
-        int i = 0;
-        while ((i = sb.indexOf(" ", i + 30)) != -1) {
-            sb.replace(i, i + 1, "♥");
-        }
-
-        return sb.toString().split("♥");
     }
 
     /**
@@ -1862,8 +1508,6 @@ public class Utils
 
     public static Location randomCoordonatesMoreThan(World world, double max, double min)
     {
-
-
 
         //num = (Math.random() * (2 * MAX + 1)) - MAX;
         int x = (int) ((Math.random() * 2 * max + 1) - min);
@@ -2053,111 +1697,6 @@ public class Utils
         File s = new File("server.properties");
         return getProperty("level-name", s);
 
-    }
-
-
-    /**
-     * Encodes an array of ItemStacks into Base64
-     * @param is the array you want to encode
-     * @return the encoded string
-     */
-    public static String inventoryToBase64(ItemStack[] is) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            dataOutput.writeInt(is.length);
-
-            for (int i = 0; i < is.length; i++) {
-                dataOutput.writeObject(is[i]);
-            }
-
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-
-            //Converts the inventory and its contents to base64, This also saves item meta-data and inventory type
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not convert inventory to base64.", e);
-        }
-    }
-
-    /**
-     * Encodes an item into Base64
-     * @param is the item to encode
-     * @return the encoded string
-     */
-    public static String itemToBase64(ItemStack is) {
-        try {
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            dataOutput.writeObject(is);
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-
-            //Converts the inventory and its contents to base64, This also saves item meta-data and inventory type
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not convert inventory to base64.", e);
-        }
-    }
-
-    /**
-     * Decodes an item array from base64 back into an ItemStack array
-     * @param data the encoded string
-     * @return the decoded ItemStack array
-     * @throws IOException if there is a problem during the stream
-     */
-    public static ItemStack[] stackFromBase64(String data) throws IOException {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            ItemStack[] is = new ItemStack[dataInput.readInt()];
-
-            for (int i = 0; i < is.length; i++) {
-                is[i] = (ItemStack) dataInput.readObject();
-            }
-
-            dataInput.close();
-            return is;
-
-        } catch (ClassNotFoundException e) {
-
-            e.printStackTrace();
-            throw new IOException("Could not decode inventory.", e);
-
-        }
-
-
-
-    }
-
-    /**
-     * Decodes an item from base64 back into an ItemStack
-     * @param data the encoded string
-     * @return the decoded ItemStack
-     * @throws IOException if there is a problem during the stream
-     */
-    public static ItemStack itemFromBase64(String data) throws IOException
-    {
-
-        try {
-
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-
-            ItemStack is = (ItemStack) dataInput.readObject();
-
-            dataInput.close();
-
-            return is;
-
-        } catch (ClassNotFoundException e) {
-
-            e.printStackTrace();
-            throw new IOException("Could not decode inventory.", e);
-
-        }
     }
 
 }

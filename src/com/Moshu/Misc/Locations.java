@@ -1,5 +1,7 @@
 package com.Moshu.Misc;
 
+import com.Moshu.TreasureHunt.Treasure;
+import com.Moshu.TreasureHunt.objects.TreasureData;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -185,35 +187,25 @@ public class Locations {
      * @param loc the location
      * @return true/false
      */
-    public static boolean isUnsafe(Location loc)
+    public static boolean isUnsafe(Location loc, int maxTreasureDistance)
     {
 
-        return !check(loc);
+        return !check(loc, maxTreasureDistance);
 
     }
-
-    /**
-     * Checks if a location is considere safe based on check()
-     * @param loc the location
-     * @return true/false
-     */
-    public static boolean isSafe(Location loc)
-    {
-        return check(loc);
-    }
-
 
     /**
      *
-     * @param loc, the location to be teleported to
+     * @param loc, the location
      * @return true if the location is safe
      * and false if the location is not suitable
      * for a player
      */
-    public static boolean check(Location loc)
+    public static boolean check(Location loc, int maxTreasureDistance)
     {
 
-        return  isInBorder(loc) &&
+
+        return  isInBorder(loc, maxTreasureDistance) &&
                 !isInRegion(loc) &&
                 !blacklistedBiome(loc) &&
                 !isLeaves(loc) &&
@@ -296,26 +288,21 @@ public class Locations {
         return l.getBlock().isEmpty();
     }
 
-    /**
-     * Checks if the current location is inside the world border
-     * @param l the location
-     * @return true/false
-     */
-    public static boolean isInBorder(Location l)
+
+    public static boolean isInBorder(Location l, int maxTreasureDistance)
     {
 
 
         if(!Utils.isEnabled("ChunkyBorder"))
         {
 
-            int max_distance = Settings.getWorldIntUnknown(l.getWorld().getName(), "max-treasure-distance") - 10;
+            int max_distance = maxTreasureDistance - 10;
             double world_border = l.getWorld().getWorldBorder().getSize() - 10;
 
             if(l.getX() >= max_distance || l.getZ() >= max_distance) return false;
             else return !(l.getX() >= world_border) && !(l.getZ() >= world_border);
 
         }
-
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin("ChunkyBorder");
         File f = new File(plugin.getDataFolder(), "borders.json");
@@ -340,6 +327,12 @@ public class Locations {
 
         return true;
 
+    }
+
+    public static double distanceTo(Location loc1, Location loc2)
+    {
+        if(loc1.getWorld().getName().equals(loc2.getWorld().getName())) return loc1.distance(loc2);
+        return Double.MAX_VALUE;
     }
 
 
@@ -376,17 +369,17 @@ public class Locations {
 
     /**
      * Get a safe, random location
-     * @param w the world
+     * @param w the world of the treasure
      * @param distance the distance from the center of the world
      * @return the safe location
      */
-    public static Location getRandomLocationMoreThan(org.bukkit.World w, double distance, double min) {
+    public static Location getRandomLocationMoreThan(org.bukkit.World w, int maxTreasureDistance, double distance, double min) {
 
         Location loc = Utils.randomCoordonatesMoreThan(w, distance, min);
 
         int i = 0;
 
-        while (Locations.isUnsafe(loc)) {
+        while (Locations.isUnsafe(loc, maxTreasureDistance)) {
 
             if (i == 30) {
                 return loc;

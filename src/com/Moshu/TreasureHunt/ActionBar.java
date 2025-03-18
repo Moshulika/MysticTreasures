@@ -1,5 +1,6 @@
 package com.Moshu.TreasureHunt;
 
+import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
@@ -26,66 +27,57 @@ public class ActionBar {
 
         BukkitRunnable run = new BukkitRunnable() {
 
-            World w;
+            Hunt h;
 
             @Override
             public void run() {
 
                 if(Bukkit.getOnlinePlayers().isEmpty()) return;
+                if(Hunt.getActiveHunts().isEmpty()) return;
 
-                for(Player p : Bukkit.getOnlinePlayers())
-                {
+                for(Player p : Bukkit.getOnlinePlayers()) {
 
-                    w = p.getWorld();
-                    if(Hunt.isActive(w) && Hunt.getHunt(w) != null &&
-                            Hunt.getHunt(w).getTreasure() != null &&
-                            Hunt.getHunt(w).getTreasure().isActive())
-                    {
+                    h = Hunt.getNearestHunt(p.getLocation());
+                    if (h == null) continue;
 
-                        Hunt h = Hunt.getHunt(w);
-
-                        if(h.getLocation().distance(p.getLocation()) < Settings.getWorldIntUnknown(w.getName(), "mob-wandering-distance")) //Inside the mob area
+                        //Sunt in aceeasi lume Hunt-ul si Player-ul
+                        if (Locations.distanceTo(h.getLocation(), p.getLocation()) < h.getTreasure().getTreasureData().getMobWanderingDistance()) //Inside the mob area
                         {
 
-                            if(h.getTreasure().getRemainingMobs().isEmpty()) //All the mobs are dead
+                            if (h.getTreasure().getRemainingMobs().isEmpty()) //All the mobs are dead
                             {
 
-                                if(h.getTreasure().haveTheMobsSpawned())
-                                {
+                                if (h.getTreasure().haveTheMobsSpawned()) {
+
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-all-mobs-dead")
-                                            .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
-                                            .replace("{world}", w.getName())
-                                            .replace("{x}", Hunt.getHunt(w).getLocation().getBlockX() + "")
-                                            .replace("{z}", Hunt.getHunt(w).getLocation().getBlockZ() + "")));
-                                }
-                                else
-                                {
+                                            .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
+                                            .replace("{world}", h.getLocation().getWorld().getName())
+                                            .replace("{x}", h.getLocation().getBlockX() + "")
+                                            .replace("{z}", h.getLocation().getBlockZ() + "")));
+                                } else {
+
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
-                                            .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
-                                            .replace("{world}", w.getName())
-                                            .replace("{x}", Hunt.getHunt(w).getLocation().getBlockX() + "")
-                                            .replace("{z}", Hunt.getHunt(w).getLocation().getBlockZ() + "")));
+                                            .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
+                                            .replace("{world}", h.getLocation().getWorld().getName())
+                                            .replace("{x}", h.getLocation().getBlockX() + "")
+                                            .replace("{z}", h.getLocation().getBlockZ() + "")));
                                 }
 
-                            }
-                            else //There are mobs remaining
+                            } else //There are mobs remaining
                             {
 
-                                if(Settings.getWorldBooleanUnknown(w.getName(), "enable-mob-tracker"))
-                                {
+                                if (h.getTreasure().getTreasureData().enableMobTracker()) {
 
                                     Entity first = h.getTreasure().getRemainingMobs().get(0);
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-mobs-tracker")
                                             .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
-                                            .replace("{world}", w.getName())
+                                            .replace("{world}", h.getLocation().getWorld().getName())
                                             .replace("{x}", first.getLocation().getBlockX() + "")
                                             .replace("{y}", first.getLocation().getBlockY() + "")
                                             .replace("{z}", first.getLocation().getBlockZ() + "")));
 
-                                }
-                                else
-                                {
+                                } else {
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-mobs-remaining")
                                             .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")));
                                 }
@@ -97,39 +89,12 @@ public class ActionBar {
                         {
                             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
                                     .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
-                                    .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
-                                    .replace("{world}", w.getName())
-                                    .replace("{x}", Hunt.getHunt(w).getLocation().getBlockX() + "")
-                                    .replace("{z}", Hunt.getHunt(w).getLocation().getBlockZ() + "")));
+                                    .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
+                                    .replace("{world}", h.getLocation().getWorld().getName())
+                                    .replace("{x}", h.getLocation().getBlockX() + "")
+                                    .replace("{z}", h.getLocation().getBlockZ() + "")));
                         }
-
                     }
-                    else {
-
-                        for(Hunt h : Hunt.getHunts())
-                        {
-
-                            if(!h.broadcastToAllWorlds()) continue;
-
-                            if(h.getTreasure() != null && h.getTreasure().isActive())
-                            {
-
-                                p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
-                                        .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
-                                        .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
-                                        .replace("{world}", w.getName())
-                                        .replace("{x}", h.getLocation().getBlockX() + "")
-                                        .replace("{z}", h.getLocation().getBlockZ() + "")));
-
-                                break;
-
-                            }
-
-                        }
-
-                    }
-
-                }
 
             }
 

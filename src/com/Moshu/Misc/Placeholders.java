@@ -62,12 +62,10 @@ public class Placeholders extends PlaceholderExpansion {
         if (player.getPlayer() != null) {
 
             Player p = player.getPlayer();
-            World w = p.getWorld();
+            Hunt h = Hunt.getNearestHunt(p.getLocation());
 
-            if(Hunt.isActive(w))
+            if(h != null && h.isActive())
             {
-
-                Hunt h = Hunt.getHunt(w);
 
                 if (identifier.equalsIgnoreCase("x")) {
                     return Integer.toString(h.getLocation().getBlockX());
@@ -78,7 +76,7 @@ public class Placeholders extends PlaceholderExpansion {
                 }
 
                 if (identifier.equalsIgnoreCase("world")) {
-                    return w.getName();
+                    return h.getLocation().getWorld().getName();
                 }
 
                 if(identifier.equalsIgnoreCase("active")) {
@@ -86,7 +84,7 @@ public class Placeholders extends PlaceholderExpansion {
                 }
 
                 if(identifier.equalsIgnoreCase("remaining")) {
-                    return Utils.getCountDown(Hunt.getHunt(w).getRemainingTime());
+                    return Utils.getCountDown(h.getRemainingTime());
                 }
 
                 if(identifier.equalsIgnoreCase("mobs")) {
@@ -109,7 +107,7 @@ public class Placeholders extends PlaceholderExpansion {
                 }
 
                 if (identifier.equalsIgnoreCase("world")) {
-                    return w.getName();
+                    return p.getWorld().getName();
                 }
 
                 if(identifier.equalsIgnoreCase("active")) {

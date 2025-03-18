@@ -64,35 +64,6 @@ public class HologramHandler {
 
     }
 
-    public void createDecentHologram(Location loc)
-    {
-
-        if(Utils.isEnabled("DecentHolograms"))
-        {
-            DHAPI.createHologram("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5,1.5,0.5), false).setDownOrigin(true);
-
-            Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
-
-            ArrayList<String> lines = new ArrayList<>();
-
-            for(String s : Messages.getAndFormatList("messages.treasure-hologram"))
-            {
-                lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(loc.getWorld()).getRemainingTime())));
-            }
-
-            h.enable();
-            h.setUpdateInterval(20);
-
-            DHAPI.setHologramLines(h, lines);
-            h.updateAll();
-        }
-
-    }
-
-    public void createDefaultHologram(Location loc)
-    {
-        Treasure.createItem(Treasure.getItemLocation(loc));
-    }
 
     public void createFancyHologram(Location loc)
     {

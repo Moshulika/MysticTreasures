@@ -14,6 +14,7 @@ public class Settings {
 
     private static Main plugin;
 
+    //TODO: Replace the getInt, etc. methods with cached setting values
     public Settings(Main plugin)
     {
         Settings.plugin = plugin;
@@ -34,49 +35,6 @@ public class Settings {
         return plugin.getConfig().getInt("settings.actionbar.refresh", 2);
     }
 
-    public static String getWorldStringUnknown(String world, String setting)
-    {
-
-        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
-        {
-
-            if(getWorldString(s, "world-name").equals(world))
-            {
-                return plugin.getConfig().getString("settings.enabled-worlds." + s + "." + setting, "Null value");
-            }
-
-        }
-
-        return "World not found";
-
-    }
-
-    public static Material getWorldMaterialUnknown(String world, String setting)
-    {
-
-        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
-        {
-
-            if(getWorldString(s, "world-name").equals(world))
-            {
-
-                try
-                {
-                    return Material.valueOf(plugin.getConfig().getString("settings.enabled-worlds." + s + "." + setting, "ENDER_CHEST"));
-                }
-                catch(Exception e)
-                {
-                    plugin.getLogger().log(Level.SEVERE, "Could not get Material from " + s + "." + setting + ". It is either missing or incorrect");
-                }
-
-            }
-
-        }
-
-        return Material.ENDER_CHEST;
-
-    }
-
     public static Particle getCompatParticle(String setting) {
 
 
@@ -90,94 +48,62 @@ public class Settings {
 
     }
 
-    public static Particle getWorldParticleUnknown(String world, String setting)
+    public static int getInt(String path)
     {
-
-        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
-        {
-
-            if(getWorldString(s, "world-name").equals(world))
-            {
-
-                try
-                {
-                    return Particle.valueOf(plugin.getConfig().getString("settings.enabled-worlds." + s + "." + setting, "COMPOSTER"));
-                }
-                catch(Exception e)
-                {
-                    plugin.getLogger().log(Level.SEVERE, "Could not get Particle from " + s + "." + setting + ". It is either missing or incorrect");
-                }
-
-            }
+        try {
+            return plugin.getConfig().getInt("settings." + path);
 
         }
-
-        return Particle.COMPOSTER;
-
-    }
-
-    public static boolean getWorldBooleanUnknown(String world, String setting)
-    {
-        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
+        catch (Exception e)
         {
-
-            if(getWorldString(s, "world-name").equals(world))
-            {
-                return plugin.getConfig().getBoolean("settings.enabled-worlds." + s + "." + setting, false);
-            }
-
-        }
-
-        return false;
-
-    }
-
-    public static List<String> getWorldStringListUnknown(String world, String setting)
-    {
-        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
-        {
-
-            if(getWorldString(s, "world-name").equals(world))
-            {
-                return plugin.getConfig().getStringList("settings.enabled-worlds." + s + "." + setting);
-            }
-
-        }
-
-        return new ArrayList<>();
-
-    }
-
-
-    public static int getWorldIntUnknown(String world, String setting)
-    {
-        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
-        {
-
-            if(getWorldString(s, "world-name").equals(world))
-            {
-                return plugin.getConfig().getInt("settings.enabled-worlds." + s + "." + setting, 0);
-            }
-
+            plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
         }
 
         return 0;
 
     }
 
-    public static String getWorldString(String world, String setting)
+    public static boolean getBoolean(String path)
     {
-        return plugin.getConfig().getString("settings.enabled-worlds." + world + "." + setting, "Null value");
+        try {
+            return plugin.getConfig().getBoolean("settings." + path);
+        }
+        catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
+        }
+
+        return false;
+
     }
 
-    public static int getWorldInt(String world, String setting)
+    public static String getString(String path)
     {
-        return plugin.getConfig().getInt("settings.enabled-worlds." + world + "." + setting, -1);
+        try
+        {
+            return plugin.getConfig().getString("settings." + path);
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
+        }
+
+        return "Null String";
+
     }
 
     public static int getCooldown()
     {
-        return plugin.getConfig().getInt("settings.winner-cooldown", 1440);
+        try
+        {
+            return plugin.getConfig().getInt("settings.winner-cooldown");
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().log(Level.SEVERE, "Could not get value: winner-cooldown");
+        }
+
+        return 1440;
+
     }
 
 }

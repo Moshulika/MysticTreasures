@@ -1,6 +1,7 @@
 package com.Moshu;
 import com.Moshu.Misc.*;
 import com.Moshu.TreasureHunt.*;
+import com.Moshu.TreasureHunt.objects.TreasureData;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -26,7 +27,6 @@ public class Main extends JavaPlugin {
     public static boolean isLoaded = false;
 
     Updater updater = new Updater(this);
-    FilesUpdater filesUpdater = new FilesUpdater(this);
     Settings settings = new Settings(this);
     Messages messagesClass = new Messages(this);
     Utils utils = new Utils(this);
@@ -63,7 +63,6 @@ public class Main extends JavaPlugin {
         getWorldGuard();
 
         createDataFiles();
-        FilesUpdater.update();
 
         if(Utils.isEnabled("PlaceholderAPI")) {
             new Placeholders().register();
@@ -71,9 +70,8 @@ public class Main extends JavaPlugin {
 
         delayedHooks();
 
+        TreasureData.load();
         TreasureEffects.check();
-
-        Hunt.initialize();
         TreasureTask.task();
         ActionBar.start();
 

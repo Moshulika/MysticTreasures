@@ -4,375 +4,116 @@ import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
-import dev.lone.itemsadder.api.CustomStack;
+import com.Moshu.TreasureHunt.objects.CommandReward;
+import com.Moshu.TreasureHunt.objects.ItemReward;
+import com.Moshu.TreasureHunt.objects.TreasureData;
+import com.Moshu.TreasureHunt.objects.TreasureKeeper;
 import org.bukkit.*;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 public class Hunt {
 
     private Treasure treasure;
-    private final World w;
     private Location l;
     private final int duration;
-    private long starttime = 0;
-    private boolean broadcast_to_all_worlds = false;
-
+    private long startTime = 0;
+    private String treasureTypeString;
+    private TreasureData treasureData;
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    private static final HashMap<String, ArrayList<ItemStack>> items = new HashMap<>();
-    private static final HashMap<String, HashMap<ItemStack, Double>> itemsWithChance = new HashMap<>();
-    private static final ArrayList<Hunt> hunts = new ArrayList<>();
+    private static HashMap<String, Hunt> activeHunts = new HashMap<>();
 
-    private static final HashMap<World, Long> started_hunts = new HashMap<>();
-
-    public boolean broadcastToAllWorlds()
+    public void setInactive()
     {
-        return broadcast_to_all_worlds;
+        activeHunts.remove(treasureTypeString);
     }
 
-    public static void addHunt(World w)
+    private void setActive(String id)
     {
-        started_hunts.put(w, System.currentTimeMillis());
+        activeHunts.put(id, this);
     }
 
-    public static boolean huntStarting(World w)
+    public static Hunt getHuntByIdentifier(String id)
     {
-
-        if(!started_hunts.containsKey(w)) return false;
-
-        long delay = (Settings.getWorldIntUnknown(w.getName(), "delay") + 5) / 20; //In seconds
-        return started_hunts.get(w) + TimeUnit.SECONDS.toMillis(delay) > System.currentTimeMillis();
+        return activeHunts.get(id);
     }
 
-    public Set<ItemStack> getItems()
+    public static boolean huntActiveInWorld(World w)
     {
-        return itemsWithChance.get(w.getName()).keySet();
+        return !getHuntsInWorld(w).isEmpty();
     }
 
-    public HashMap<ItemStack, Double> getItemsWithChances()
+    public static ArrayList<Hunt> getHuntsInWorld(World w)
     {
-        return itemsWithChance.get(w.getName());
-    }
 
-    private static void loadItemsReworked() {
+        ArrayList<Hunt> hunts = new ArrayList<>();
 
-        ItemStack item;
-        int amount;
-        double chance;
-        String world_name;
-
-        boolean itemsAdder = Utils.isEnabled("ItemsAdder");
-
-        for (String world : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false)) {
-
-            world_name = plugin.getConfig().getString("settings.enabled-worlds." + world + ".world-name");
-            HashMap<ItemStack, Double> local_items_chance = new HashMap<>();
-
-            for (String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds." + world + ".item-rewards").getKeys(false)) {
-
-
-                try {
-
-                    String materialName = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".item", "STONE");
-                    String amountString = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".amount", "1-10");
-                    String amountChance = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".chance", "0.6");
-                    String displayName = plugin.getConfig().getString("settings.enabled-worlds." + world + ".item-rewards." + s + ".name", "&6&l&oREWARD #1");
-                    List<String> lore = plugin.getConfig().getStringList("settings.enabled-worlds." + world + ".item-rewards." + s + ".lore");
-
-                    if (Utils.isDouble(amountChance)) {
-                        chance = Double.parseDouble(amountChance);
-                    } else {
-                        chance = 100;
-                        plugin.getLogger().log(Level.SEVERE, "Invalid chance in treasure prize configuration: " + amountChance);
-                    }
-
-                    if (!Utils.isInt(amountString)) {
-                        //DIAMOND:5-10
-                        if (amountString.split("-").length == 2) {
-
-                            int min = Integer.parseInt(amountString.split("-")[0]);
-                            int max = Integer.parseInt(amountString.split("-")[1]);
-
-                            amount = Utils.randInt(min, max);
-
-                            if (amount <= 0) continue;
-
-                        } else {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + amountString);
-                            continue;
-                        }
-
-                    } else {
-                        amount = Integer.parseInt(amountString);
-                    }
-
-                    if (itemsAdder) {
-
-                        CustomStack stack = CustomStack.getInstance(materialName);
-
-                        if (stack != null) {
-                            item = stack.getItemStack();
-                            item.setAmount(amount);
-                        } else {
-
-                            if (Material.matchMaterial(materialName) == null) {
-                                plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + materialName);
-                                continue;
-                            }
-
-                            item = new ItemStack(Material.matchMaterial(materialName), amount);
-                            item.setItemMeta(Utils.setMeta(item.getItemMeta(), displayName, lore));
-
-
-                        }
-
-                    } else {
-
-                        if (Material.matchMaterial(materialName) == null) {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + materialName);
-                            continue;
-                        }
-
-                        item = new ItemStack(Material.matchMaterial(materialName), amount);
-                        item.setItemMeta(Utils.setMeta(item.getItemMeta(), displayName, lore));
-
-                    }
-
-                    local_items_chance.put(item, chance);
-
-                } catch (Exception e) {
-                    plugin.getLogger().log(Level.SEVERE, "Invalid item in treasure prize configuration: " + s);
-                }
-
-
-            }
-
-            itemsWithChance.put(world_name, local_items_chance);
-        }
-
-
-    }
-
-    @Deprecated
-    private static void loadItems()
-    {
-        String[] args;
-        ItemStack item;
-
-        Material mat;
-        int amount;
-
-        String world_name;
-
-        boolean itemsAdder = Utils.isEnabled("ItemsAdder");
-
-        for(String world : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
+        for(Hunt h : activeHunts.values())
         {
 
-            world_name = plugin.getConfig().getString("settings.enabled-worlds." + world + ".world-name");
-            ArrayList<ItemStack> local_items = new ArrayList<>();
-            HashMap<ItemStack, Double> local_items_chance = new HashMap<>();
+            if(h.getTreasureData().getWorld().getName().equals(w.getName())) hunts.add(h);
 
-            for(String s : plugin.getConfig().getStringList("settings.enabled-worlds." + world + ".item-rewards"))
-            {
+        }
 
-                args = s.split(":");
+        return hunts;
 
-                //String-ul are prea putine informatii
-                if(args.length < 2) {
+    }
 
-                    plugin.getLogger().log(Level.SEVERE, "Invalid item in treasure prize configuration: " + s);
-                    continue;
-                }
+    Hunt(String treasureTypeString, int duration)
+    {
 
-                if(args.length == 2)
-                {
+        this.treasureTypeString = treasureTypeString;
+        this.duration = duration;
 
-                    if(!Utils.isInt(args[1]))
-                    {
-                        //DIAMOND:5-10
-                        if(args[1].split("-").length == 2)
-                        {
+        deserializeTreasureData();
 
-                            int min = Integer.parseInt(args[1].split("-")[0]);
-                            int max = Integer.parseInt(args[1].split("-")[1]);
+        if(getTreasureData().spawnToCertainCoords()) {
 
-                            amount = Utils.randInt(min, max);
 
-                            if(amount <= 0) continue;
+                List<Location> locations = getTreasure().getTreasureData().getSpawnCoords();
 
-                        }
-                        else {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
-                            continue;
-                        }
-
-                    }
-                    else {
-                        amount = Integer.parseInt(args[1]);
-                    }
-
-                    if(itemsAdder)
-                    {
-
-                        CustomStack stack = CustomStack.getInstance(args[0]);
-
-                        if(stack != null)
-                        {
-                            item = stack.getItemStack();
-                            item.setAmount(amount);
-                        }
-                        else
-                        {
-
-                            if(Material.matchMaterial(args[0]) == null)
-                            {
-                                plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + args[0]);
-                                continue;
-                            }
-
-                            item = new ItemStack(Material.matchMaterial(args[0]), amount);
-                        }
-
-                    }
-                    else
-                    {
-
-                        if(Material.matchMaterial(args[0]) == null)
-                        {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + args[0]);
-                            continue;
-                        }
-
-                        item = new ItemStack(Material.matchMaterial(args[0]), amount);
-                    }
-
-                    local_items.add(item);
-
-                }
-                else if(args.length == 3)
-                {
-
-                    if(!Utils.isInt(args[2]))
-                    {
-                        //DIAMOND:5-10
-                        if(args[2].split("-").length == 2)
-                        {
-
-                            int min = Integer.parseInt(args[2].split("-")[0]);
-                            int max = Integer.parseInt(args[2].split("-")[1]);
-
-                            amount = Utils.randInt(min, max);
-
-                            if(amount <= 0) continue;
-
-                        }
-                        else {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[2]);
-                            continue;
-                        }
-
-                    }
-                    else {
-                        amount = Integer.parseInt(args[2]);
-                    }
-
-                    if(itemsAdder)
-                    {
-                        CustomStack stack = CustomStack.getInstance(args[0] + ":" + args[1]);
-
-                        if(stack != null)
-                        {
-                            item = stack.getItemStack();
-                            item.setAmount(amount);
-                            local_items.add(item);
-                        }
-                        else
-                        {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid ItemsAdder item in treasure prize configuration: " + args[0] + ":" + args[1]);
-                        }
-
-                    }
-                    else
-                    {
-                        plugin.getLogger().log(Level.SEVERE, "Invalid ItemsAdder item in treasure prize configuration: " + args[0] + ":" + args[1]);
-                    }
+                if(!locations.isEmpty()) {
+                    this.l = locations.get(Utils.randInt(0, locations.size() - 1));
                 }
                 else
                 {
-                    plugin.getLogger().log(Level.SEVERE, "Invalid material name in treasure prize configuration: " + s);
+                    World w = Bukkit.getServer().getWorlds().get(0);
+                    this.l = new Location(w, w.getSpawnLocation().getX(), w.getSpawnLocation().getY(), w.getSpawnLocation().getZ());
                 }
 
-            }
 
-            items.put(world_name, local_items);
-        }
-    }
-
-    public static void initialize()
-    {
-
-        loadItemsReworked();
-
-        Treasure.loadMobs();
-        Treasure.loadCommands();
-
-    }
-
-    Hunt(World w, int duration)
-    {
-
-        this.w = w;
-        this.duration = duration;
-
-        this.broadcast_to_all_worlds = Settings.getWorldBooleanUnknown(w.getName(), "broadcast-to-all-worlds");
-
-        if(Settings.getWorldBooleanUnknown(w.getName(), "spawn-to-certain-coords")) {
-
-            try
-            {
-                List<String> locations = Settings.getWorldStringListUnknown(w.getName(), "spawn-coords");
-                String locationString = locations.get(Utils.randInt(0, locations.size() - 1));
-
-                String[] args = locationString.split(":");
-                this.l = new Location(w, Integer.parseInt(args[0]), Integer.parseInt(args[1]), Integer.parseInt(args[2]));
-            }
-            catch(Exception e)
-            {
-                Bukkit.getLogger().log(Level.SEVERE, "Error while getting a location from 'spawn-coords'. Check your coordonates, please: " + e.getMessage());
-            }
         }
         else {
 
-            double distance = Math.min(Locations.getBorder(w) - 10, Settings.getWorldIntUnknown(w.getName(), "max-treasure-distance"));
-            double negativeDistance = -1 * distance;
+            World w = getTreasureData().getWorld();
+            double distance = Math.min(Locations.getBorder(w) - 10, getTreasureData().getMaxTreasureDistance());
+            int maxTreasureDistance = getTreasureData().getMaxTreasureDistance();
 
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
             {
-
-                CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, distance, distance));
+                CompletableFuture<Location> loc = CompletableFuture.supplyAsync(() -> Locations.getRandomLocationMoreThan(w, maxTreasureDistance, distance, distance));
                 this.l = loc.join();
-
             });
         }
     }
 
-    Hunt(Location location, int duration)
+    Hunt(Location location, String treasureTypeString, int duration)
     {
-        this.w = location.getWorld();
+        this.treasureTypeString = treasureTypeString;
         this.duration = duration;
-        this.broadcast_to_all_worlds = Settings.getWorldBooleanUnknown(w.getName(), "broadcast-to-all-worlds");
-
         this.l = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+
+        deserializeTreasureData();
+
     }
 
     public void start()
@@ -384,44 +125,33 @@ public class Hunt {
             return;
         }
 
-        initialize();
-
         Bukkit.getScheduler().runTask(plugin, () ->
         {
 
-            treasure = new Treasure(this, getItemsWithChances());
+            treasure = new Treasure(this, getTreasureData());
 
-            this.starttime = System.currentTimeMillis();
-            treasure.setAlias(getTreasureAlias());
+            this.startTime = System.currentTimeMillis();
+            setActive(getTreasureData().getIdentifier());
             treasure.create();
 
             Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
                     .replace("{x}", getLocation().getBlockX() + "")
                     .replace("{z}", getLocation().getBlockZ() + "")
-                    .replace("{alias}", treasure.getAlias())
+                    .replace("{alias}", getTreasureData().getTreasureName())
                     .replace("{world}", getLocation().getWorld().getName()));
-
-            hunts.add(this);
-
-            BukkitRunnable run = new BukkitRunnable() {
-                @Override
-                public void run() {
-
-                    if(Hunt.isActive(w) && treasure.isActive()) {
-
-                        treasure.hologram();
-                        treasure.enableEffects();
-                        treasure.flare();
-
-                        this.cancel();
-                    }
-                }
-            };
-
-            run.runTaskTimerAsynchronously(plugin, 0, 2);
 
         });
 
+    }
+
+    private void deserializeTreasureData()
+    {
+        this.treasureData = TreasureData.getByIdentifier(treasureTypeString);
+    }
+
+    public TreasureData getTreasureData()
+    {
+        return treasureData;
     }
 
     public static List<Hunt> getActiveHunts()
@@ -429,7 +159,7 @@ public class Hunt {
 
         List<Hunt> h = Collections.synchronizedList(new ArrayList<Hunt>());
 
-        for(Hunt x : getHunts())
+        for(Hunt x : activeHunts.values())
         {
 
             if(x.getTreasure().isActive())
@@ -442,58 +172,125 @@ public class Hunt {
         return h;
     }
 
-    public static Hunt getHunt(World w)
+    public static List<String> getActiveHuntsIdentifiers()
     {
-        for(Hunt x : getHunts())
+
+        List<String> h = Collections.synchronizedList(new ArrayList<>());
+
+        for(String x : activeHunts.keySet())
         {
-            if(x.getWorld().getName().equals(w.getName())) return x;
+
+            if(activeHunts.get(x).getTreasure().isActive())
+            {
+                h.add(x);
+            }
+
         }
 
-        return null;
+        return h;
     }
 
-    public String getTreasureAlias()
+    public static Hunt getNearestHunt(Location loc)
     {
-        return Settings.getWorldStringUnknown(w.getName(), "treasure-name");
+
+        Location huntLoc;
+
+        int minDistance = Integer.MAX_VALUE;
+        Hunt closestHunt = null;
+        Hunt backupHunt = null;
+
+        for(Hunt h : getActiveHunts())
+        {
+            huntLoc = h.getLocation();
+
+            if(!huntLoc.getWorld().getName().equals(loc.getWorld().getName()))
+            {
+                backupHunt = h;
+                continue;
+            }
+
+            if(huntLoc.distance(loc) < minDistance)
+            {
+                closestHunt = h;
+            }
+
+        }
+
+        if(closestHunt == null && Settings.getBoolean("broadcast-to-all-worlds"))
+        {
+            return backupHunt;
+        }
+
+        return closestHunt;
+
     }
 
     public void stop()
     {
 
-        getTreasure().remove();
+        if(getTreasure() == null) return;
 
+        getTreasure().remove();
+    }
+
+    public static boolean huntStarting(String id)
+    {
+        if(!getActiveHuntsIdentifiers().contains(id)) return false;
+
+        Hunt h = getHuntByIdentifier(id);
+
+        long delay = (h.getTreasureData().getDelay() + 5) / 20; //In seconds
+        return h.getStartTime() + TimeUnit.SECONDS.toMillis(delay) > System.currentTimeMillis();
     }
 
     public long getRemainingTime()
     {
-
         return getStartTime() + TimeUnit.MINUTES.toMillis(getDuration()) - System.currentTimeMillis();
-
     }
 
-    public static boolean isActive(World w)
+    public static boolean isActive(Location loc)
     {
+
+        Location treasureLoc;
 
         for(Hunt h : getActiveHunts())
         {
-            if(h.getWorld().getName().equalsIgnoreCase(w.getName())) return true;
+
+            treasureLoc = h.getLocation();
+
+            if(treasureLoc.getWorld().getName().equals(loc.getWorld().getName()) &&
+            treasureLoc.getBlockX() == loc.getBlockX() && treasureLoc.getBlockY() == loc.getBlockY() &&
+            treasureLoc.getBlockZ() == loc.getBlockZ()) return true;
+
         }
 
         return false;
 
     }
 
-    public static String isActiveString(World w)
+    public boolean isActive()
+    {
+        return treasure.isActive();
+    }
+
+    public static boolean isActive(String id)
     {
 
-        if(isActive(w)) return "Yes";
-        return "No";
+        for(Hunt h : getActiveHunts())
+        {
+            if(h.getTreasureData().getIdentifier().equals(id)) return true;
+        }
+
+        return false;
 
     }
 
-    public static ArrayList<Hunt> getHunts()
+    public static String isActiveString(String id)
     {
-        return hunts;
+
+        if(isActive(id)) return "Yes";
+        return "No";
+
     }
 
     public Location getLocation()
@@ -513,12 +310,57 @@ public class Hunt {
 
     public long getStartTime()
     {
-        return starttime;
+        return startTime;
     }
 
-    public World getWorld()
+    private static ArrayList<String> menuItemLore(List<String> list, Hunt h)
     {
-        return this.w;
+
+        ArrayList<String> newList = new ArrayList<>();
+
+        for(String s : list)
+        {
+            newList.add(s.replace("%time%", Utils.getCountDown(h.getRemainingTime()))
+                    .replace("%keepers%", "" + h.getTreasure().getRemainingMobs().size())
+                    .replace("%x%", "" + h.getLocation().getBlockX())
+                    .replace("%y%", "" + h.getLocation().getBlockY())
+                    .replace("%world%", h.getLocation().getWorld().getName())
+                    .replace("%participants%", "" + h.getTreasure().getParticipants().size())
+                    .replace("%key%", "" + h.getTreasureData().getTreasureKey().requiresKey()));
+        }
+
+        return newList;
+    }
+
+    public static void activeHuntsMenu(Player p)
+    {
+
+        Inventory inv = Bukkit.createInventory(null, 27, Messages.get("active-hunts-menu.title"));
+        ItemStack item = Utils.checkMaterial(Messages.get("active-hunts-menu.item"));;
+        ItemMeta meta;
+
+        String name = Utils.format(Messages.get("active-hunts-menu.name"));
+
+        int i = 0;
+        for(Hunt h : getActiveHunts())
+        {
+
+            meta = item.getItemMeta();
+
+            if(meta == null) continue;
+
+            meta.setDisplayName(name.replace("%treasure_name%", h.getTreasure().getTreasureData().getTreasureName()));
+            meta.setLore(menuItemLore(Messages.getAndFormatList("messages.active-hunts-menu.lore"), h));
+            item.setItemMeta(meta);
+
+            inv.setItem(i, item);
+            i++;
+        }
+
+
+        Utils.fillWithGlass(inv);
+        p.openInventory(inv);
+
     }
 
 }

@@ -1,0 +1,104 @@
+treasure:
+  default:
+    world-name: "world"
+    treasure-name: "Hidden Treasure"
+    treasure-block: ENDER_CHEST
+    treasure-particles: COMPOSTER
+    treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
+    fall-from-the-sky: true
+    treasure-icon: EMERALD #Only if DecentHolograms or FancyHolograms is not installed
+    require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
+    flare-type: "many" #Options: none, few, many
+    flare-particle: COMPOSTER
+    fireworks: true #Spawn fireworks upon clicking the treasure
+    max-treasure-distance: 15000 #Bypasses the border setting, if the border is 20k, and this is 15k, the max distance for the treasure will be 15k. Usefull for when you don't set your border
+    delay: 200 #In ticks, the delay from the announcement that the treasure will spawn until it really spawns.
+    chance-for-treasure: 20 #The chance to spawn a random treasure
+    reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
+    drop-items-on-ground: false #Only works when 'reward-all-players-who-participated' is false
+    distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
+    mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
+    enable-mob-tracker: true
+    animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
+    interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
+    duration: 20 #The duration of the treasure before it despawns
+    cooldown: 15 #Cooldown between treasures in minutes
+    clicks-to-open: 1 #How many right clicks are required to open the treasure?
+    dropped-item-name: "&6Treasure Loot"
+    treasure-key:
+      enabled: false
+      item: TRIPWIRE_HOOK
+      name: "&c&l&oTREASURE KEY"
+      lore:
+        - "&7&oOpen a treasure chest"
+        - "&7&ousing this mysterious key"
+    potion-effects:
+      - "REGENERATION:1"
+    mobs:
+      zombie:
+        entity-type: "ZOMBIE"
+        mythic-mobs: false
+        custom-name: "Bobby"
+        range: "5-10"
+        chance: 100
+        max-health: 50
+        potion-effects:
+          - "REGENERATION:5"
+        equipment:
+          helmet:
+            item: "DIAMOND_HELMET" #Set to 'none' to disable
+            slot: "HEAD" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          chest:
+            item: "DIAMOND_CHESTPLATE" #Set to 'none' to disable
+            slot: "BODY" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          legs:
+            item: "DIAMOND_LEGGINGS" #Set to 'none' to disable
+            slot: "LEGS" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          feet:
+            item: "DIAMOND_BOOTS" #Set to 'none' to disable
+            slot: "FEET" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          hand:
+            item: "DIAMOND_SWORD" #Set to 'none' to disable
+            slot: "HAND" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "SHARPNESS:4"
+          offhand:
+            item: "DIAMOND_PICKAXE" #Set to 'none' to disable
+            slot: "HEAD" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "EFFICIENCY:4"
+        drops:
+          diamonds:
+            item: "DIAMOND"
+            amount: "1-10"
+            chance: 20
+    item-rewards:
+      diamond: #Can be any text, it doesn't count. It's a reward identifier.
+        item: DIAMOND #Material name
+        name: "&6&l&oREWARD #1" #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
+        lore:                   #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
+          - "&7&oHave fun with this reward!"
+        amount: 1-10 #Between 1 and 10 diamonds
+        chance: 40 #Percentage (60%)
+      emerald: #Can be any text, it doesn't count. It's a reward identifier.
+        item: EMERALD #Material name
+        name: "&6&l&oREWARD #1"
+        lore:
+          - "&7&oHave fun with this reward!"
+        amount: 1-10 #Between 1 and 10 diamonds
+        chance: 100 #Percentage (60%)
+    command-rewards:
+      money:
+        command: "eco give %player% 100"
+        chance: 100
+    spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
+    spawn-coords: #Make sure to place valid coords - inside your world border
+      - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z

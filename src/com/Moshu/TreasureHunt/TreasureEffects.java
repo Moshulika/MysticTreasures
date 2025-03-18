@@ -1,5 +1,6 @@
 package com.Moshu.TreasureHunt;
 
+import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Settings;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -18,41 +19,14 @@ public class TreasureEffects {
 
     private static final ArrayList<PotionEffect> effects = new ArrayList<PotionEffect>();
 
-    private static void loadPotionEffects() {
-
-        String effect;
-        int mul;
-
-        for (String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false)) {
-
-            for(String potion : plugin.getConfig().getStringList("settings.enabled-worlds." + s + ".potion-effects")) {
-
-                try {
-
-                    effect = potion.split(":")[0];
-                    mul = Integer.parseInt(potion.split(":")[1]);
-
-                    effects.add(new PotionEffect(PotionEffectType.getByName(effect), 60, mul));
-
-                } catch (Exception e) {
-
-                    plugin.getLogger().log(Level.SEVERE, "No such potion effect: " + potion);
-
-                }
-            }
-
-        }
-
-    }
-
+    /*
+    Cumva sa fie pentru toti jucatorii, daca sunt in raza unui treasure activ
+     */
     public static void check()
     {
 
-        loadPotionEffects();
-
         BukkitRunnable run = new BukkitRunnable() {
 
-            World w;
             Hunt h;
             int distance;
 
@@ -60,34 +34,30 @@ public class TreasureEffects {
             public void run() {
 
 
-                    for (Player p : Bukkit.getOnlinePlayers()) {
+                if(Bukkit.getOnlinePlayers().isEmpty()) return;
+                if(Hunt.getActiveHunts().isEmpty()) return;
 
-                        w = p.getWorld();
+                for(Player p : Bukkit.getOnlinePlayers()) {
 
-                        if(Hunt.isActive(w))
+                    h = Hunt.getNearestHunt(p.getLocation());
+                    if (h == null) continue;
+
+                    distance = Settings.getInt("potion-effect-radius");
+
+                    if(Locations.distanceTo(p.getLocation(), h.getLocation()) <= distance) {
+
+                        Bukkit.getScheduler().runTask(plugin, ()->
                         {
 
-                            h = Hunt.getHunt(w);
-                            distance = Settings.getWorldIntUnknown(w.getName(), "potion-effect-radius");
-
-                            if(p.getLocation().distance(h.getLocation()) <= distance) {
-
-                                Bukkit.getScheduler().runTask(plugin, ()->
-                                {
-
-                                    for(PotionEffect effect : effects) {
-                                        p.addPotionEffect(effect);
-                                    }
-
-                                });
-
+                            for(PotionEffect effect : effects) {
+                                p.addPotionEffect(effect);
                             }
 
+                        });
 
                     }
 
                 }
-
 
             }
         };

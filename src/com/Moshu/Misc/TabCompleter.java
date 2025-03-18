@@ -1,5 +1,6 @@
 package com.Moshu.Misc;
 
+import com.Moshu.TreasureHunt.objects.TreasureData;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -50,26 +51,30 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
             if (args.length == 2) {
 
-                if (args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("stop")) {
+                if (args[0].equalsIgnoreCase("start")) {
 
                     ArrayList<String> c = new ArrayList<>();
 
                     c.add("here");
-
-                    for(World w : Bukkit.getWorlds())
-                    {
-                        c.add(w.getName());
-                    }
+                    c.addAll(TreasureData.getTreasureIdentifiers());
 
                     ArrayList<String> completions = new ArrayList<>();
 
                     return StringUtil.copyPartialMatches(args[1], c, completions);
 
                 }
+                else if(args[0].equalsIgnoreCase("stop"))
+                {
+                    ArrayList<String> c = new ArrayList<>();
+                    c.addAll(TreasureData.getTreasureIdentifiers());
+
+                    ArrayList<String> completions = new ArrayList<>();
+
+                    return StringUtil.copyPartialMatches(args[1], c, completions);
+                }
                 else if(args[0].equalsIgnoreCase("key"))
                 {
                     ArrayList<String> completions = new ArrayList<>();
-
                     return StringUtil.copyPartialMatches(args[1], Utils.getOnlinePlayersNames(), completions);
                 }
 
@@ -79,7 +84,17 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
                 if (args[0].equalsIgnoreCase("key")) {
                     ArrayList<String> completions = new ArrayList<>();
 
-                    return StringUtil.copyPartialMatches(args[2], Utils.getWorldsNames(), completions);
+                    return StringUtil.copyPartialMatches(args[2], TreasureData.getTreasureIdentifiers(), completions);
+                }
+                else if(args[0].equalsIgnoreCase("start"))
+                {
+
+                    if(args[1].equalsIgnoreCase("here"))
+                    {
+                        ArrayList<String> completions = new ArrayList<>();
+                        return StringUtil.copyPartialMatches(args[2], TreasureData.getTreasureIdentifiers(), completions);
+                    }
+
                 }
             }
 

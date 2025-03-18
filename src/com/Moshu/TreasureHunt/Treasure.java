@@ -1,23 +1,19 @@
 package com.Moshu.TreasureHunt;
 
 import com.Moshu.Misc.*;
+import com.Moshu.TreasureHunt.objects.CommandReward;
+import com.Moshu.TreasureHunt.objects.ItemReward;
+import com.Moshu.TreasureHunt.objects.TreasureData;
+import com.Moshu.TreasureHunt.objects.TreasureKeeper;
 import com.google.common.base.Joiner;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
-import de.oliver.fancyholograms.api.data.HologramData;
-import de.oliver.fancyholograms.api.data.TextHologramData;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
-import eu.decentsoftware.holograms.api.holograms.HologramManager;
-import io.lumine.mythic.api.mobs.MythicMob;
-import io.lumine.mythic.bukkit.BukkitAdapter;
-import io.lumine.mythic.bukkit.MythicBukkit;
-import io.lumine.mythic.core.mobs.ActiveMob;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -30,87 +26,45 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 public class Treasure {
 
-    public enum TreasureType
-    {
-
-        VANILLA,
-        ENTITY,
-        BLOCK,
-        FURNITURE,
-        ORAXEN_FURNITURE,
-        OTHER
-
-    }
-
-
     private Location l;
-    private final HashMap<ItemStack, Double> items;
     private final Hunt h;
-    private boolean isactive;
-    private TreasureType type;
+    private boolean isActive;
     private Entity furnitureEntity;
 
-    private boolean spawned = false;
-    private String alias = "Hidden Treasure";
+    private TreasureData treasureData;
 
+    private boolean spawned = false;
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+
+    ArrayList<Entity> spawnedTreasureKeepers = new ArrayList<>();
 
     private static final Particle EXPLOSION = Settings.getCompatParticle("treasure-spawn-particle");
     private static final Particle EXPLOSION_EMITTER = Settings.getCompatParticle("treasure-remove-particle");
     private static final Particle CAMPFIRE_SIGNAL_SMOKE = Settings.getCompatParticle("treasure-fall-particle");
-    private static final Particle LAVA = Settings.getCompatParticle("lava");
-    private static final Particle SOUL = Settings.getCompatParticle("soul");
-    private static final Particle SOUL_FIRE_FLAME = Settings.getCompatParticle("soul-fire-flame");
-    private static final Particle WARPED_SPORE = Settings.getCompatParticle("warped-spore");
 
-    Treasure(Hunt h, HashMap<ItemStack, Double> items)
+    Treasure(Hunt h, TreasureData d)
     {
-
         this.h = h;
         this.l = h.getLocation();
-        this.items = items;
-        this.isactive = false;
-        this.type = TreasureType.VANILLA;
+        this.treasureData = d;
+        this.isActive = false;
+    }
 
+    public TreasureData getTreasureData()
+    {
+        return treasureData;
     }
 
     private final ArrayList<Player> participants = new ArrayList<>();
 
-    public void setAlias(String s)
-    {
-        alias = s;
-    }
-
-    public String getAlias()
-    {
-        return alias;
-    }
-
-    public TreasureType getType()
-    {
-        return type;
-    }
-
-    public void setType(TreasureType type)
-    {
-        this.type = type;
-    }
-
     public Location getLocation()
     {
         return l;
-    }
-
-    public HashMap<ItemStack, Double> getItems()
-    {
-        return items;
     }
 
     public boolean haveTheMobsSpawned()
@@ -120,7 +74,7 @@ public class Treasure {
 
     public boolean isActive()
     {
-        return isactive;
+        return isActive;
     }
 
     public ArrayList<Player> getParticipants()
@@ -166,6 +120,25 @@ public class Treasure {
 
     }
 
+    public TreasureKeeper getTreasureKeeper(LivingEntity e)
+    {
+
+        UUID uuid = e.getUniqueId();
+
+        for(TreasureKeeper t :  getTreasureData().getTreasureKeepers())
+        {
+
+            if(t.isSpawned())
+            {
+                if(t.getUUID().toString().equals(uuid.toString())) return t;
+            }
+
+        }
+
+        return null;
+
+    }
+
     public static Treasure getTreasure(Location loc)
     {
 
@@ -183,146 +156,10 @@ public class Treasure {
 
     }
 
-    public Location getNearLocation()
-    {
-
-        int x = Utils.randInt(-6, 6);
-        int z = Utils.randInt(-6, 6);
-
-        return Utils.getHighestBlock(l.getWorld(), l.getBlockX(), l.getBlockZ(), l.getWorld().getSpawnLocation()).add(x, 0, z);
-
-    }
-
-    private static final HashMap<String, ArrayList<String>> command_rewards = new HashMap<>();
-
-    public ArrayList<String> getCommandRewards()
-    {
-        return command_rewards.get(l.getWorld().getName());
-    }
-
-    public static void loadCommands()
-    {
-
-        try {
-
-            String world_name;
-
-            //world isn'r real world name, only config name
-            for (String world : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false)) {
-
-                ArrayList<String> local_commands = new ArrayList<>();
-
-                world_name = plugin.getConfig().getString("settings.enabled-worlds." + world + ".world-name");
-                local_commands.addAll(plugin.getConfig().getStringList("settings.enabled-worlds." + world + ".command-rewards"));
-
-                command_rewards.put(world_name, local_commands);
-            }
-
-        }
-        catch (IllegalArgumentException e)
-        {
-            plugin.getLogger().log(Level.SEVERE, "Invalid entity name in treasure configuration: " + e.getMessage());
-        }
-
-
-    }
-
-    private static final HashMap<String, ArrayList<TreasureKeeper>> mobs = new HashMap<>();
-
-    public ArrayList<TreasureKeeper> getMobs(World w)
-    {
-        return mobs.get(w.getName());
-    }
-
-    public static void loadMobs()
-    {
-
-        String[] args;
-        EntityType mob;
-        int amount;
-
-        String world_name;
-        boolean mythicsEnabled = Utils.isEnabled("MythicMobs");
-
-        try {
-
-            for (String world : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false)) {
-
-                world_name = plugin.getConfig().getString("settings.enabled-worlds." + world + ".world-name");
-                ArrayList<TreasureKeeper> local_mobs = new ArrayList<>();
-
-                for (String s : plugin.getConfig().getStringList("settings.enabled-worlds." + world + ".mobs")) {
-
-                    args = s.split(":");
-
-                    if (args.length < 2) {
-                        plugin.getLogger().log(Level.SEVERE, "Invalid mob in treasure configuration: " + s);
-                        continue;
-                    }
-
-                    if(!Utils.isInt(args[1]))
-                    {
-                        //DIAMOND:5-10
-                        if(args[1].split("-").length == 2)
-                        {
-
-                            int min = Integer.parseInt(args[1].split("-")[0]);
-                            int max = Integer.parseInt(args[1].split("-")[1]);
-
-                            amount = Utils.randInt(min, max);
-
-                            if(amount <= 0) continue;
-
-                        }
-                        else {
-                            plugin.getLogger().log(Level.SEVERE, "Invalid amount in treasure prize configuration: " + args[1]);
-                            continue;
-                        }
-
-                    }
-                    else {
-                        amount = Integer.parseInt(args[1]);
-                    }
-
-                    if(mythicsEnabled) {
-
-                        MythicMob mythicmob = MythicBukkit.inst().getMobManager().getMythicMob(args[0]).orElse(null);
-
-                        if(mythicmob != null) {
-                            local_mobs.add(new TreasureKeeper(mythicmob, amount));
-                        }
-                        else
-                        {
-                            mob = EntityType.valueOf(args[0]);
-                            local_mobs.add(new TreasureKeeper(mob, amount));
-                        }
-
-                    }
-                    else
-                    {
-                        mob = EntityType.valueOf(args[0]);
-                        local_mobs.add(new TreasureKeeper(mob, amount));
-                    }
-
-                }
-
-                mobs.put(world_name, local_mobs);
-            }
-
-        }
-        catch (IllegalArgumentException e)
-        {
-            plugin.getLogger().log(Level.SEVERE, "Invalid entity name in treasure configuration: " + e.getMessage());
-        }
-
-
-    }
-
-    ArrayList<Entity> spawnEntities = new ArrayList<>();
 
     public boolean mobsCleared()
     {
-        for(Entity e : spawnEntities)
+        for(Entity e : spawnedTreasureKeepers)
         {
             if(!e.isDead()) return false;
         }
@@ -335,7 +172,7 @@ public class Treasure {
 
         ArrayList<Entity> entities = new ArrayList<>();
 
-        for(Entity e : spawnEntities)
+        for(Entity e : spawnedTreasureKeepers)
         {
 
             if(!e.isDead()) entities.add(e);
@@ -349,96 +186,12 @@ public class Treasure {
 
     public int remainingMobs()
     {
-
-        int i = 0;
-
-        for(Entity e : spawnEntities)
-        {
-            i++;
-        }
-
-        return i;
-
-    }
-
-    public void spawnMobs(boolean animate)
-    {
-
-        LivingEntity e;
-        boolean animated = Settings.getWorldBooleanUnknown(l.getWorld().getName(), "animate-mob-spawning") && animate;
-
-        try
-        {
-
-            boolean mythicsEnabled = Utils.isEnabled("MythicMobs");
-
-            for(TreasureKeeper t : getMobs(l.getWorld()))
-            {
-
-                for(int i = 0; i < t.getAmount(); i++) {
-
-                    if(mythicsEnabled)
-                    {
-
-                        MythicMob mob = t.getMythicMob();
-
-                        if(t.isMythicMob())
-                        {
-
-                            if(mob != null) {
-                                ActiveMob knight = mob.spawn(BukkitAdapter.adapt(getNearLocation()),1);
-                                Entity entity = knight.getEntity().getBukkitEntity();
-                                entity.setMetadata("treasure-mob-" + l.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + l.getWorld().getName()));
-
-                                if(animated) smoothEntitySpawnFromGrave(entity);
-
-                                spawnEntities.add(entity);
-                            }
-
-                        }
-                        else
-                        {
-                            e = (LivingEntity) l.getWorld().spawnEntity(getNearLocation(), t.getType());
-                            e.setMetadata("treasure-mob-" + l.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + l.getWorld().getName()));
-                            e.setRemoveWhenFarAway(false);
-
-                            if(animated) smoothEntitySpawnFromGrave(e);
-
-                            spawnEntities.add(e);
-                        }
-
-                    }
-                    else
-                    {
-
-                        e = (LivingEntity) l.getWorld().spawnEntity(getNearLocation(), t.getType());
-                        e.setMetadata("treasure-mob-" + l.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + l.getWorld().getName()));
-                        e.setRemoveWhenFarAway(false);
-
-                        if(animated) smoothEntitySpawnFromGrave(e);
-
-                        spawnEntities.add(e);
-
-                    }
-
-
-
-                }
-            }
-
-            spawned = true;
-
-        }
-        catch (Exception ex)
-        {
-            plugin.getLogger().log(Level.SEVERE, "Invalid mob in treasure configuration: " + ex.getMessage());
-        }
-
+        return getRemainingMobs().size();
     }
 
     public boolean isTreasureKeeper(LivingEntity e)
     {
-        return spawnEntities.contains(e) || e.hasMetadata("treasure-mob-" + l.getWorld().getName());
+        return spawnedTreasureKeepers.contains(e) || e.hasMetadata("treasure-mob-" + l.getWorld().getName());
     }
 
     public void hologram()
@@ -460,7 +213,7 @@ public class Treasure {
             ArrayList<String> lines = new ArrayList<>();
 
             for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
-                lines.add(s.replace("{time}", Utils.getCountDown(Hunt.getHunt(loc.getWorld()).getRemainingTime())));
+                lines.add(s.replace("{time}", Utils.getCountDown(getHunt().getRemainingTime())));
             }
 
             h.enable();
@@ -484,7 +237,7 @@ public class Treasure {
         }
         else
         {
-            createItem(getItemLocation(loc));
+            createItem();
         }
 
     }
@@ -492,7 +245,7 @@ public class Treasure {
     public void flare()
     {
 
-            String flare = Settings.getWorldStringUnknown(l.getWorld().getName(), "flare-type");
+            String flare = getTreasureData().getFlareType();
             int refresh = flare.equalsIgnoreCase("few") ? 20 : 2;
             Location loc = getLocation().clone();
 
@@ -500,12 +253,12 @@ public class Treasure {
 
                 BukkitRunnable run = new BukkitRunnable() {
 
-                    final Particle p = Settings.getWorldParticleUnknown(loc.getWorld().getName(), "flare-particle");
+                    final Particle p = getTreasureData().getFlareParticle();
 
                     @Override
                     public void run() {
 
-                        if(!isActive() || (Hunt.getHunt(l.getWorld()) == null) || (Hunt.getHunt(l.getWorld()) != null && !Hunt.isActive(l.getWorld())))
+                        if(!isActive())
                         {
                             this.cancel();
                             return;
@@ -537,17 +290,17 @@ public class Treasure {
 
     public void enableEffects()
     {
-        boolean mobs = Settings.getWorldBooleanUnknown(l.getWorld().getName(), "require-all-mobs-dead");
-        String anim = Settings.getWorldStringUnknown(l.getWorld().getName(), "treasure-animation");
+        boolean mobs = getTreasureData().requireAllMobsDead();
+        String anim = getTreasureData().getTreasureAnimation();
 
         if (mobs) {
-            if (anim.equalsIgnoreCase("protection")) Effects.runCircle(l);
+            if (anim.equalsIgnoreCase("protection")) Effects.runCircle(this);
         } else {
 
             if (anim.equalsIgnoreCase("orb")) {
-                Effects.runOrbs(l);
+                Effects.runOrbs(this);
             } else if (anim.equalsIgnoreCase("spiral")) {
-                Effects.createDoubleSpiral(l);
+                Effects.createDoubleSpiral(this);
             }
 
         }
@@ -564,8 +317,8 @@ public class Treasure {
             Location temp_location = getLocation().clone();
             World w = temp_location.getWorld();
 
-            Particle part = Settings.getWorldParticleUnknown(w.getName(), "treasure-particles");
-            int distance_to_spawn = Settings.getWorldIntUnknown(w.getName(), "distance-from-player-to-spawn-mobs");
+            Particle part = getTreasureData().getTreasureParticles();
+            int distance_to_spawn = getTreasureData().getDistanceFromPlayerToSpawnMobs();
 
             if(temp_location.getBlock().getType().isSolid())
             {
@@ -581,12 +334,16 @@ public class Treasure {
 
                 if(distance_to_spawn <= 0)
                 {
-                    spawnMobs(false);
+                    spawnTreasureKeepers();
                 }
 
             }, 1);
 
-            this.isactive = true;
+            this.isActive = true;
+
+            hologram();
+            enableEffects();
+            flare();
             
             tickTreasure(location, part, distance_to_spawn);
             announceSpawnedTreasure();
@@ -596,11 +353,36 @@ public class Treasure {
 
     }
 
+    public Hunt getHunt()
+    {
+        return h;
+    }
+
+    private Location getNearLocation()
+    {
+
+        int x = Utils.randInt(-6, 6);
+        int z = Utils.randInt(-6, 6);
+
+        return Utils.getHighestBlock(l.getWorld(), l.getBlockX(), l.getBlockZ(), l.getWorld().getSpawnLocation()).add(x, 0, z);
+
+    }
+
+    private void spawnTreasureKeepers()
+    {
+
+        for(TreasureKeeper k : getTreasureData().getTreasureKeepers())
+        {
+            k.spawn(spawnedTreasureKeepers, getLocation());
+        }
+
+    }
+
     private void tickTreasure(Location location, Particle part, int distance_to_spawn)
     {
 
         World w = location.getWorld();
-        int wandering_distance = Settings.getWorldIntUnknown(w.getName(), "mob-wandering-distance");
+        int wandering_distance = getTreasureData().getMobWanderingDistance();
 
         String unlocked =  Messages.get("treasure-unlocked");
         String locked =  Messages.get("treasure-locked");
@@ -625,9 +407,9 @@ public class Treasure {
 
                         for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
                             lines.add(s
-                                    .replace("{time}", Utils.getCountDown(Hunt.getHunt(w).getRemainingTime()))
+                                    .replace("{time}", Utils.getCountDown(getHunt().getRemainingTime()))
                                     .replace("{status}", getRemainingMobs().isEmpty() ? unlocked : locked)
-                                    .replace("{alias}", getAlias())
+                                    .replace("{alias}", getTreasureData().getTreasureName())
                                     .replace("{remaining_mobs}", getRemainingMobs().size() + ""));
                         }
 
@@ -658,7 +440,7 @@ public class Treasure {
                             Bukkit.getScheduler().runTaskLater(plugin, () ->
                             {
                                 w.strikeLightningEffect(location);
-                                spawnMobs(true);
+                                spawnTreasureKeepers();
                                 enableEffects();
                                 spawned = true;
                             }, 1);
@@ -666,6 +448,12 @@ public class Treasure {
 
                         for(Entity e : getRemainingMobs())
                         {
+
+                            if(!e.getLocation().getWorld().getName().equals(location.getWorld().getName()))
+                            {
+                                e.remove();
+                                continue;
+                            }
 
                             if(e.getLocation().distance(location) > wandering_distance)
                             {
@@ -680,7 +468,7 @@ public class Treasure {
 
 
                     } else {
-                        Hunt.getHunts().remove(h);
+                        getHunt().setInactive();
                         Bukkit.getScheduler().runTask(plugin, () -> l.getChunk().setForceLoaded(false));
                         this.cancel();
                     }
@@ -746,11 +534,11 @@ public class Treasure {
     private void runAnimation(Location location)
     {
 
-        String s = Settings.getWorldStringUnknown(location.getWorld().getName(), "treasure-block");
+        String s = getTreasureData().getTreasureBlockString();
 
-        if(getType() == TreasureType.VANILLA) {
+        if(getTreasureData().getTreasureType() == TreasureData.TreasureType.VANILLA) {
 
-            if(Settings.getWorldBooleanUnknown(location.getWorld().getName(), "fall-from-the-sky"))
+            if(getTreasureData().fallFromTheSky())
             {
                 ArmorStand animation = (ArmorStand) location.getWorld().spawnEntity(location.clone().add(0, 50, 0), EntityType.ARMOR_STAND);
                 ItemStack is = new ItemStack(Utils.checkMaterial(s));
@@ -775,8 +563,7 @@ public class Treasure {
     public void create() {
 
         Location location = getLocation().clone();
-        World w = location.getWorld();
-        int delay = Settings.getWorldIntUnknown(w.getName(), "delay");
+        int delay = getTreasureData().getDelay();
 
         announceUpcomingTreasure(delay);
 
@@ -785,8 +572,6 @@ public class Treasure {
 
             location.getChunk().load();
             location.getChunk().setForceLoaded(true);
-
-            setType(fetchTreasureType(w.getName()));
 
             runAnimation(location);
 
@@ -802,25 +587,27 @@ public class Treasure {
 
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
         boolean oraxen = Utils.isEnabled("Oraxen");
-        String name = Settings.getWorldStringUnknown(world, "treasure-block");
+        String name = getTreasureData().getTreasureBlockString();
+
+        TreasureData.TreasureType type = getTreasureData().getTreasureType();
 
         if(itemsAdder)
         {
 
-            if(getType() == TreasureType.ENTITY)
+            if(type == TreasureData.TreasureType.ENTITY)
             {
 
                 CustomEntity entity = CustomEntity.spawn(name, location);
                 furnitureEntity = entity.getEntity();
 
             }
-            else if(getType() == TreasureType.BLOCK)
+            else if(type == TreasureData.TreasureType.BLOCK)
             {
 
                 CustomBlock block = CustomBlock.place(name, location);
 
             }
-            else if(getType() == TreasureType.FURNITURE)
+            else if(type == TreasureData.TreasureType.FURNITURE)
             {
 
                 CustomFurniture furniture = CustomFurniture.spawn(name, location.getBlock());
@@ -839,7 +626,7 @@ public class Treasure {
         else if(oraxen)
         {
 
-            if(getType() == TreasureType.ORAXEN_FURNITURE)
+            if(type == TreasureData.TreasureType.ORAXEN_FURNITURE)
             {
                 furnitureEntity = OraxenFurniture.place(name, location, Rotation.NONE, BlockFace.NORTH);
             }
@@ -864,55 +651,6 @@ public class Treasure {
 
     }
 
-    private TreasureType fetchTreasureType(String world) {
-
-        String name = Settings.getWorldStringUnknown(world, "treasure-block");
-        boolean itemsAdder = Utils.isEnabled("ItemsAdder");
-        boolean oraxen = Utils.isEnabled("Oraxen");
-
-        if (itemsAdder) {
-
-            try {
-
-                if (CustomEntity.isInRegistry(name)) {
-                    return TreasureType.ENTITY;
-                } else if (CustomBlock.isInRegistry(name)) {
-                    return TreasureType.BLOCK;
-                } else if (CustomFurniture.isInRegistry(name)) {
-                    return TreasureType.FURNITURE;
-                } else {
-                    return TreasureType.VANILLA;
-                }
-
-            } catch (NullPointerException | ClassCastException e) {
-
-                plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
-                return TreasureType.VANILLA;
-
-            }
-
-        }
-        else if(oraxen)
-        {
-
-            try {
-
-                if (OraxenFurniture.isFurniture(name)) {
-                    return TreasureType.ORAXEN_FURNITURE;
-                } else {
-                    return TreasureType.VANILLA;
-                }
-
-
-            } catch (NullPointerException | ClassCastException e) {
-                plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
-                return TreasureType.VANILLA;
-            }
-
-        }
-        else return TreasureType.VANILLA;
-    }
-
     private void announceSpawnedTreasure()
     {
 
@@ -925,8 +663,8 @@ public class Treasure {
                 for (String s : Messages.getAndFormatList("messages.hunt-message")) {
                     scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
                             .replace("{z}", h.getLocation().getBlockZ() + "")
-                            .replace("{world}", h.getWorld() + "")
-                            .replace("{alias}", getAlias())
+                            .replace("{world}", getTreasureData().getWorldName() + "")
+                            .replace("{alias}", getTreasureData().getTreasureName())
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
@@ -950,7 +688,7 @@ public class Treasure {
                     scm.sendCenteredMessage(p, s.replace("{x}", getLocation().getBlockX() + "")
                             .replace("{z}", getLocation().getBlockZ() + "")
                             .replace("{world}", getLocation().getWorld().getName())
-                            .replace("{alias}", getAlias())
+                            .replace("{alias}", getTreasureData().getTreasureName())
                             .replace("{duration}", h.getDuration() + ""));
                 }
 
@@ -958,25 +696,14 @@ public class Treasure {
         }
     }
 
-    public static boolean isNearTreasure(Player p)
-    {
+    public static boolean isNearTreasure(Player p) {
 
-        if(Hunt.isActive(p.getWorld()))
-        {
 
-                for (Hunt h : Hunt.getActiveHunts()) {
+        for (Hunt h : Hunt.getActiveHunts()) {
 
-                    if (h.getLocation().getWorld() == p.getWorld())
-                    {
-
-                        if (h.getLocation().distance(p.getLocation()) <= Settings.getWorldIntUnknown(p.getWorld().getName(), "protection-radius"))
-                        {
-                            return true;
-                        }
-
-                    }
-
-                }
+            if (Locations.distanceTo(p.getLocation(), h.getLocation()) <= Settings.getInt("protection-radius")) {
+                return true;
+            }
 
         }
 
@@ -989,7 +716,7 @@ public class Treasure {
         
         Location loc = getLocation().clone();
 
-        if(Settings.getWorldBooleanUnknown(loc.getWorld().getName(), "fireworks"))
+        if(getTreasureData().shootFireworks())
         {
 
             Firework firework_1 = loc.getWorld().spawn(loc.add(1,0,0), Firework.class);
@@ -1025,13 +752,8 @@ public class Treasure {
         launchFireworks();
 
         int cooldown = Settings.getCooldown();
-        World w = getLocation().getWorld();
 
         for (Player p : getParticipants()) {
-
-            if (TreasureKey.requiresKey(w.getName())) {
-                Utils.substractItem(p, TreasureKey.getTreasureKey(w), 1);
-            }
 
             if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
                 p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
@@ -1043,28 +765,28 @@ public class Treasure {
                 cd.set();
             }
 
-            for (String s : getCommandRewards()) {
-                s = Utils.setInternalPlaceholders(p, s);
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+            for (CommandReward c : getTreasureData().getCommandRewards()) {
+                c.run(p);
             }
 
-            for (ItemStack a : getItems().keySet()) {
+            for(ItemReward i : getTreasureData().getItemRewards())
+            {
+                if (i.getChance() <= Utils.chance()) continue;
 
-                if (getItems().get(a) <= Utils.chance()) continue;
-
+                ItemStack item = i.getItemStack();
 
                 if (!Utils.hasFullInventory(p)) {
 
-                    if (a == null || a.getType() == Material.AIR) continue;
+                    if (item == null || item.getType() == Material.AIR) continue;
 
-                    p.getInventory().addItem(a);
+                    p.getInventory().addItem(item);
 
                 } else {
 
-                    if (a == null || a.getType() == Material.AIR) continue;
+                    if (item == null || item.getType() == Material.AIR) continue;
 
-                    p.getWorld().dropItemNaturally(p.getLocation(), a);
-                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", a.getAmount() + "").replace("{item}", Utils.setCapitals(a.getType().toString().toLowerCase().replace("_", " "))));
+                    p.getWorld().dropItemNaturally(p.getLocation(), item);
+                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", item.getAmount() + "").replace("{item}", Utils.setCapitals(item.getType().toString().toLowerCase().replace("_", " "))));
 
                 }
 
@@ -1081,11 +803,6 @@ public class Treasure {
         int cooldown = Settings.getCooldown();
         World w = getLocation().getWorld();
 
-        if(TreasureKey.requiresKey(w.getName()))
-        {
-            Utils.substractItem(p, TreasureKey.getTreasureKey(w), 1);
-        }
-
         if(cooldown != 0)
         {
             Cooldown cd = new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60);
@@ -1094,10 +811,8 @@ public class Treasure {
 
         launchFireworks();
 
-        for(String s : getCommandRewards())
-        {
-            s = Utils.setInternalPlaceholders(p, s);
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+        for (CommandReward c : getTreasureData().getCommandRewards()) {
+            c.run(p);
         }
 
         int xOffset = (int) ((Math.random() * 2 * 5 + 1) - 5);
@@ -1105,17 +820,18 @@ public class Treasure {
         Location dropLocation = Utils.getHighestBlock(w, getLocation().getBlockX() + xOffset, getLocation().getBlockZ() + zOffset, getLocation());
 
         int x = 1;
+        boolean dropOnGround = getTreasureData().dropsItemsOnGround();
 
-        for (ItemStack a : getItems().keySet()) {
+        for(ItemReward r : getTreasureData().getItemRewards())
+        {
+            if (r.getChance() <= Utils.chance()) continue;
 
-            if(getItems().get(a) <= Utils.chance()) continue;
-
-            if (Settings.getWorldBooleanUnknown(w.getName(), "drop-items-on-ground")) {
-
+            if(dropOnGround)
+            {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->
                 {
 
-                    Item i = w.dropItemNaturally(dropLocation, a);
+                    Item i = w.dropItemNaturally(dropLocation, r.getItemStack());
 
                     i.setGlowing(true);
                     i.setInvisible(false);
@@ -1124,30 +840,33 @@ public class Treasure {
                     i.setCanMobPickup(false);
                     i.setCustomNameVisible(true);
 
-                    i.setCustomName(ChatColor.translateAlternateColorCodes('&', "&6Treasure Loot"));
+                    i.setCustomName(Utils.format(getTreasureData().getDroppedItemName()));
 
                 }, 20L * x);
 
                 x++;
-
             }
-            else {
+            else
+            {
+                ItemStack item = r.getItemStack();
 
                 if (!Utils.hasFullInventory(p)) {
 
-                    if (a == null || a.getType() == Material.AIR) continue;
+                    if (item == null || item.getType() == Material.AIR) continue;
 
-                    p.getInventory().addItem(a);
+                    p.getInventory().addItem(item);
 
                 } else {
 
-                    if (a == null || a.getType() == Material.AIR) continue;
+                    if (item == null || item.getType() == Material.AIR) continue;
 
-                    p.getWorld().dropItemNaturally(p.getLocation(), a);
-                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", a.getAmount() + "").replace("{item}", Utils.setCapitals(a.getType().toString().toLowerCase().replace("_", " "))));
+                    p.getWorld().dropItemNaturally(p.getLocation(), item);
+                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", item.getAmount() + "").replace("{item}", Utils.setCapitals(item.getType().toString().toLowerCase().replace("_", " "))));
 
                 }
+
             }
+
         }
 
         announceWinner(p);
@@ -1165,7 +884,7 @@ public class Treasure {
 
     }
 
-    public void removeItem() {
+    private void removeItem() {
 
 
         for (Entity e : Utils.getNearbyEntities(getLocation(), 2)) {
@@ -1189,19 +908,21 @@ public class Treasure {
     public void remove()
     {
 
-        if(getType() == TreasureType.BLOCK)
+        TreasureData.TreasureType type = getTreasureData().getTreasureType();
+
+        if(type == TreasureData.TreasureType.BLOCK)
         {
             CustomBlock.remove(getLocation());
         }
-        else if(getType() == TreasureType.ENTITY)
+        else if(type == TreasureData.TreasureType.ENTITY)
         {
             CustomEntity.byAlreadySpawned(furnitureEntity).destroy();
         }
-        else if(getType() == TreasureType.FURNITURE)
+        else if(type == TreasureData.TreasureType.FURNITURE)
         {
             CustomFurniture.remove(furnitureEntity, false);
         }
-        else if(getType() == TreasureType.ORAXEN_FURNITURE)
+        else if(type == TreasureData.TreasureType.ORAXEN_FURNITURE)
         {
             OraxenFurniture.remove(furnitureEntity, null);
         }
@@ -1210,7 +931,7 @@ public class Treasure {
         getLocation().getWorld().spawnParticle(EXPLOSION_EMITTER, getLocation(), 3);
         getLocation().getWorld().strikeLightningEffect(getLocation());
 
-        isactive = false;
+        isActive = false;
 
         if(Utils.isEnabled("DecentHolograms"))
         {
@@ -1228,9 +949,11 @@ public class Treasure {
         removeItem();
         clearMobs();
 
+        getHunt().setInactive();
+
     }
 
-    public void announceWinners()
+    private void announceWinners()
     {
 
         SendCenteredMessage scm = new SendCenteredMessage();
@@ -1261,7 +984,7 @@ public class Treasure {
         TreasureTask.updateLastHunt();
     }
 
-    public void announceWinner(Player k)
+    private void announceWinner(Player k)
     {
 
         SendCenteredMessage scm = new SendCenteredMessage();
@@ -1286,21 +1009,24 @@ public class Treasure {
         TreasureTask.updateLastHunt();
     }
 
-    public static Location getItemLocation(Location l)
+    private Location getItemLocation(Location l)
     {
 
         return new Location(l.getWorld(), l.getBlockX() + 0.5, l.getBlockY() + 1, l.getBlockZ() + 0.5);
     }
 
-    public static void createItem(Location l)
+    private void createItem()
     {
+
+        Location loc = getLocation().clone();
+        Location l = getItemLocation(loc);
 
         if(!l.getBlock().isEmpty() || l.getBlock().isLiquid())
         {
             return;
         }
 
-        ItemStack itm = new ItemStack(Settings.getWorldMaterialUnknown(l.getWorld().getName(), "treasure-icon"));
+        ItemStack itm = new ItemStack(getTreasureData().getTreasureIcon());
         ItemMeta meta = itm.getItemMeta();
         meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&aAncient Treasure"));
         itm.setItemMeta(meta);
@@ -1319,84 +1045,6 @@ public class Treasure {
 
         });
 
-    }
-
-    private final ArrayList<Entity> spawningEntities = new ArrayList<>();
-
-    private void smoothEntitySpawnFromGrave(final Entity ent) {
-
-        final Location particleLocation = ent.getLocation();
-        final Location entLoc = particleLocation.clone();
-        final Entity passenger = ent.getPassenger();
-
-        if (!entLoc.clone().add(0.0, -1.0, 0.0).getBlock().getType().isSolid() || entLoc.getBlock().getType().toString().contains("WATER")) {
-            if (!entLoc.clone().add(0.0, -1.0, 0.0).getBlock().getType().isAir())
-            {
-                return;
-            }
-            else
-            {
-                entLoc.add(0.0, -3.0, 0.0);
-            }
-        }
-        else
-        {
-            entLoc.add(0.0, -2.0, 0.0);
-        }
-
-        spawningEntities.add(ent);
-        ent.teleport(entLoc);
-
-        Block blockUnderEntity = particleLocation.clone().add(0.0, -1.0, 0.0).getBlock();
-        final Material particleMaterial = blockUnderEntity.getType();
-        final float step = 1.0f / 85f * 2.0f;
-
-        BukkitRunnable run = new BukkitRunnable() {
-
-            public void run() {
-
-                if (ent.isDead() || !ent.isValid() || !entLoc.getChunk().isLoaded()) {
-
-                    if (passenger != null) {
-                        ent.setPassenger(passenger);
-                    }
-
-                    spawningEntities.remove(ent);
-                    ent.remove();
-                    this.cancel();
-                    return;
-                }
-
-                if (entLoc.getBlock().getType().isSolid() || entLoc.clone().add(0.0, 1.0, 0.0).getBlock().getType().isSolid()) {
-
-                    spawnGraveParticles(entLoc.getWorld(), entLoc, particleMaterial);
-
-                } else {
-
-                    if (passenger != null) {
-                        ent.setPassenger(passenger);
-                    }
-
-                    spawningEntities.remove(ent);
-                    this.cancel();
-                    return;
-                }
-
-                entLoc.add(0.0, step, 0.0);
-                ent.teleport(entLoc);
-            }
-        };
-
-        run.runTaskTimer(plugin, 1L, 1L);
-
-    }
-
-    private void spawnGraveParticles(World w, Location entLoc, Material particleMaterial)
-    {
-        w.playEffect(entLoc, Effect.STEP_SOUND, particleMaterial);
-        w.spawnParticle(LAVA, entLoc, 1);
-        w.spawnParticle(SOUL, entLoc, 1);
-        w.spawnParticle(SOUL_FIRE_FLAME, entLoc, 1);
     }
 
 }

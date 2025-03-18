@@ -1,80 +1,20 @@
 settings:
   positive-sound: "ENTITY_PLAYER_LEVELUP"
   negative-sound: "BLOCK_ANVIL_BREAK"
+  allow-pvp-near-treasure: false
+  allow-flight-near-treasure: false
+  allow-god-near-treasure: false
+  allow-elytra-near-treasure: false
+  disable-griefing-protection: false
+  protection-radius: 50 #The radius in which the griefing protection works
+  min-players-online: 15 #Minimum players to have a chance to spawn a treasure
+  protect-mobs-from-sun: true #Should zombies not set on fire from the sun?
+  potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects
+  broadcast-to-all-worlds: false #Send the actionbar message to all the worlds. If multiple treasures are started only one treasure will appear in the actionbar.
   winner-cooldown: 1440 #How long in minutes, a treasure winner has to wait before claiming another treasure
   actionbar:
     enabled: true
     refresh: 2 #Refresh rate in ticks
-  enabled-worlds:
-    overworld:
-      world-name: "world"
-      treasure-name: "Hidden Treasure"
-      treasure-block: ENDER_CHEST
-      treasure-particles: COMPOSTER
-      treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
-      fall-from-the-sky: true
-      treasure-icon: EMERALD #Only if DecentHolograms or FancyHolograms is not installed
-      require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
-      allow-pvp-near-treasure: false
-      allow-flight-near-treasure: false
-      allow-god-near-treasure: false
-      allow-elytra-near-treasure: false
-      disable-griefing-protection: false
-      protection-radius: 50 #The radius in which the griefing protection works
-      flare-type: "many" #Options: none, few, many
-      flare-particle: COMPOSTER
-      fireworks: true #Spawn fireworks upon clicking the treasure
-      max-treasure-distance: 15000 #Bypasses the border setting, if the border is 20k, and this is 15k, the max distance for the treasure will be 15k. Usefull for when you don't set your border
-      delay: 200 #In ticks, the delay from the announcement that the treasure will spawn until it really spawns.
-      chance-for-treasure: 20 #The chance to spawn a random treasure
-      min-players-online: 15 #Minimum players to have a chance to spawn a treasure
-      reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
-      drop-items-on-ground: false #Only works when 'reward-all-players-who-participated' is false
-      distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
-      mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
-      enable-mob-tracker: true
-      broadcast-to-all-worlds: false #Send the actionbar message to all the worlds. If multiple treasures are started only one treasure will appear in the actionbar.
-      animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
-      interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
-      duration: 20 #The duration of the treasure before it despawns
-      cooldown: 15 #Cooldown between treasures in minutes
-      clicks-to-open: 1 #How many right clicks are required to open the treasure?
-      dropped-item-name: "&6Treasure Loot"
-      treasure-key:
-        enabled: false
-        item: TRIPWIRE_HOOK
-        name: "&c&l&oTREASURE KEY"
-        lore:
-          - "&7&oOpen a treasure chest"
-          - "&7&ousing this mysterious key"
-      protect-mobs-from-sun: true #Should zombies not set on fire from the sun?
-      potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects
-      potion-effects:
-        - "REGENERATION:1"
-      mobs:
-        - "ZOMBIE:5-10" #You can set a random interval like this. So every hunt will have a slightly different difficulty.
-        - "SKELETON:5"
-        - "SPIDER:3"
-      item-rewards:
-        diamond: #Can be any text, it doesn't count. It's a reward identifier.
-          item: DIAMOND #Material name
-          name: "&6&l&oREWARD #1" #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
-          lore:                   #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
-            - "&7&oHave fun with this reward!"
-          amount: 1-10 #Between 1 and 10 diamonds
-          chance: 40 #Percentage (60%)
-        emerald: #Can be any text, it doesn't count. It's a reward identifier.
-          item: EMERALD #Material name
-          name: "&6&l&oREWARD #1"
-          lore:
-            - "&7&oHave fun with this reward!"
-          amount: 1-10 #Between 1 and 10 diamonds
-          chance: 100 #Percentage (60%)
-      command-rewards:
-        - "eco give %player% 100"
-      spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
-      spawn-coords:
-        - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z
   effects-particles: #You should change these only if they cause compatibility issues.
     dust: DUST
     wax_off: WAX_OFF

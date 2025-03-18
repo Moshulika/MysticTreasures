@@ -1,6 +1,7 @@
 package com.Moshu.Misc;
 
 import com.Moshu.TreasureHunt.Hunt;
+import com.Moshu.TreasureHunt.Treasure;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -26,8 +27,10 @@ public class Effects {
         return loc.add(ThreadLocalRandom.current().nextDouble(-1.2, 1.2), 0, ThreadLocalRandom.current().nextDouble(-1.2, 1.2));
     }
 
-    public static void runCircle(Location base_loc)
+    public static void runCircle(Treasure t)
     {
+
+        Location base_loc = t.getLocation();
 
         BukkitRunnable run = new BukkitRunnable() {
 
@@ -44,14 +47,14 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!Hunt.isActive(base_loc.getWorld()))
+                if(!t.isActive())
                 {
                     this.cancel();
                     return;
                 }
                 else
                 {
-                    h = Hunt.getHunt(base_loc.getWorld());
+                    h = t.getHunt();
 
                     if(h.getTreasure() != null && h.getTreasure().isActive() && h.getTreasure().mobsCleared())
                     {
@@ -97,9 +100,10 @@ public class Effects {
 
     }
 
-    public static void runOrbs(Location base_loc)
+    public static void runOrbs(Treasure t)
     {
 
+        Location base_loc = t.getLocation();
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
@@ -115,7 +119,7 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!Hunt.isActive(base_loc.getWorld()))
+                if(!t.isActive())
                 {
                     this.cancel();
                     return;
@@ -165,8 +169,9 @@ public class Effects {
 
     }
 
-    public static void createDoubleSpiral(Location base_loc) {
+    public static void createDoubleSpiral(Treasure t) {
 
+        Location base_loc = t.getLocation();
 
         BukkitRunnable run = new BukkitRunnable() {
 
@@ -183,7 +188,7 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!Hunt.isActive(base_loc.getWorld()))
+                if(!t.isActive())
                 {
                     this.cancel();
                     return;
