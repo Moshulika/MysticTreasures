@@ -117,7 +117,7 @@ public class TreasureKeeper {
         return isMythicMob;
     }
 
-    public void setMythicMob(boolean mythicMobs) {
+    public void setMythicMob(boolean isMythicMob) {
         this.isMythicMob = isMythicMob;
     }
 
@@ -151,11 +151,20 @@ public class TreasureKeeper {
 
     private EntityType fetchEntityType(String s)
     {
-        EntityType type = EntityType.valueOf(s);
-        if(type == null) plugin.getLogger().warning("EntityType not found: " + type.name());
 
-        loadEntityType(type);
-        return type;
+        try
+        {
+            EntityType type = EntityType.valueOf(s);
+            loadEntityType(type);
+            return type;
+
+        }
+        catch (IllegalArgumentException e)
+        {
+            plugin.getLogger().warning("Vanilla EntityType not found: " + s);
+            return EntityType.ZOMBIE;
+        }
+
     }
 
     public String getCustomName() {
@@ -334,7 +343,7 @@ public class TreasureKeeper {
         }
 
         loadEntityType(fetchEntityType(keeperIdentifier));
-        loadEntityType(null);
+        loadMythicMob(null);
 
     }
 

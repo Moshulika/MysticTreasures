@@ -31,8 +31,10 @@ messages:
   cooldown-reset: "&6&lTreasure&e&lHunt &fYou successfully reset the player's cooldown!"
   remaining-clicks: "&6&lTreasure&e&lHunt &fKeep on clicking! ({current_clicks}/{needed_clicks})"
   no-key: "&6&lTreasure&e&lHunt &fThis treasure requires a key!"
+  minutes-before-pickup-not-passed: "&6&lTreasure&e&lHunt &fThe treasure cannot be opened yet! You need to wait {time} to open the treasure!"
   not-number: "&6&lTreasure&e&lHunt &fYou need to enter a number!"
   received-key: "&6&lTreasure&e&lHunt &fYou received a treasure key!"
+  reload-with-hunt-active: "&6&lTreasure&e&lHunt &fYou cannot reload the plugin while a treasure is active!"
   treasure-locked: "&c&lLOCKED"
   treasure-unlocked: "&a&lUNLOCKED"
   active-hunts-menu:

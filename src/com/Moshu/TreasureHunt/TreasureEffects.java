@@ -35,7 +35,7 @@ public class TreasureEffects {
 
 
                 if(Bukkit.getOnlinePlayers().isEmpty()) return;
-                if(Hunt.getActiveHunts().isEmpty()) return;
+                if(Hunt.getActiveTreasures().isEmpty()) return;
 
                 for(Player p : Bukkit.getOnlinePlayers()) {
 

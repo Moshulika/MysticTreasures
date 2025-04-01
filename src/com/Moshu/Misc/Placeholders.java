@@ -2,9 +2,7 @@ package com.Moshu.Misc;
 
 import com.Moshu.TreasureHunt.Hunt;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public class Placeholders extends PlaceholderExpansion {
@@ -64,7 +62,7 @@ public class Placeholders extends PlaceholderExpansion {
             Player p = player.getPlayer();
             Hunt h = Hunt.getNearestHunt(p.getLocation());
 
-            if(h != null && h.isActive())
+            if(h != null && h.isHuntActive())
             {
 
                 if (identifier.equalsIgnoreCase("x")) {

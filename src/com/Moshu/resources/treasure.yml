@@ -5,26 +5,31 @@ treasure:
     treasure-block: ENDER_CHEST
     treasure-particles: COMPOSTER
     treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
-    fall-from-the-sky: true
     treasure-icon: EMERALD #Only if DecentHolograms or FancyHolograms is not installed
-    require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
-    flare-type: "many" #Options: none, few, many
-    flare-particle: COMPOSTER
-    fireworks: true #Spawn fireworks upon clicking the treasure
-    max-treasure-distance: 15000 #Bypasses the border setting, if the border is 20k, and this is 15k, the max distance for the treasure will be 15k. Usefull for when you don't set your border
-    delay: 200 #In ticks, the delay from the announcement that the treasure will spawn until it really spawns.
     chance-for-treasure: 20 #The chance to spawn a random treasure
-    reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
-    drop-items-on-ground: false #Only works when 'reward-all-players-who-participated' is false
-    distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
-    mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
-    enable-mob-tracker: true
-    animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
+    max-treasure-distance: 15000 #Bypasses the border setting, if the border is 20k, and this is 15k, the max distance for the treasure will be 15k. Usefull for when you don't set your border
     interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
     duration: 20 #The duration of the treasure before it despawns
     cooldown: 15 #Cooldown between treasures in minutes
-    clicks-to-open: 1 #How many right clicks are required to open the treasure?
+    delay: 200 #In ticks, the delay from the announcement that the treasure will spawn until it really spawns
+    flare-type: "many" #Options: none, few, many
+    flare-particle: COMPOSTER
+    fireworks: true #Spawn fireworks upon clicking the treasure
+    fall-from-the-sky: true
+    reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
+    reward-highest-damage: false #Reward the player who gives to most damage to the treasure keepers
+    drop-items-on-ground: false #Drops Item Rewards on ground. Only works when 'reward-all-players-who-participated' and 'reward-highest-damage' is false
     dropped-item-name: "&6Treasure Loot"
+    distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
+    mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
+    enable-mob-tracker: true
+    require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
+    animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
+    minutes-before-pickup: 0
+    clicks-to-open: 1 #How many right clicks are required to open the treasure?
+    spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
+    spawn-coords: #Make sure to place valid coords - inside your world border
+      - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z
     treasure-key:
       enabled: false
       item: TRIPWIRE_HOOK
@@ -99,6 +104,3 @@ treasure:
       money:
         command: "eco give %player% 100"
         chance: 100
-    spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
-    spawn-coords: #Make sure to place valid coords - inside your world border
-      - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z

@@ -4,10 +4,7 @@ import com.Moshu.Misc.Locations;
 import com.Moshu.Misc.Messages;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
-import com.Moshu.TreasureHunt.objects.CommandReward;
-import com.Moshu.TreasureHunt.objects.ItemReward;
 import com.Moshu.TreasureHunt.objects.TreasureData;
-import com.Moshu.TreasureHunt.objects.TreasureKeeper;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -30,13 +27,20 @@ public class Hunt {
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    private static HashMap<String, Hunt> activeHunts = new HashMap<>();
+    private static final HashMap<String, Hunt> activeHunts = new HashMap<>();
 
+    /**
+     * Gets called on removal of treasure
+     */
     public void setInactive()
     {
         activeHunts.remove(treasureTypeString);
     }
 
+    /**
+     * The hunt is active but the treasure is not yet generated and active
+     * @param id
+     */
     private void setActive(String id)
     {
         activeHunts.put(id, this);
@@ -116,31 +120,25 @@ public class Hunt {
 
     }
 
-    public void start()
-    {
+    public void start() {
 
-        if(this.l == null)
-        {
+        if (this.l == null) {
             Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&5&lMystic&d&lTreasures: &fLocation is null, something went wrong."));
             return;
         }
 
-        Bukkit.getScheduler().runTask(plugin, () ->
-        {
+        treasure = new Treasure(this, getTreasureData());
 
-            treasure = new Treasure(this, getTreasureData());
+        this.startTime = System.currentTimeMillis();
+        setActive(getTreasureData().getIdentifier());
+        treasure.create();
 
-            this.startTime = System.currentTimeMillis();
-            setActive(getTreasureData().getIdentifier());
-            treasure.create();
+        Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
+                .replace("{x}", getLocation().getBlockX() + "")
+                .replace("{z}", getLocation().getBlockZ() + "")
+                .replace("{alias}", getTreasureData().getTreasureName())
+                .replace("{world}", getLocation().getWorld().getName()));
 
-            Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
-                    .replace("{x}", getLocation().getBlockX() + "")
-                    .replace("{z}", getLocation().getBlockZ() + "")
-                    .replace("{alias}", getTreasureData().getTreasureName())
-                    .replace("{world}", getLocation().getWorld().getName()));
-
-        });
 
     }
 
@@ -154,7 +152,7 @@ public class Hunt {
         return treasureData;
     }
 
-    public static List<Hunt> getActiveHunts()
+    public static List<Hunt> getActiveTreasures()
     {
 
         List<Hunt> h = Collections.synchronizedList(new ArrayList<Hunt>());
@@ -172,7 +170,30 @@ public class Hunt {
         return h;
     }
 
-    public static List<String> getActiveHuntsIdentifiers()
+    /**
+     * Hunt here are guaranteed to be active
+     * @return a list of all the hunts active
+     */
+    public static List<Hunt> getHunts()
+    {
+        List<Hunt> h = Collections.synchronizedList(new ArrayList<Hunt>());
+        h.addAll(activeHunts.values());
+        return h;
+    }
+
+    /**
+     * Hunt here are guaranteed to be active
+     * @return a list of all the hunts active
+     */
+    public static List<String> getHuntsIdentifiers()
+    {
+        List<String> h = Collections.synchronizedList(new ArrayList<>());
+        h.addAll(activeHunts.keySet());
+        return h;
+    }
+
+
+    public static List<String> getActiveTreasureIdentifiers()
     {
 
         List<String> h = Collections.synchronizedList(new ArrayList<>());
@@ -199,7 +220,7 @@ public class Hunt {
         Hunt closestHunt = null;
         Hunt backupHunt = null;
 
-        for(Hunt h : getActiveHunts())
+        for(Hunt h : getActiveTreasures())
         {
             huntLoc = h.getLocation();
 
@@ -233,27 +254,17 @@ public class Hunt {
         getTreasure().remove();
     }
 
-    public static boolean huntStarting(String id)
-    {
-        if(!getActiveHuntsIdentifiers().contains(id)) return false;
-
-        Hunt h = getHuntByIdentifier(id);
-
-        long delay = (h.getTreasureData().getDelay() + 5) / 20; //In seconds
-        return h.getStartTime() + TimeUnit.SECONDS.toMillis(delay) > System.currentTimeMillis();
-    }
-
     public long getRemainingTime()
     {
         return getStartTime() + TimeUnit.MINUTES.toMillis(getDuration()) - System.currentTimeMillis();
     }
 
-    public static boolean isActive(Location loc)
+    public static boolean isHuntActive(Location loc)
     {
 
         Location treasureLoc;
 
-        for(Hunt h : getActiveHunts())
+        for(Hunt h : getActiveTreasures())
         {
 
             treasureLoc = h.getLocation();
@@ -268,27 +279,20 @@ public class Hunt {
 
     }
 
-    public boolean isActive()
+    public boolean isHuntActive()
     {
         return treasure.isActive();
     }
 
-    public static boolean isActive(String id)
+    public static boolean isHuntActive(String id)
     {
-
-        for(Hunt h : getActiveHunts())
-        {
-            if(h.getTreasureData().getIdentifier().equals(id)) return true;
-        }
-
-        return false;
-
+        return getHuntsIdentifiers().contains(id);
     }
 
     public static String isActiveString(String id)
     {
 
-        if(isActive(id)) return "Yes";
+        if(isHuntActive(id)) return "Yes";
         return "No";
 
     }
@@ -306,6 +310,11 @@ public class Hunt {
     public int getDuration()
     {
         return duration;
+    }
+
+    public long getElapsedTime()
+    {
+        return getStartTime() - getRemainingTime();
     }
 
     public long getStartTime()
@@ -342,7 +351,7 @@ public class Hunt {
         String name = Utils.format(Messages.get("active-hunts-menu.name"));
 
         int i = 0;
-        for(Hunt h : getActiveHunts())
+        for(Hunt h : getActiveTreasures())
         {
 
             meta = item.getItemMeta();

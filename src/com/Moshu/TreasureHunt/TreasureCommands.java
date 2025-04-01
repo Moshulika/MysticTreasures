@@ -4,13 +4,10 @@ import com.Moshu.Main;
 import com.Moshu.Misc.*;
 import com.Moshu.TreasureHunt.objects.TreasureData;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
@@ -39,7 +36,7 @@ public class TreasureCommands implements CommandExecutor {
 
                     if (p.hasPermission("mystictreasures.hunt")) {
 
-                        if (Hunt.getActiveHunts().isEmpty()) {
+                        if (Hunt.getActiveTreasures().isEmpty()) {
                             p.sendMessage(Messages.get("no-hunt-in-this-world"));
                         } else {
                             Hunt.activeHuntsMenu(p);
@@ -58,7 +55,7 @@ public class TreasureCommands implements CommandExecutor {
                     int x = 1;
                     Treasure t;
 
-                    for (Hunt h : Hunt.getActiveHunts()) {
+                    for (Hunt h : Hunt.getActiveTreasures()) {
 
                         t = h.getTreasure();
 
@@ -99,6 +96,12 @@ public class TreasureCommands implements CommandExecutor {
                     }
 
                 } else if (args[0].equalsIgnoreCase("reload")) {
+
+                    if(!Hunt.getHunts().isEmpty())
+                    {
+                        sender.sendMessage(Messages.get("reload-with-hunt-active"));
+                        return true;
+                    }
 
                     sender.sendMessage(Messages.get("config-reload"));
                     plugin.reloadFiles();
@@ -141,7 +144,7 @@ public class TreasureCommands implements CommandExecutor {
 
                         String id = args[1];
 
-                        if (Hunt.isActive(id) || Hunt.huntStarting(id)) {
+                        if (Hunt.isHuntActive(id)) {
                             sender.sendMessage(Messages.get("hunt-already-active"));
                             return true;
                         }
@@ -175,7 +178,7 @@ public class TreasureCommands implements CommandExecutor {
 
                         String id = args[1];
 
-                        if (!Hunt.isActive(id)) {
+                        if (!Hunt.isHuntActive(id)) {
                             sender.sendMessage(Messages.get("hunt-not-active"));
                             return true;
                         }
@@ -225,9 +228,8 @@ public class TreasureCommands implements CommandExecutor {
                             }
 
                             String id = args[2];
-                            ;
-
-                            if (Hunt.isActive(id) || Hunt.huntStarting(id)) {
+                            //Cica poti sa pornesti doua treasure-uri de acelasi fel
+                            if (Hunt.isHuntActive(id)) {
                                 sender.sendMessage(Messages.get("hunt-already-active"));
                                 return true;
                             }

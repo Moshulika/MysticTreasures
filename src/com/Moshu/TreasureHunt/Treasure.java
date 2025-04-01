@@ -25,7 +25,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +38,8 @@ public class Treasure {
     private final Hunt h;
     private boolean isActive;
     private Entity furnitureEntity;
+    private final HashMap<UUID, Double> playerDamage = new HashMap<>();
+
 
     private TreasureData treasureData;
 
@@ -77,6 +82,47 @@ public class Treasure {
         return isActive;
     }
 
+    public double getDamageGiven(Player p)
+    {
+        return playerDamage.getOrDefault(p.getUniqueId(), 0.0);
+    }
+
+    public void addDamageGiven(Player p, double damage)
+    {
+        playerDamage.put(p.getUniqueId(), getDamageGiven(p) + damage);
+    }
+
+    public boolean wereTreasureKeepersDamaged()
+    {
+        return !playerDamage.isEmpty();
+    }
+
+    @Nullable
+    public Player getPlayerWithMostDamage()
+    {
+
+        double max = 0;
+        UUID maxUUID = null;
+
+        for(UUID uuid : playerDamage.keySet())
+        {
+
+            if(playerDamage.get(uuid) > max)
+            {
+
+                if(Bukkit.getPlayer(uuid) == null) continue;
+
+                max = playerDamage.get(uuid);
+                maxUUID = uuid;
+            }
+
+        }
+
+        if(maxUUID == null) return null;
+        return Bukkit.getPlayer(maxUUID);
+
+    }
+
     public ArrayList<Player> getParticipants()
     {
         return participants;
@@ -88,6 +134,11 @@ public class Treasure {
 
         participants.forEach(p -> names.add(p.getName()));
         return names;
+    }
+
+    public boolean timePassedBeforePickup()
+    {
+        return getHunt().getElapsedTime() >= getTreasureData().getMilliesBeforePickup();
     }
 
     public void addParticipant(Player p)
@@ -103,7 +154,7 @@ public class Treasure {
     public static boolean isTreasure(Location loc)
     {
 
-        for(Hunt h : Hunt.getActiveHunts())
+        for(Hunt h : Hunt.getActiveTreasures())
         {
 
             if(h.getTreasure().getLocation().getWorld() == loc.getWorld()
@@ -142,7 +193,7 @@ public class Treasure {
     public static Treasure getTreasure(Location loc)
     {
 
-        for(Hunt h : Hunt.getActiveHunts())
+        for(Hunt h : Hunt.getActiveTreasures())
         {
 
             if(isTreasure(loc))
@@ -378,6 +429,11 @@ public class Treasure {
 
     }
 
+    public boolean isLocked()
+    {
+        return getRemainingMobs().isEmpty() && timePassedBeforePickup();
+    }
+
     private void tickTreasure(Location location, Particle part, int distance_to_spawn)
     {
 
@@ -408,7 +464,7 @@ public class Treasure {
                         for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
                             lines.add(s
                                     .replace("{time}", Utils.getCountDown(getHunt().getRemainingTime()))
-                                    .replace("{status}", getRemainingMobs().isEmpty() ? unlocked : locked)
+                                    .replace("{status}", isLocked() ? unlocked : locked)
                                     .replace("{alias}", getTreasureData().getTreasureName())
                                     .replace("{remaining_mobs}", getRemainingMobs().size() + ""));
                         }
@@ -699,7 +755,7 @@ public class Treasure {
     public static boolean isNearTreasure(Player p) {
 
 
-        for (Hunt h : Hunt.getActiveHunts()) {
+        for (Hunt h : Hunt.getActiveTreasures()) {
 
             if (Locations.distanceTo(p.getLocation(), h.getLocation()) <= Settings.getInt("protection-radius")) {
                 return true;
@@ -876,7 +932,7 @@ public class Treasure {
     public static void removeAll()
     {
 
-        for(Hunt h : Hunt.getActiveHunts())
+        for(Hunt h : Hunt.getActiveTreasures())
         {
 
             h.getTreasure().remove();

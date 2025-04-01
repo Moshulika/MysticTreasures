@@ -14,6 +14,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -33,6 +34,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class TreasureEvents implements Listener {
 
@@ -73,6 +75,15 @@ public class TreasureEvents implements Listener {
                 return;
             }
 
+            if(!t.timePassedBeforePickup())
+            {
+                p.sendMessage(Messages.get("minutes-before-pickup-not-passed").replace("{time}",
+                        Utils.formatRemainingTime(t.getTreasureData().getMilliesBeforePickup() - t.getHunt().getElapsedTime())));
+                Utils.sendBreakSound(p);
+                p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+                return;
+            }
+
             if (t.getTreasureData().requireAllMobsDead()) {
 
 
@@ -80,6 +91,19 @@ public class TreasureEvents implements Listener {
 
                     if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
                         t.awardPrizes();
+                    }
+                    else if(t.getTreasureData().rewardMostDamageGiven())
+                    {
+
+                        if(t.wereTreasureKeepersDamaged())
+                        {
+                            t.awardPrize(t.getPlayerWithMostDamage());
+                        }
+                        else
+                        {
+                            t.awardPrize(e.getPlayer());
+                        }
+
                     } else {
                         t.awardPrize(e.getPlayer());
                     }
@@ -101,6 +125,19 @@ public class TreasureEvents implements Listener {
 
                 if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
                     t.awardPrizes();
+                }
+                else if(t.getTreasureData().rewardMostDamageGiven())
+                {
+
+                    if(t.wereTreasureKeepersDamaged())
+                    {
+                        t.awardPrize(t.getPlayerWithMostDamage());
+                    }
+                    else
+                    {
+                        t.awardPrize(e.getPlayer());
+                    }
+
                 } else {
                     t.awardPrize(e.getPlayer());
                 }
@@ -191,7 +228,7 @@ public class TreasureEvents implements Listener {
 
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent e) {
 
 
@@ -256,7 +293,70 @@ public class TreasureEvents implements Listener {
 
                         }
 
+                        t.addDamageGiven(attacker, e.getFinalDamage());
+
                     }
+                }
+
+            }
+
+        }
+
+        if (e.getDamager() instanceof Projectile projectile) {
+
+            if(projectile.getShooter() == null) return;
+
+            if(projectile.getShooter() instanceof Player p)
+            {
+
+                if (e.getEntity() instanceof Player victim) {
+
+                    if (Treasure.isNearTreasure(victim)) {
+
+                        if (p.hasPermission("mystictreasures.bypass")) return;
+
+                        if (!Settings.getBoolean("allow-pvp-near-treasure")) {
+
+                            e.setCancelled(true);
+                            e.setDamage(0);
+
+                            e.getDamager().sendMessage(Messages.get("cannot-attack-near-treasure"));
+
+                        }
+
+                    }
+
+
+                } else if (e.getEntity() instanceof LivingEntity victim) {
+
+                    if (e.getFinalDamage() >= victim.getHealth()) {
+
+                        Hunt h = TreasureKeeper.getHunt(victim);
+
+                        if(h == null) return;
+
+                        Treasure t = h.getTreasure();
+
+                        if (t.isTreasureKeeper(victim)) {
+
+                            if (!t.getParticipants().contains(p)) {
+                                t.addParticipant(p);
+                                p.sendMessage(Messages.get("participating"));
+                            }
+
+                            if (t.remainingMobs() - 1 <= 0) {
+
+                                for (Player k : t.getParticipants()) {
+                                    k.sendMessage(Messages.get("participating-cleared-mobs"));
+                                }
+
+                            }
+
+                            t.addDamageGiven(p, e.getFinalDamage());
+
+                        }
+                    }
+
                 }
 
             }
@@ -527,12 +627,21 @@ public class TreasureEvents implements Listener {
 
                             }
 
-                            if(getClicks(t, e.getPlayer()) < needed_clicks) {
-                                e.getPlayer().sendMessage(Messages.get("remaining-clicks")
-                                        .replace("{current_clicks}", "" + getClicks(t, e.getPlayer()))
+                            if(getClicks(t, p) < needed_clicks) {
+                                p.sendMessage(Messages.get("remaining-clicks")
+                                        .replace("{current_clicks}", "" + getClicks(t, p))
                                         .replace("{needed_clicks}", "" + needed_clicks));
-                                addClicks(t, e.getPlayer());
-                                Utils.sendBreakSound(e.getPlayer());
+                                addClicks(t, p);
+                                Utils.sendBreakSound(p);
+                                return;
+                            }
+
+                            if(!t.timePassedBeforePickup())
+                            {
+                                p.sendMessage(Messages.get("minutes-before-pickup-not-passed").replace("{time}",
+                                        Utils.formatRemainingTime(t.getTreasureData().getMilliesBeforePickup() - t.getHunt().getElapsedTime())));
+                                Utils.sendBreakSound(p);
+                                p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
                                 return;
                             }
 
@@ -545,12 +654,22 @@ public class TreasureEvents implements Listener {
                                         Utils.substractItem(p, t.getTreasureData().getTreasureKey().getTreasureKey(1), 1);
                                     }
 
-                                    if(t.getTreasureData().rewardAllPlayersWhoParticipated())
-                                    {
+                                    if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
                                         t.awardPrizes();
                                     }
-                                    else
+                                    else if(t.getTreasureData().rewardMostDamageGiven())
                                     {
+
+                                        if(t.wereTreasureKeepersDamaged())
+                                        {
+                                            t.awardPrize(t.getPlayerWithMostDamage());
+                                        }
+                                        else
+                                        {
+                                            t.awardPrize(e.getPlayer());
+                                        }
+
+                                    } else {
                                         t.awardPrize(e.getPlayer());
                                     }
 

@@ -6,7 +6,7 @@ settings:
   allow-god-near-treasure: false
   allow-elytra-near-treasure: false
   disable-griefing-protection: false
-  protection-radius: 50 #The radius in which the griefing protection works
+  protection-radius: 50 #The radius in which the griefing protection works. ATTENTION! You should NOT set this to 0!
   min-players-online: 15 #Minimum players to have a chance to spawn a treasure
   protect-mobs-from-sun: true #Should zombies not set on fire from the sun?
   potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects

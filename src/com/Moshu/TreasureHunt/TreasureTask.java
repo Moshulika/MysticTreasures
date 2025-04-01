@@ -53,8 +53,8 @@ public class TreasureTask {
                     {
                         if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < d.getCooldown()) return;
 
-                        if(Hunt.isActive(identifier)) return;
-                        if(Hunt.huntStarting(identifier)) return;
+                        //Cica poti porni 2 treasure-uri de acelasi fel
+                        if(Hunt.isHuntActive(identifier)) return;
 
                         Hunt h = new Hunt(identifier, d.getDuration());
 

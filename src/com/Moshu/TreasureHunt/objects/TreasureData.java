@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class TreasureData {
@@ -64,12 +65,14 @@ public class TreasureData {
     private final int interval;
     private final int duration;
     private final int cooldown;
+    private final int minutesBeforePickup;
     private final int clicksToOpen;
     private final String droppedItemName;
     private final List<PotionEffect> potionEffects; //Replace String with potion effects
     private final boolean spawnToCertainCoords;
     private final List<Location> spawnCoords; //Replace String with locations
     private String identifier;
+    private final boolean rewardMostDamageGiven;
 
     private static ArrayList<TreasureData> treasureData;
     private final static ArrayList<String> treasureIdentifiers = new ArrayList<>();
@@ -125,6 +128,11 @@ public class TreasureData {
 
         return null;
 
+    }
+
+    public boolean rewardMostDamageGiven()
+    {
+        return this.rewardMostDamageGiven;
     }
 
     public String getIdentifier() {
@@ -368,11 +376,13 @@ public class TreasureData {
         this.interval = defaultSection.getInt("interval", 30);
         this.duration = defaultSection.getInt("duration", 20);
         this.cooldown = defaultSection.getInt("cooldown", 15);
+        this.minutesBeforePickup = defaultSection.getInt("minutes-before-pickup", 0);
         this.clicksToOpen = defaultSection.getInt("clicks-to-open", 1);
         this.droppedItemName = defaultSection.getString("dropped-item-name", "&6Treasure Loot");
         this.potionEffects = deserializeEffects(defaultSection.getStringList("potion-effects"));
         this.spawnToCertainCoords = defaultSection.getBoolean("spawn-to-certain-coords", false);
         this.spawnCoords = deserializeLocations(defaultSection.getStringList("spawn-coords"));
+        this.rewardMostDamageGiven = defaultSection.getBoolean("reward-highest-damage", false);
 
         try
         {
@@ -622,6 +632,16 @@ public class TreasureData {
 
     public int getCooldown() {
         return cooldown;
+    }
+
+    public int getMinutesBeforePickup()
+    {
+        return minutesBeforePickup;
+    }
+
+    public long getMilliesBeforePickup()
+    {
+        return TimeUnit.MINUTES.toMillis(minutesBeforePickup);
     }
 
     public int getClicksToOpen() {
