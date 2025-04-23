@@ -416,8 +416,6 @@ public class TreasureData {
             this.treasureKey = new TreasureKey(
 
                     keySection.getBoolean("enabled", false),
-
-
                     mat,
                     keySection.getString("name", "&c&l&oTREASURE KEY"),
                     keySection.getStringList("lore")

@@ -83,7 +83,7 @@ public class Hunt {
         if(getTreasureData().spawnToCertainCoords()) {
 
 
-                List<Location> locations = getTreasure().getTreasureData().getSpawnCoords();
+                List<Location> locations = getTreasureData().getSpawnCoords();
 
                 if(!locations.isEmpty()) {
                     this.l = locations.get(Utils.randInt(0, locations.size() - 1));

@@ -255,6 +255,7 @@ public class TreasureKeeper {
             if(e.hasMetadata("treasure-mob-" + s)) return s;
         }
 
+        plugin.getLogger().warning("Treasure ID not found for " + e.getName());
         return "Invalid";
 
     }
@@ -302,10 +303,12 @@ public class TreasureKeeper {
                 LivingEntity e = (LivingEntity) loc.getWorld().spawnEntity(getNearLocation(loc), getEntityType());
                 e.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
                 e.setMetadata("treasure-keeper-" + getMobId(), new FixedMetadataValue(plugin, "treasure-keeper-" + getMobId()));
+                e.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
+
                 e.setRemoveWhenFarAway(false);
 
                 e.setMaxHealth(getMaxHealth());
-                e.setCustomName(getCustomName());
+                e.setCustomName(Utils.format(getCustomName()));
                 e.setCustomNameVisible(true);
 
                 equip(e);

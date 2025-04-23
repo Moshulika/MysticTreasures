@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
@@ -29,7 +30,6 @@ public class TreasureKeeperDrops {
                     String itemStr = dropConfig.getString("item", "DIAMOND");
                     Material item = Material.matchMaterial(itemStr);
 
-
                     if(item == null)
                     {
                         plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
@@ -39,7 +39,10 @@ public class TreasureKeeperDrops {
                     String range = dropConfig.getString("amount");
                     int chance = dropConfig.getInt("chance");
 
-                    DropData data = new DropData(item, getAmountFromRange(range), chance);
+                    String name = dropConfig.getString("name", Utils.setCapitals(item.name().toLowerCase()).replace("_", " "));
+                    List<String> lore = dropConfig.getStringList("lore");
+
+                    DropData data = new DropData(item, getAmountFromRange(range), chance, name, lore);
                     dropsMap.put(key, data);
 
                 }
@@ -86,10 +89,25 @@ public class TreasureKeeperDrops {
         private int amount;
         private int chance;
 
-        public DropData(Material item, int amount, int chance) {
+        private String name;
+        private List<String> lore;
+
+        public DropData(Material item, int amount, int chance, String name, List<String> lore) {
             this.item = item;
             this.amount = amount;
             this.chance = chance;
+            this.name = name;
+            this.lore = lore;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public List<String> getLore()
+        {
+            return lore;
         }
 
         public Material getItem() {
@@ -106,7 +124,19 @@ public class TreasureKeeperDrops {
 
         public ItemStack getItemStack()
         {
-            return new ItemStack(item, amount);
+
+            ItemStack itemStack = new ItemStack(item, amount);
+            ItemMeta itemMeta = itemStack.getItemMeta();
+
+            if(!name.equals("none"))
+            {
+                itemMeta.setDisplayName(Utils.format(name));
+                itemMeta.setLore(Utils.formatList(lore));
+            }
+
+            itemStack.setItemMeta(itemMeta);
+
+            return itemStack;
         }
 
     }

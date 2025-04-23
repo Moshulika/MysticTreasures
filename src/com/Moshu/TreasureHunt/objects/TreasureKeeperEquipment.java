@@ -34,7 +34,6 @@ public class TreasureKeeperEquipment {
                 if (equipConfig != null) {
 
                     String itemStr = equipConfig.getString("item", "STONE");
-
                     if(itemStr.equals("none")) continue;
 
                     Material item =  Material.matchMaterial(itemStr);
@@ -49,14 +48,15 @@ public class TreasureKeeperEquipment {
 
                     if(!validSlot(slot))
                     {
-                        slot = "HAND";
                         plugin.getLogger().warning("Equipment slot '" + slot + "' does not exist!");
+                        continue;
                     }
 
                     EquipmentSlot eSlot = matchEquipmentSlot(slot);
 
                     if(!isValidEquipment(item, eSlot))
                     {
+                        plugin.getLogger().warning("Invalid item for slot: " + item.name() + " in " + eSlot.name());
                         item = getDefaultForSlot(slot);
                     }
 
@@ -83,7 +83,8 @@ public class TreasureKeeperEquipment {
     {
 
         return str.equalsIgnoreCase("HEAD") || str.equalsIgnoreCase("CHEST")
-                || str.equalsIgnoreCase("LEGS") || str.equalsIgnoreCase("FEET");
+                || str.equalsIgnoreCase("LEGS") || str.equalsIgnoreCase("FEET")
+                || str.equalsIgnoreCase("HAND") || str.equalsIgnoreCase("OFF_HAND");
 
     }
 
@@ -94,7 +95,7 @@ public class TreasureKeeperEquipment {
         {
             return Material.IRON_HELMET;
         }
-        else if(slot.equalsIgnoreCase("BODY"))
+        else if(slot.equalsIgnoreCase("CHEST"))
         {
             return Material.IRON_CHESTPLATE;
         }

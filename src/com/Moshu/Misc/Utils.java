@@ -800,6 +800,20 @@ public class Utils
 
     }
 
+    public static ArrayList<String> formatList(List<String> list)
+    {
+
+        ArrayList<String> newList = new ArrayList<>();
+
+        for(String s : list)
+        {
+            newList.add(Utils.format(s));
+        }
+
+        return newList;
+
+    }
+
     /**
      * Sends a permission error like #errorAsItem(ItemStack, String)
      * @param p the player's inventory

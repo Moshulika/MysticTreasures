@@ -77,14 +77,17 @@ treasure:
               - "SHARPNESS:4"
           offhand:
             item: "DIAMOND_PICKAXE" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            slot: "OFF_HAND" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "EFFICIENCY:4"
         drops:
           diamonds:
             item: "DIAMOND"
+            name: "&6Awesome Drop"
+            lore:
+              - "Some text here"
             amount: "1-10"
-            chance: 20
+            chance: 100
     item-rewards:
       diamond: #Can be any text, it doesn't count. It's a reward identifier.
         item: DIAMOND #Material name

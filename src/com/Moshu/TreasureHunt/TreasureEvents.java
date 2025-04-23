@@ -11,10 +11,7 @@ import dev.lone.itemsadder.api.CustomFurniture;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -28,11 +25,13 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -539,34 +538,34 @@ public class TreasureEvents implements Listener {
         if(TreasureKeeper.isTreasureKeeper(e.getEntity()))
         {
 
-            LivingEntity entity = e.getEntity();
-
-            if(TreasureKeeper.getHunt(entity) != null)
-            {
-
+                LivingEntity entity = e.getEntity();
                 Hunt h = TreasureKeeper.getHunt(entity);
 
-                TreasureKeeper t = h.getTreasure().getTreasureKeeper(entity);
+                if(h == null)
+                {
+                    plugin.getLogger().warning("Entity drops couldn't be handled - the hunt is null");
+                    return;
+                }
 
+                TreasureKeeper t = h.getTreasure().getTreasureKeeper(entity);
                 if(t == null) return;
-                if(t.isMythicMob()) return;
 
                 TreasureKeeperDrops d = t.getDrops();
+                e.getDrops().clear();
 
                 for(TreasureKeeperDrops.DropData data : d.getAllDrops().values())
                 {
 
                     if(Utils.chance() < data.getChance())
                     {
-                        e.getDrops().clear();
-                        entity.getWorld().dropItemNaturally(entity.getLocation(), data.getItemStack());
+                        Item i = entity.getWorld().dropItemNaturally(entity.getLocation(), data.getItemStack());
+                        i.setCustomName(Utils.format(data.getName()));
+                        i.setCustomNameVisible(true);
                     }
 
                 }
 
             }
-
-        }
 
     }
 
@@ -574,11 +573,20 @@ public class TreasureEvents implements Listener {
     public void inventoryClick(InventoryClickEvent e) {
 
         if (e.getClickedInventory() == null) return;
-        if (e.getClickedInventory() == e.getView().getBottomInventory()) return;
-        if (e.getView().getTopInventory().getHolder() != null) return;
 
-        if (e.getView().getTitle().equals(Messages.get("active-hunts-menu.title"))) {
-            e.setCancelled(true);
+        try {
+
+            Object view = InventoryClickEvent.class.getMethod("getView").invoke(e);
+            Method getTitle = view.getClass().getMethod("getTitle");
+            getTitle.setAccessible(true);
+            String title = (String) getTitle.invoke(view);
+
+            if (title.equals(Messages.get("active-hunts-menu.title"))) {
+                e.setCancelled(true);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
