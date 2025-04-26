@@ -52,32 +52,32 @@ treasure:
         equipment:
           helmet:
             item: "DIAMOND_HELMET" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           chest:
             item: "DIAMOND_CHESTPLATE" #Set to 'none' to disable
-            slot: "BODY" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           legs:
             item: "DIAMOND_LEGGINGS" #Set to 'none' to disable
-            slot: "LEGS" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           feet:
             item: "DIAMOND_BOOTS" #Set to 'none' to disable
-            slot: "FEET" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           hand:
             item: "DIAMOND_SWORD" #Set to 'none' to disable
-            slot: "HAND" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "SHARPNESS:4"
           offhand:
             item: "DIAMOND_PICKAXE" #Set to 'none' to disable
-            slot: "OFF_HAND" #TYPES: HEAD, BODY, LEGS, FEET, HAND, OFF_HAND
+            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "EFFICIENCY:4"
         drops:
@@ -88,6 +88,8 @@ treasure:
               - "Some text here"
             amount: "1-10"
             chance: 100
+            enchantments:
+              - ""
     item-rewards:
       diamond: #Can be any text, it doesn't count. It's a reward identifier.
         item: DIAMOND #Material name
@@ -96,6 +98,8 @@ treasure:
           - "&7&oHave fun with this reward!"
         amount: 1-10 #Between 1 and 10 diamonds
         chance: 40 #Percentage (60%)
+        enchantments:
+          - ""
       emerald: #Can be any text, it doesn't count. It's a reward identifier.
         item: EMERALD #Material name
         name: "&6&l&oREWARD #1"

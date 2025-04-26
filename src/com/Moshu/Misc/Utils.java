@@ -5,6 +5,7 @@ import net.kyori.adventure.key.Key;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -768,6 +769,94 @@ public class Utils
         }
 
         return false;
+    }
+
+    public static ItemStack addEnchants(ItemStack itemStack, List<String> enchantments)
+    {
+
+        String[] args;
+        String enchantment;
+        Enchantment enchant;
+        int level;
+
+        for(String s : enchantments)
+        {
+
+            args = s.split(":");
+            enchantment = args[0];
+
+            if(!Utils.isInt(args[1]))
+            {
+                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " +  s);
+                continue;
+            }
+
+            level = Integer.parseInt(args[1]);
+            enchant = Enchantment.getByName(enchantment);
+
+            if(enchant == null)
+            {
+                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " +  s);
+                continue;
+            }
+
+            if(!enchant.canEnchantItem(itemStack))
+            {
+                plugin.getLogger().warning("Enchantment " + enchantment + " can not be used on " + itemStack.getType().toString());
+                continue;
+            }
+
+            if(level > enchant.getMaxLevel())
+            {
+                plugin.getLogger().warning("Max level for enchantment " + enchantment + " is " + level);
+                itemStack.addEnchantment(enchant, enchant.getMaxLevel());
+            }
+            else
+            {
+                itemStack.addEnchantment(enchant, level);
+            }
+
+
+        }
+
+        return itemStack;
+
+    }
+
+    public static ItemStack addUnsafeEnchants(ItemStack itemStack, List<String> enchants)
+    {
+
+        String[] args;
+        String enchantment;
+        Enchantment enchant;
+        int level;
+
+        for(String s : enchants)
+        {
+
+            args = s.split(":");
+            enchantment = args[0];
+
+            if(!Utils.isInt(args[1]))
+            {
+                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " +  s);
+                continue;
+            }
+
+            level = Integer.parseInt(args[1]);
+            enchant = Enchantment.getByName(enchantment);
+
+            if(enchant == null)
+            {
+                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " +  s);
+                continue;
+            }
+
+            itemStack.addUnsafeEnchantment(enchant, level);
+
+        }
+
+        return itemStack;
     }
 
 

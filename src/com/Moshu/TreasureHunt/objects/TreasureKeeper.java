@@ -308,6 +308,7 @@ public class TreasureKeeper {
                 e.setRemoveWhenFarAway(false);
 
                 e.setMaxHealth(getMaxHealth());
+                e.setHealth(getMaxHealth());
                 e.setCustomName(Utils.format(getCustomName()));
                 e.setCustomNameVisible(true);
 

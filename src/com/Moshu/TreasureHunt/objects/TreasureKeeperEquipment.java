@@ -216,52 +216,7 @@ public class TreasureKeeperEquipment {
         {
 
             ItemStack itemStack = new ItemStack(item);
-            String[] args;
-            String enchantment;
-            Enchantment enchant;
-            int level;
-
-            for(String s : enchantments)
-            {
-
-                args = s.split(":");
-                enchantment = args[0];
-
-                if(!Utils.isInt(args[1]))
-                {
-                    plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " +  s);
-                    continue;
-                }
-
-                level = Integer.parseInt(args[1]);
-                enchant = Enchantment.getByName(enchantment);
-
-                if(enchant == null)
-                {
-                    plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " +  s);
-                    continue;
-                }
-
-                if(!enchant.canEnchantItem(itemStack))
-                {
-                    plugin.getLogger().warning("Enchantment " + enchantment + " can not be used on " + item.toString());
-                    continue;
-                }
-
-                if(level > enchant.getMaxLevel())
-                {
-                    plugin.getLogger().warning("Max level for enchantment " + enchantment + " is " + level);
-                    itemStack.addEnchantment(enchant, enchant.getMaxLevel());
-                }
-                else
-                {
-                    itemStack.addEnchantment(enchant, level);
-                }
-
-
-            }
-
-            return itemStack;
+            return Utils.addEnchants(itemStack, enchantments);
 
         }
 

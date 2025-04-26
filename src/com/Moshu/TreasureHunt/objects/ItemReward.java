@@ -4,6 +4,7 @@ import com.Moshu.Misc.Utils;
 import dev.lone.itemsadder.api.CustomStack;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -23,6 +24,7 @@ public class ItemReward {
     private List<String> lore;
     private int amount; // stored as a String (e.g., "1-10") unless parsed further
     private int chance;
+    private List<String> enchants;
 
     // Getters and setters
     public String getIdentifier() {
@@ -49,6 +51,7 @@ public class ItemReward {
     public void setLore(List<String> lore) {
         this.lore = lore;
     }
+    public void setEnchants(List<String> enchants) { this.enchants = enchants; }
     public int getAmount() {
         return amount;
     }
@@ -72,6 +75,7 @@ public class ItemReward {
         {
             itemMeta.setDisplayName(Utils.format(name));
         }
+
         if(!lore.isEmpty())
         {
 
@@ -86,7 +90,7 @@ public class ItemReward {
         }
 
         itemStack.setItemMeta(itemMeta);
-        return itemStack;
+        return Utils.addUnsafeEnchants(itemStack, enchants);
 
     }
 

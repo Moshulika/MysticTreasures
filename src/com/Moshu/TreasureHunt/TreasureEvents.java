@@ -271,13 +271,12 @@ public class TreasureEvents implements Listener {
 
                 if (e.getFinalDamage() >= victim.getHealth()) {
 
-                    Hunt h = TreasureKeeper.getHunt(victim);
+                    if (TreasureKeeper.isTreasureKeeper(victim)) {
 
-                    if(h == null) return;
+                        Hunt h = TreasureKeeper.getHunt(victim);
+                        if(h == null) return;
 
-                    Treasure t = h.getTreasure();
-
-                    if (t.isTreasureKeeper(victim)) {
+                        Treasure t = h.getTreasure();
 
                         if (!t.getParticipants().contains(attacker)) {
                             t.addParticipant(attacker);
@@ -330,13 +329,12 @@ public class TreasureEvents implements Listener {
 
                     if (e.getFinalDamage() >= victim.getHealth()) {
 
-                        Hunt h = TreasureKeeper.getHunt(victim);
+                        if (TreasureKeeper.isTreasureKeeper(victim)) {
 
-                        if(h == null) return;
+                            Hunt h = TreasureKeeper.getHunt(victim);
 
-                        Treasure t = h.getTreasure();
-
-                        if (t.isTreasureKeeper(victim)) {
+                            if(h == null) return;
+                            Treasure t = h.getTreasure();
 
                             if (!t.getParticipants().contains(p)) {
                                 t.addParticipant(p);
@@ -559,8 +557,13 @@ public class TreasureEvents implements Listener {
                     if(Utils.chance() < data.getChance())
                     {
                         Item i = entity.getWorld().dropItemNaturally(entity.getLocation(), data.getItemStack());
-                        i.setCustomName(Utils.format(data.getName()));
-                        i.setCustomNameVisible(true);
+
+                        if(!data.getName().equalsIgnoreCase("none"))
+                        {
+                            i.setCustomName(Utils.format(data.getName()));
+                            i.setCustomNameVisible(true);
+                        }
+
                     }
 
                 }

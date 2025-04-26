@@ -4,6 +4,7 @@ import com.Moshu.Misc.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -36,13 +37,15 @@ public class TreasureKeeperDrops {
                         item = Material.STONE;
                     }
 
-                    String range = dropConfig.getString("amount");
-                    int chance = dropConfig.getInt("chance");
+                    String range = dropConfig.getString("amount", "1-5");
+                    int chance = dropConfig.getInt("chance", 100);
 
                     String name = dropConfig.getString("name", Utils.setCapitals(item.name().toLowerCase()).replace("_", " "));
                     List<String> lore = dropConfig.getStringList("lore");
 
-                    DropData data = new DropData(item, getAmountFromRange(range), chance, name, lore);
+                    List<String> enchantments = dropConfig.getStringList("enchantments");
+
+                    DropData data = new DropData(item, getAmountFromRange(range), chance, name, lore, enchantments);
                     dropsMap.put(key, data);
 
                 }
@@ -91,18 +94,25 @@ public class TreasureKeeperDrops {
 
         private String name;
         private List<String> lore;
+        private List<String> enchantments;
 
-        public DropData(Material item, int amount, int chance, String name, List<String> lore) {
+        public DropData(Material item, int amount, int chance, String name, List<String> lore, List<String> enchantments) {
             this.item = item;
             this.amount = amount;
             this.chance = chance;
             this.name = name;
             this.lore = lore;
+            this.enchantments = enchantments;
         }
 
         public String getName()
         {
             return name;
+        }
+
+        public List<String> getEnchantments()
+        {
+            return enchantments;
         }
 
         public List<String> getLore()
@@ -132,11 +142,10 @@ public class TreasureKeeperDrops {
             {
                 itemMeta.setDisplayName(Utils.format(name));
                 itemMeta.setLore(Utils.formatList(lore));
+                itemStack.setItemMeta(itemMeta);
             }
 
-            itemStack.setItemMeta(itemMeta);
-
-            return itemStack;
+            return Utils.addUnsafeEnchants(itemStack, enchantments);
         }
 
     }

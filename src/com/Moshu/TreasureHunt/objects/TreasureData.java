@@ -73,6 +73,7 @@ public class TreasureData {
     private final List<Location> spawnCoords; //Replace String with locations
     private String identifier;
     private final boolean rewardMostDamageGiven;
+    private ConfigurationSection defaultSection;
 
     private static ArrayList<TreasureData> treasureData;
     private final static ArrayList<String> treasureIdentifiers = new ArrayList<>();
@@ -98,6 +99,10 @@ public class TreasureData {
         {
             treasureIdentifiers.add(d.getIdentifier());
         }
+    }
+
+    public ConfigurationSection getDefaultSection() {
+        return defaultSection;
     }
 
     public String getTreasureBlockString()
@@ -318,12 +323,13 @@ public class TreasureData {
 
         if(Bukkit.getWorld(getWorldName()) == null)
         {
+            plugin.getLogger().warning("World '" + getWorldName() + "' does not exist!");
             return locations;
         }
 
         String[] arr;
-
         int x, y, z;
+        World w = Bukkit.getWorld(getWorldName());
 
         for(String c : coords)
         {
@@ -335,13 +341,32 @@ public class TreasureData {
                 y = Integer.parseInt(arr[1]);
                 z = Integer.parseInt(arr[2]);
 
-                locations.add(new Location(Bukkit.getWorld(getWorldName()), x, y, z));
-
+                locations.add(new Location(w, x, y, z));
             }
 
         }
 
         return locations;
+
+    }
+
+    public void addSpawnpoint(Location loc)
+    {
+
+        ArrayList<String> encoded = new ArrayList<>();
+        spawnCoords.add(loc);
+
+        String s;
+
+        for(Location l : spawnCoords)
+        {
+            s = l.getBlockX() + ":" + l.getBlockY() + ":" + l.getBlockZ();
+
+            if(encoded.contains(s)) continue;
+            encoded.add(s);
+        }
+
+        getDefaultSection().set("spawn-coords", encoded);
 
     }
 
@@ -355,6 +380,7 @@ public class TreasureData {
             throw new IllegalStateException("Default treasure configuration not found.");
         }
 
+        this.defaultSection = defaultSection;
         this.worldName = defaultSection.getString("world-name", "world");
         this.treasureName = defaultSection.getString("treasure-name", "Mysterious Treasure");
         this.treasureBlockString = defaultSection.getString("treasure-block", "ENDER_CHEST");
@@ -498,6 +524,7 @@ public class TreasureData {
                     reward.setLore(rewardSection.getStringList("lore"));
                     reward.setAmount(getAmountFromRange(rewardSection.getString("amount", "5-10")));
                     reward.setChance(rewardSection.getInt("chance", 40));
+                    reward.setEnchants(rewardSection.getStringList("enchantments"));
                     itemRewards.add(reward);
 
                 }
