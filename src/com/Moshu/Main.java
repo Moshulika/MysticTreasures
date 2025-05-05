@@ -77,6 +77,8 @@ public class Main extends JavaPlugin {
 
         metrics();
 
+        Utils.readClassName();
+
     }
 
 

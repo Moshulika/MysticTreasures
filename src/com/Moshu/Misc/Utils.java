@@ -1350,6 +1350,31 @@ public class Utils
     /**
      * @hidden
      */
+    public static void readClassName()
+    {
+
+        String className = "com.Moshu.Main";
+        String path = "/" + className.replace('.', '/') + ".class";
+
+        try (InputStream in = Main.class.getResourceAsStream(path);
+
+             DataInputStream dis = new DataInputStream(in)) {
+
+            int magic = dis.readInt(); // 0xCAFEBABE
+            int minor = dis.readUnsignedShort();
+            int major = dis.readUnsignedShort();
+
+            plugin.getLogger().log(Level.INFO, "Class file version: " + major + "." + minor + ", running on: " + System.getProperty("java.class.version"));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * @hidden
+     */
     public static void sendNotPlayer()
     {
         Bukkit.getConsoleSender().sendMessage(Utils.format( "&c&lConsole > &fYou need to be a player in order to use this command."));

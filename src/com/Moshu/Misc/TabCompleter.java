@@ -23,10 +23,12 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
         if (cmd.getName().equalsIgnoreCase("hunt")) {
 
-            if (!(sender instanceof Player p)) {
+            if (!(sender instanceof Player)) {
 
                 return empty;
             }
+
+            Player p = (Player) sender;
 
             if (args.length == 1) {
 

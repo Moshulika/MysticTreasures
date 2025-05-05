@@ -32,7 +32,9 @@ public class TreasureCommands implements CommandExecutor {
 
             if (args.length == 0) {
 
-                if (sender instanceof Player p) {
+                if (sender instanceof Player) {
+
+                    Player p = (Player) sender;
 
                     if (p.hasPermission("mystictreasures.hunt")) {
 
@@ -81,7 +83,9 @@ public class TreasureCommands implements CommandExecutor {
 
                 } else if (args[0].equalsIgnoreCase("debug")) {
 
-                    if (sender instanceof Player p) {
+                    if (sender instanceof Player) {
+
+                        Player p = (Player) sender;
 
                         if (debugging.contains(p)) {
                             p.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fYou've stopped debugging"));
@@ -129,7 +133,9 @@ public class TreasureCommands implements CommandExecutor {
                 return true;
             } else if (args.length == 2) {
 
-                if (sender instanceof Player p) {
+                if (sender instanceof Player) {
+
+                    Player p = (Player) sender;
 
                     if (!p.hasPermission("mystictreasures.admin")) {
                         p.sendMessage(Messages.get("no-permission"));

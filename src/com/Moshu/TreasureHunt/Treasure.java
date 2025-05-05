@@ -544,7 +544,9 @@ public class Treasure {
     private void animate(Location location, Entity e, ItemStack is)
     {
 
-        if(e instanceof ArmorStand animation) {
+        if(e instanceof ArmorStand) {
+
+            ArmorStand animation = (ArmorStand) e;
 
             animation.setMetadata("treasure_stand", new FixedMetadataValue(plugin, "treasure_stand"));
             animation.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 600, 1)); //Doesn't exist < 1.13

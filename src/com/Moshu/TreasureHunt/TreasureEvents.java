@@ -231,8 +231,9 @@ public class TreasureEvents implements Listener {
     public void onDamage(EntityDamageByEntityEvent e) {
 
 
-        if (e.getDamager() instanceof Player attacker) {
+        if (e.getDamager() instanceof Player) {
 
+            Player attacker = (Player) e.getDamager();
             boolean itemsAdder = Utils.isEnabled("ItemsAdder");
 
             if (itemsAdder) {
@@ -249,7 +250,9 @@ public class TreasureEvents implements Listener {
 
             }
 
-            if (e.getEntity() instanceof Player p) {
+            if (e.getEntity() instanceof Player) {
+
+                Player p = (Player) e.getEntity();
 
                 if (Treasure.isNearTreasure(p)) {
 
@@ -267,7 +270,9 @@ public class TreasureEvents implements Listener {
                 }
 
 
-            } else if (e.getEntity() instanceof LivingEntity victim) {
+            } else if (e.getEntity() instanceof LivingEntity) {
+
+                LivingEntity victim = (LivingEntity) e.getEntity();
 
                 if (e.getFinalDamage() >= victim.getHealth()) {
 
@@ -300,14 +305,19 @@ public class TreasureEvents implements Listener {
 
         }
 
-        if (e.getDamager() instanceof Projectile projectile) {
+        if (e.getDamager() instanceof Projectile) {
 
+            Projectile projectile = (Projectile) e.getDamager();
             if(projectile.getShooter() == null) return;
 
-            if(projectile.getShooter() instanceof Player p)
+            if(projectile.getShooter() instanceof Player)
             {
 
-                if (e.getEntity() instanceof Player victim) {
+                Player p = (Player) projectile.getShooter();
+
+                if (e.getEntity() instanceof Player) {
+
+                    Player victim = (Player) e.getEntity();
 
                     if (Treasure.isNearTreasure(victim)) {
 
@@ -325,7 +335,9 @@ public class TreasureEvents implements Listener {
                     }
 
 
-                } else if (e.getEntity() instanceof LivingEntity victim) {
+                } else if (e.getEntity() instanceof LivingEntity) {
+
+                    LivingEntity victim = (LivingEntity) e.getEntity();
 
                     if (e.getFinalDamage() >= victim.getHealth()) {
 
@@ -422,7 +434,9 @@ public class TreasureEvents implements Listener {
 
             if (e.getHand() == EquipmentSlot.HAND) {
 
-                if (e.getRightClicked() instanceof ArmorStand as) {
+                if (e.getRightClicked() instanceof ArmorStand) {
+
+                    ArmorStand as = (ArmorStand) e.getRightClicked();
 
                     e.setCancelled(true);
                     Player p = e.getPlayer();
@@ -465,8 +479,10 @@ public class TreasureEvents implements Listener {
 
         if(Hunt.huntActiveInWorld(e.getEntity().getWorld())) {
 
-            if(e.getEntity() instanceof LivingEntity en)
+            if(e.getEntity() instanceof LivingEntity)
             {
+
+                LivingEntity en = (LivingEntity) e.getEntity();
 
                 try {
 
@@ -474,7 +490,9 @@ public class TreasureEvents implements Listener {
 
                         if (en.getLastDamageCause().getDamageSource().getCausingEntity() != null) {
 
-                            if (en.getLastDamageCause().getDamageSource().getCausingEntity() instanceof Player p) {
+                            if (en.getLastDamageCause().getDamageSource().getCausingEntity() instanceof Player) {
+
+                                Player p = (Player) en.getLastDamageCause().getDamageSource().getCausingEntity();
 
                                 if (p.getInventory().getItemInMainHand().containsEnchantment(Enchantment.FIRE_ASPECT))
                                     return;
