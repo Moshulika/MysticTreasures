@@ -834,7 +834,15 @@ public class Utils
         for(String s : enchants)
         {
 
+            if(s.isEmpty()) continue;
             args = s.split(":");
+
+            if(args.length != 2)
+            {
+                plugin.getLogger().warning("Enchantment format is invalid! Affected enchantment: " +  s);
+                continue;
+            }
+
             enchantment = args[0];
 
             if(!Utils.isInt(args[1]))
@@ -1386,24 +1394,6 @@ public class Utils
     public static void sendSound(Player p)
     {
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0F, 1.0F);
-    }
-
-    /**
-     * Send a player a certain sound
-     * @param p the player
-     * @param s the sound
-     */
-    public static void sendSound(Player p, Sound s)
-    {
-        p.playSound(p.getLocation(), s, 1.0F, 1.0F);
-    }
-
-    /**
-     * @hidden
-     */
-    public static void sendSoundHigh(Player p)
-    {
-        p.playSound(p.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1.0F, 1.0F);
     }
 
     /**

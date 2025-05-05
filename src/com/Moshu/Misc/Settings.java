@@ -91,6 +91,21 @@ public class Settings {
 
     }
 
+    public static List<String> getStringList(String path)
+    {
+        try
+        {
+            return plugin.getConfig().getStringList("settings." + path);
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
+        }
+
+        return new ArrayList<>();
+
+    }
+
     public static int getCooldown()
     {
         try

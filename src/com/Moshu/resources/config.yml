@@ -15,6 +15,18 @@ settings:
   actionbar:
     enabled: true
     refresh: 2 #Refresh rate in ticks
+  blacklisted-biomes:
+    - "COLD_OCEAN"
+    - "DEEP_OCEAN"
+    - "DEEP_DARK"
+    - "DEEP_FROZEN_OCEAN"
+    - "DEEP_LUKEWARM_OCEAN"
+    - "FROZEN_OCEAN"
+    - "FROZEN_RIVER"
+    - "ICE_SPIKES"
+    - "LUKEWARM_OCEAN"
+    - "OCEAN"
+    - "RIVER"
   effects-particles: #You should change these only if they cause compatibility issues.
     dust: DUST
     wax_off: WAX_OFF

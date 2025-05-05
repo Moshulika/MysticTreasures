@@ -11,10 +11,7 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
@@ -25,6 +22,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class Locations {
@@ -32,20 +30,38 @@ public class Locations {
     private static final ArrayList<Biome> blacklist = new ArrayList<>();
     private static final ArrayList<Material> block_blacklist = new ArrayList<>();
 
-    static
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+
+    public static void init()
     {
-        blacklist.add(Biome.COLD_OCEAN);
-        blacklist.add(Biome.DEEP_OCEAN);
-        blacklist.add(Biome.DEEP_DARK);
-        blacklist.add(Biome.DEEP_FROZEN_OCEAN);
-        blacklist.add(Biome.DEEP_LUKEWARM_OCEAN);
-        blacklist.add(Biome.DEEP_OCEAN);
-        blacklist.add(Biome.FROZEN_OCEAN);
-        blacklist.add(Biome.FROZEN_RIVER);
-        blacklist.add(Biome.ICE_SPIKES);
-        blacklist.add(Biome.LUKEWARM_OCEAN);
-        blacklist.add(Biome.OCEAN);
-        blacklist.add(Biome.RIVER);
+
+        List<String> biomes = Settings.getStringList("blacklisted-biomes");
+
+        for(String originalName : biomes) {
+
+            String soundName = originalName.toLowerCase().replace("_", ".");
+            Biome biome = null;
+
+            try {
+
+                NamespacedKey key = NamespacedKey.minecraft(soundName);
+                biome = Registry.BIOME.get(key);
+
+            } catch (NoClassDefFoundError | NoSuchMethodError e) {
+                try {
+                    biome = Biome.valueOf(originalName);
+                } catch (IllegalArgumentException ex) {
+                    plugin.getLogger().warning("Invalid blacklisted biome: " + originalName);
+                }
+            }
+
+            if (biome != null) {
+                blacklist.add(biome);
+            }
+
+        }
+
+
     }
 
     public static boolean isAllowedWorld(org.bukkit.World w)

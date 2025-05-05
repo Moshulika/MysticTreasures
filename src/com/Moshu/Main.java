@@ -32,6 +32,7 @@ public class Main extends JavaPlugin {
     Utils utils = new Utils(this);
     Cooldown cooldown = new Cooldown(this);
     TreasureCommands treasureCommands = new TreasureCommands(this);
+    FileUpdater fileUpdater = new FileUpdater(this);
 
     @Override
     public void onEnable()
@@ -63,10 +64,13 @@ public class Main extends JavaPlugin {
         getWorldGuard();
 
         createDataFiles();
+        FileUpdater.update();
 
         if(Utils.isEnabled("PlaceholderAPI")) {
             new Placeholders().register();
         }
+
+        Locations.init();
 
         delayedHooks();
 

@@ -7,7 +7,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-
+//TODO: Add Oraxen, ItemsAdder support
 public class TreasureKey {
 
     private boolean enabled;
