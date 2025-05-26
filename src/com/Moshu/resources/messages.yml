@@ -35,8 +35,12 @@ messages:
   not-number: "&6&lTreasure&e&lHunt &fYou need to enter a number!"
   received-key: "&6&lTreasure&e&lHunt &fYou received a treasure key!"
   reload-with-hunt-active: "&6&lTreasure&e&lHunt &fYou cannot reload the plugin while a treasure is active!"
+  blacklisted-command: "&6&lTreasure&e&lHunt &fThis command cannot be used while near a treasure!"
   treasure-locked: "&c&lLOCKED"
   treasure-unlocked: "&a&lUNLOCKED"
+  days: "day(s)"
+  hours: "hour(s)"
+  minutes: "minute(s)"
   active-hunts-menu:
     title: "Active Hunts"
     item: "CHEST"

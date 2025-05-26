@@ -4,8 +4,10 @@ package com.Moshu.Misc;
 import com.Moshu.Main;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -19,6 +21,10 @@ public class Settings {
     {
         Settings.plugin = plugin;
     }
+
+    private static int SLOW_FALLING_DURATION = 1200;
+    private static int SLOW_FALLING_LEVEL = 2;
+    private static List<String> BLACKLISTED_COMMANDS = new ArrayList<>();
 
     public static List<String> getAllowedWorlds()
     {
@@ -46,6 +52,26 @@ public class Settings {
 
         return Particle.CRIT;
 
+    }
+
+    public static void recacheSettings()
+    {
+        FileConfiguration config = plugin.getConfig();
+        SLOW_FALLING_DURATION = config.getInt("settings.fall-protection.duration", 1200);
+        SLOW_FALLING_LEVEL = config.getInt("settings.fall-protection.level", 2);
+        BLACKLISTED_COMMANDS = config.getStringList("settings.blacklisted-commands");
+    }
+
+    public static int getSlowFallingDuration() {
+        return SLOW_FALLING_DURATION;
+    }
+
+    public static int getSlowFallingLevel() {
+        return SLOW_FALLING_LEVEL - 1;
+    }
+
+    public static List<String> getBlacklistedCommands() {
+        return BLACKLISTED_COMMANDS;
     }
 
     public static int getInt(String path)

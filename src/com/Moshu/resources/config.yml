@@ -12,9 +12,14 @@ settings:
   potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects
   broadcast-to-all-worlds: false #Send the actionbar message to all the worlds. If multiple treasures are started only one treasure will appear in the actionbar.
   winner-cooldown: 1440 #How long in minutes, a treasure winner has to wait before claiming another treasure
+  fall-protection:
+    duration: 1200
+    level: 2
   actionbar:
     enabled: true
     refresh: 2 #Refresh rate in ticks
+  blacklisted-commands:
+    - "heal"
   blacklisted-biomes:
     - "COLD_OCEAN"
     - "DEEP_OCEAN"

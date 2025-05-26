@@ -20,10 +20,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -391,7 +388,8 @@ public class TreasureEvents implements Listener {
 
                             e.getPlayer().setFlying(false);
                             e.getPlayer().setAllowFlight(false);
-                            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 1200, 1));
+                            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
+                                    Settings.getSlowFallingDuration(), Settings.getSlowFallingLevel()));
 
                         }
 
@@ -412,7 +410,8 @@ public class TreasureEvents implements Listener {
                         if(!Settings.getBoolean("allow-elytra-near-treasure")) {
 
                             e.getPlayer().setGliding(false);
-                            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 1200, 1));
+                            e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
+                                    Settings.getSlowFallingDuration(), Settings.getSlowFallingLevel()));
 
                         }
 
@@ -423,6 +422,27 @@ public class TreasureEvents implements Listener {
 
             }
 
+        }
+
+    }
+
+    @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent e)
+    {
+
+        Player p = e.getPlayer();
+
+        if(p.hasPermission("mystictreasures.bypass")) return;
+
+        if(Treasure.isNearTreasure(p)) {
+
+            String[] words = e.getMessage().split(" ");
+            String command = words[0].trim().toLowerCase().substring(1);
+
+            if (Settings.getBlacklistedCommands().contains(command)) {
+                e.setCancelled(true);
+                p.sendMessage(Messages.get("blacklisted-command"));
+            }
         }
 
     }

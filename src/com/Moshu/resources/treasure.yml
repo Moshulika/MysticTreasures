@@ -23,6 +23,7 @@ treasure:
     distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
     mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
     enable-mob-tracker: true
+    coords-near-treasure: 0
     require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
     animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
     minutes-before-pickup: 0

@@ -74,6 +74,7 @@ public class TreasureData {
     private String identifier;
     private final boolean rewardMostDamageGiven;
     private ConfigurationSection defaultSection;
+    private int coordsNearTreasure;
 
     private static ArrayList<TreasureData> treasureData;
     private final static ArrayList<String> treasureIdentifiers = new ArrayList<>();
@@ -91,6 +92,8 @@ public class TreasureData {
     {
         FileHandler h = FileHandler.getInstance();
         treasureData = h.reload();
+
+        fetchTreasuresIdentifiers();
     }
 
     private static void fetchTreasuresIdentifiers()
@@ -397,6 +400,7 @@ public class TreasureData {
         this.dropItemsOnGround = defaultSection.getBoolean("drop-items-on-ground", false);
         this.distanceFromPlayerToSpawnMobs = defaultSection.getInt("distance-from-player-to-spawn-mobs", 0);
         this.mobWanderingDistance = defaultSection.getInt("mob-wandering-distance", 40);
+        this.coordsNearTreasure = defaultSection.getInt("coords-near-treasure", 0);
         this.enableMobTracker = defaultSection.getBoolean("enable-mob-tracker", true);
         this.animateMobSpawning = defaultSection.getBoolean("animate-mob-spawning", true);
         this.interval = defaultSection.getInt("interval", 30);
@@ -569,6 +573,10 @@ public class TreasureData {
             plugin.getLogger().warning("Configuration section 'command-rewards' does not exist!");
         }
 
+    }
+
+    public int getCoordsNearTreasure() {
+        return coordsNearTreasure;
     }
 
     public String getWorldName() {

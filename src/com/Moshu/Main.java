@@ -75,6 +75,7 @@ public class Main extends JavaPlugin {
         delayedHooks();
 
         TreasureData.load();
+        Settings.recacheSettings();
         TreasureEffects.check();
         TreasureTask.task();
         ActionBar.start();
@@ -141,6 +142,7 @@ public class Main extends JavaPlugin {
 
             config.load(configf);
             messages.load(messagesf);
+            Settings.recacheSettings();
 
         }
         catch (IOException | InvalidConfigurationException e)

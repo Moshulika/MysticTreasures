@@ -21,6 +21,7 @@ public class FileUpdater {
     {
 
         FileConfiguration config = plugin.getConfigFile();
+        FileConfiguration messages = plugin.getMessages();
         
         if(config.get("settings.blacklisted-biomes") == null)
         {
@@ -37,6 +38,41 @@ public class FileUpdater {
 
             config.set("settings.blacklisted-biomes", biomes);
 
+        }
+
+        if(config.get("settings.blacklisted-commands") == null)
+        {
+            ArrayList<String> commands = new ArrayList<>();
+            commands.add("heal");
+
+            config.set("settings.blacklisted-commands",  commands);
+        }
+
+        if(config.get("settings.fall-protection") == null)
+        {
+            config.addDefault("settings.fall-protection", "");
+            config.set("settings.fall-protection.duration", 1200);
+            config.set("settings.fall-protection.level", 2);
+        }
+
+        if(messages.get("messages.blacklisted-command") == null)
+        {
+            messages.set("messages.blacklisted-command", "&6&lTreasure&e&lHunt &fThis command cannot be used while near a treasure!");
+        }
+
+        if(messages.get("messages.days") == null)
+        {
+            messages.set("messages.days", "day(s)");
+        }
+
+        if(messages.get("messages.hours") == null)
+        {
+            messages.set("messages.hours", "hour(s)");
+        }
+
+        if(messages.get("messages.minutes") == null)
+        {
+            messages.set("messages.minutes", "minute(s)");
         }
 
         commit();

@@ -40,6 +40,14 @@ public class ActionBar {
                     h = Hunt.getNearestHunt(p.getLocation());
                     if (h == null) continue;
 
+                    int x = h.getLocation().getBlockX();
+                    int z = h.getLocation().getBlockZ();
+                    int offset = h.getTreasure().getTreasureData().getCoordsNearTreasure();
+                    int x_offset = x + Utils.randInt(-offset, offset);
+                    int z_offset = z + Utils.randInt(-offset, offset);
+                    String remainingTime = Utils.getCountDown(h.getRemainingTime());
+                    String worldName = h.getLocation().getWorld().getName();
+
                         //Sunt in aceeasi lume Hunt-ul si Player-ul
                         if (Locations.distanceTo(h.getLocation(), p.getLocation()) < h.getTreasure().getTreasureData().getMobWanderingDistance()) //Inside the mob area
                         {
@@ -50,17 +58,23 @@ public class ActionBar {
                                 if (h.getTreasure().haveTheMobsSpawned()) {
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-all-mobs-dead")
-                                            .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
-                                            .replace("{world}", h.getLocation().getWorld().getName())
-                                            .replace("{x}", h.getLocation().getBlockX() + "")
-                                            .replace("{z}", h.getLocation().getBlockZ() + "")));
+                                            .replace("{time}", remainingTime)
+                                            .replace("{world}", worldName)
+                                            .replace("{x}", x + "")
+                                            .replace("{z}", z + "")
+                                            .replace("{x-offset}", x_offset + "")
+                                            .replace("{z-offset}", z_offset + "")
+                                    ));
                                 } else {
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
-                                            .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
-                                            .replace("{world}", h.getLocation().getWorld().getName())
-                                            .replace("{x}", h.getLocation().getBlockX() + "")
-                                            .replace("{z}", h.getLocation().getBlockZ() + "")));
+                                            .replace("{time}", remainingTime)
+                                            .replace("{world}", worldName)
+                                            .replace("{x}", x + "")
+                                            .replace("{z}", z + "")
+                                            .replace("{x-offset}", x_offset + "")
+                                            .replace("{z-offset}", z_offset + "")
+                                    ));
                                 }
 
                             } else //There are mobs remaining
@@ -72,7 +86,7 @@ public class ActionBar {
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-mobs-tracker")
                                             .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
-                                            .replace("{world}", h.getLocation().getWorld().getName())
+                                            .replace("{world}", worldName)
                                             .replace("{x}", first.getLocation().getBlockX() + "")
                                             .replace("{y}", first.getLocation().getBlockY() + "")
                                             .replace("{z}", first.getLocation().getBlockZ() + "")));
@@ -89,10 +103,13 @@ public class ActionBar {
                         {
                             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
                                     .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
-                                    .replace("{time}", Utils.getCountDown(h.getRemainingTime()))
-                                    .replace("{world}", h.getLocation().getWorld().getName())
-                                    .replace("{x}", h.getLocation().getBlockX() + "")
-                                    .replace("{z}", h.getLocation().getBlockZ() + "")));
+                                    .replace("{time}", remainingTime)
+                                    .replace("{world}", worldName)
+                                    .replace("{x}", x + "")
+                                    .replace("{z}", z + "")
+                                    .replace("{x-offset}", x_offset + "")
+                                    .replace("{z-offset}", z_offset + "")
+                            ));
                         }
                     }
 

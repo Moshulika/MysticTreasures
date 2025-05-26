@@ -713,17 +713,31 @@ public class Treasure {
     {
 
         SendCenteredMessage scm = new SendCenteredMessage();
+
+        int x = h.getLocation().getBlockX();
+        int z = h.getLocation().getBlockZ();
+        String world = h.getLocation().getWorld().getName();
+        String alias = getTreasureData().getTreasureName();
+        String duration = h.getDuration() + "";
+
+        int offset = getTreasureData().getCoordsNearTreasure();
+        int x_offset = x + Utils.randInt(-offset, offset);
+        int z_offset = z + Utils.randInt(-offset, offset);
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
 
             for (Player p : Bukkit.getOnlinePlayers()) {
 
                 for (String s : Messages.getAndFormatList("messages.hunt-message")) {
-                    scm.sendCenteredMessage(p, s.replace("{x}", h.getLocation().getBlockX() + "")
-                            .replace("{z}", h.getLocation().getBlockZ() + "")
-                            .replace("{world}", getTreasureData().getWorldName() + "")
-                            .replace("{alias}", getTreasureData().getTreasureName())
-                            .replace("{duration}", h.getDuration() + ""));
+                    scm.sendCenteredMessage(p,
+                                    s.replace("{x}", x + "")
+                                    .replace("{z}", z + "")
+                                    .replace("{x-offset}", x_offset + "")
+                                    .replace("{z-offset}", z_offset + "")
+                                    .replace("{world}", world)
+                                    .replace("{alias}", alias)
+                                    .replace("{duration}", duration));
                 }
 
             }
@@ -739,15 +753,28 @@ public class Treasure {
 
             SendCenteredMessage scm = new SendCenteredMessage();
 
+            int x = h.getLocation().getBlockX();
+            int z = h.getLocation().getBlockZ();
+            String world = h.getLocation().getWorld().getName();
+            String alias = getTreasureData().getTreasureName();
+            String duration = h.getDuration() + "";
+
+            int offset = getTreasureData().getCoordsNearTreasure();
+            int x_offset = x + Utils.randInt(-offset, offset);
+            int z_offset = z + Utils.randInt(-offset, offset);
+
             for(Player p : Bukkit.getOnlinePlayers())
             {
 
                 for (String s : Messages.getAndFormatList("messages.announce-treasure")) {
-                    scm.sendCenteredMessage(p, s.replace("{x}", getLocation().getBlockX() + "")
-                            .replace("{z}", getLocation().getBlockZ() + "")
-                            .replace("{world}", getLocation().getWorld().getName())
-                            .replace("{alias}", getTreasureData().getTreasureName())
-                            .replace("{duration}", h.getDuration() + ""));
+                    scm.sendCenteredMessage(p, s
+                            .replace("{x}", x + "")
+                            .replace("{z}", z + "")
+                            .replace("{x-offset}", x_offset + "")
+                            .replace("{z-offset}", z_offset + "")
+                            .replace("{world}", world)
+                            .replace("{alias}", alias)
+                            .replace("{duration}", duration));
                 }
 
             }

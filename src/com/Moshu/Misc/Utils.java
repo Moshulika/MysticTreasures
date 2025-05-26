@@ -733,7 +733,7 @@ public class Utils
         //Daca exista mai multe zile
         if(zile != 0)
         {
-            return zile + " day(s), " + ore + " hour(s), " + minute + " minutes";
+            return zile + " " + Messages.get("days") + ", " + ore + " " + Messages.get("hours") + ", " + minute + " " + Messages.get("minutes");
         }
         //Daca e mai putin de o zi
         else
@@ -741,10 +741,10 @@ public class Utils
             //Daca e mai mult de o ora
             if(ore != 0)
             {
-                return ore + " hour(s), " + minute + " minutes";
+                return ore + " " + Messages.get("hours") + ", " + minute + " " + Messages.get("minutes");
             }
 
-            return minute + " minutes";
+            return minute + " " + Messages.get("minutes");
 
         }
 
