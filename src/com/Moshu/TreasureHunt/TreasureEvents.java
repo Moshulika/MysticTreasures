@@ -22,7 +22,6 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -30,136 +29,190 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class TreasureEvents implements Listener {
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    @EventHandler
-    public void onBreak(BlockBreakEvent e) {
+    private static HashMap<Player, Long> click_cooldowns = new HashMap<>();
+    HashMap<Player, Long> inventoryClickCooldown = new HashMap<>();
 
-        if (Treasure.isTreasure(e.getBlock().getLocation())) {
+    private boolean disableBreakToAward(Player p, Treasure t)
+    {
+        if(t.getTreasureData().getClicksToOpen() > 1)
+        {
+            p.sendMessage(Utils.format(Messages.get("only-right-click")));
+            return true;
+        }
 
-            e.setCancelled(true);
+        return false;
+    }
 
-            String worldName = e.getBlock().getWorld().getName();
-            Location o = e.getBlock().getLocation();
-            Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
-            Player p = e.getPlayer();
+    private boolean isCreative(Player p)
+    {
+        if (p.getGameMode() != GameMode.SURVIVAL) {
+            p.sendMessage(Messages.get("no-creative"));
+            p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+            Utils.sendBreakSound(p);
+            return true;
+        }
 
-            Treasure t = Treasure.getTreasure(l);
+        return false;
+    }
 
-            if (p.getGameMode() != GameMode.SURVIVAL) {
-                p.sendMessage(Messages.get("no-creative"));
-                p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                Utils.sendBreakSound(e.getPlayer());
-                return;
-            }
+    private boolean hasCooldown(Player p)
+    {
+        if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
+            p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+            Utils.sendBreakSound(p);
+            p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
+            return true;
+        }
 
-            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
-                p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                Utils.sendBreakSound(e.getPlayer());
-                p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
-                return;
-            }
+        return false;
+    }
 
-            if (t.getTreasureData().getTreasureKey().requiresKey()) {
-                p.sendMessage(Messages.get("no-key"));
-                p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                Utils.sendBreakSound(e.getPlayer());
-                return;
-            }
+    private boolean hasKey(Player p, Treasure t)
+    {
+        if(t.isLocked())
+        {
 
-            if(!t.timePassedBeforePickup())
+            ItemStack itemInHand = p.getInventory().getItemInMainHand();
+
+            if(!t.getTreasureData().getTreasureKey().isTreasureKey(itemInHand))
             {
-                p.sendMessage(Messages.get("minutes-before-pickup-not-passed").replace("{time}",
-                        Utils.formatRemainingTime(t.getTreasureData().getMilliesBeforePickup() - t.getHunt().getElapsedTime())));
+                p.sendMessage(Messages.get("no-key"));
                 Utils.sendBreakSound(p);
                 p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                return;
-            }
-
-            if (t.getTreasureData().requireAllMobsDead()) {
-
-
-                if (t.mobsCleared()) {
-
-                    if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
-                        t.awardPrizes();
-                    }
-                    else if(t.getTreasureData().rewardMostDamageGiven())
-                    {
-
-                        if(t.wereTreasureKeepersDamaged())
-                        {
-                            t.awardPrize(t.getPlayerWithMostDamage());
-                        }
-                        else
-                        {
-                            t.awardPrize(e.getPlayer());
-                        }
-
-                    } else {
-                        t.awardPrize(e.getPlayer());
-                    }
-
-                    t.remove();
-
-                    Utils.sendLevelupSound(p);
-                } else {
-
-                    for (String s : Messages.getAndFormatList("messages.need-to-kill-all-mobs")) {
-                        p.sendMessage(s);
-                    }
-
-                    p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                    Utils.sendBreakSound(e.getPlayer());
-                }
-
-            } else {
-
-                if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
-                    t.awardPrizes();
-                }
-                else if(t.getTreasureData().rewardMostDamageGiven())
-                {
-
-                    if(t.wereTreasureKeepersDamaged())
-                    {
-                        t.awardPrize(t.getPlayerWithMostDamage());
-                    }
-                    else
-                    {
-                        t.awardPrize(e.getPlayer());
-                    }
-
-                } else {
-                    t.awardPrize(e.getPlayer());
-                }
-
-                t.remove();
-                Utils.sendLevelupSound(p);
-            }
-
-        } else {
-
-            if (!Settings.getBoolean("disable-griefing-protection")) {
-
-                if (Treasure.isNearTreasure(e.getPlayer())) {
-
-                    if (e.getPlayer().hasPermission("mystictreasures.bypass")) return;
-
-                    e.setCancelled(true);
-                    e.getPlayer().sendMessage(Messages.get("cannot-break-near-treasure"));
-
-                }
-
+                return false;
             }
 
         }
 
+        return true;
+    }
 
+    private boolean hasRequiredClicks(Player p, Treasure t)
+    {
+
+        int needed_clicks = t.getTreasureData().getClicksToOpen();
+
+        if(getClicks(t, p) < needed_clicks) {
+
+            if(System.currentTimeMillis() - click_cooldowns.getOrDefault(p, 0L) < t.getTreasureData().getCooldownBetweenClicks())
+            {
+                return false;
+            }
+
+            p.sendMessage(Messages.get("remaining-clicks")
+                    .replace("{current_clicks}", "" + getClicks(t, p))
+                    .replace("{needed_clicks}", "" + needed_clicks));
+            addClicks(t, p);
+            Utils.sendBreakSound(p);
+
+            click_cooldowns.put(p, System.currentTimeMillis());
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private boolean canTreasureBeOpened(Player p, Treasure t)
+    {
+        if(!t.timePassedBeforePickup())
+        {
+            p.sendMessage(Messages.get("minutes-before-pickup-not-passed").replace("{time}",
+                    Utils.formatRemainingTime(t.getTreasureData().getMilliesBeforePickup() - t.getHunt().getElapsedTime())));
+            Utils.sendBreakSound(p);
+            p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+            return false;
+        }
+
+        return true;
+    }
+
+    private void sendMobsNotCleared(Player p)
+    {
+        for (String s : Messages.getAndFormatList("messages.need-to-kill-all-mobs")) {
+            p.sendMessage(s);
+        }
+
+        p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
+        Utils.sendBreakSound(p);
+    }
+
+    private void sendTreasureUnlocked(Player p)
+    {
+        for (String s : Messages.getAndFormatList("messages.unlocked-treasure")) {
+            p.sendMessage(s);
+        }
+    }
+
+    private void awardAndRemove(Player p, Treasure t)
+    {
+        if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
+            t.awardPrizes();
+        }
+        else if(t.getTreasureData().rewardMostDamageGiven())
+        {
+
+            if(t.wereTreasureKeepersDamaged())
+            {
+                t.awardPrize(t.getPlayerWithMostDamage());
+            }
+            else
+            {
+                t.awardPrize(p);
+            }
+
+        } else {
+            t.awardPrize(p);
+        }
+
+        t.remove();
+        Utils.sendLevelupSound(p);
+
+    }
+
+    private void openTreasure(Player p, Treasure t)
+    {
+
+        if (t.isLocked()) {
+            Utils.substractItem(p, t.getTreasureData().getTreasureKey().getItemStack(1), 1);
+            sendTreasureUnlocked(p);
+            t.unlock();
+        }
+
+        if (t.getTreasureData().requireAllMobsDead()) {
+
+            if (t.mobsCleared())
+            {
+                if(t.getTreasureData().canOpenChest()) {
+                    if(!t.receivedCommandRewards(p)) t.runCommandPrizes(p);
+                    p.openInventory(t.getRewardInventory());
+                }
+                else
+                {
+                    awardAndRemove(p, t);
+                }
+            }
+            else sendMobsNotCleared(p);
+
+        } else {
+
+            if(t.getTreasureData().canOpenChest()) {
+
+                if(!t.receivedCommandRewards(p)) t.runCommandPrizes(p);
+                p.openInventory(t.getRewardInventory());
+
+            }
+            else
+            {
+                awardAndRemove(p, t);
+            }
+
+        }
     }
 
     @EventHandler
@@ -227,6 +280,16 @@ public class TreasureEvents implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent e) {
 
+        if(e.getEntity() instanceof Player)
+        {
+            Player p = (Player) e.getEntity();
+
+            if(Treasure.isNearTreasure(p))
+            {
+                p.closeInventory();
+            }
+
+        }
 
         if (e.getDamager() instanceof Player) {
 
@@ -610,6 +673,7 @@ public class TreasureEvents implements Listener {
 
     }
 
+
     @EventHandler
     public void inventoryClick(InventoryClickEvent e) {
 
@@ -622,8 +686,18 @@ public class TreasureEvents implements Listener {
             getTitle.setAccessible(true);
             String title = (String) getTitle.invoke(view);
 
+            Player p = (Player) e.getWhoClicked();
+
             if (title.equals(Messages.get("active-hunts-menu.title"))) {
                 e.setCancelled(true);
+            }
+
+            if(title.equals(Messages.get("treasure-reward-menu-title")))
+            {
+
+                if(System.currentTimeMillis() - inventoryClickCooldown.getOrDefault(p, 0L) < Settings.getInventoryClickCooldown()) e.setCancelled(true);
+                inventoryClickCooldown.put(p, System.currentTimeMillis());
+
             }
 
         } catch (Exception ex) {
@@ -651,115 +725,65 @@ public class TreasureEvents implements Listener {
 
                             e.setCancelled(true);
 
-                            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
-                                p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                                Utils.sendBreakSound(e.getPlayer());
-                                p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
-                                return;
-                            }
-
                             Treasure t = Treasure.getTreasure(l);
-                            int needed_clicks = t.getTreasureData().getClicksToOpen();
 
-                            if(t.getTreasureData().getTreasureKey().requiresKey())
-                            {
+                            if(hasCooldown(p)) return;
+                            if(!canTreasureBeOpened(p, t)) return;
+                            if(!hasKey(p, t)) return;
 
-                                ItemStack itemInHand = p.getInventory().getItemInMainHand();
+                            t.getTreasureData().getDebuff().debuff(getClicks(t,p), t);
 
-                                if(!t.getTreasureData().getTreasureKey().isTreasureKey(itemInHand))
-                                {
-                                    p.sendMessage(Messages.get("no-key"));
-                                    Utils.sendBreakSound(e.getPlayer());
-                                    p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                                    return;
-                                }
+                            if(!hasRequiredClicks(p, t)) return;
 
-                            }
-
-                            if(getClicks(t, p) < needed_clicks) {
-                                p.sendMessage(Messages.get("remaining-clicks")
-                                        .replace("{current_clicks}", "" + getClicks(t, p))
-                                        .replace("{needed_clicks}", "" + needed_clicks));
-                                addClicks(t, p);
-                                Utils.sendBreakSound(p);
-                                return;
-                            }
-
-                            if(!t.timePassedBeforePickup())
-                            {
-                                p.sendMessage(Messages.get("minutes-before-pickup-not-passed").replace("{time}",
-                                        Utils.formatRemainingTime(t.getTreasureData().getMilliesBeforePickup() - t.getHunt().getElapsedTime())));
-                                Utils.sendBreakSound(p);
-                                p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                                return;
-                            }
-
-                            if (t.getTreasureData().requireAllMobsDead()) {
-
-
-                                if (t.mobsCleared()) {
-
-                                    if (t.getTreasureData().getTreasureKey().requiresKey()) {
-                                        Utils.substractItem(p, t.getTreasureData().getTreasureKey().getTreasureKey(1), 1);
-                                    }
-
-                                    if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
-                                        t.awardPrizes();
-                                    }
-                                    else if(t.getTreasureData().rewardMostDamageGiven())
-                                    {
-
-                                        if(t.wereTreasureKeepersDamaged())
-                                        {
-                                            t.awardPrize(t.getPlayerWithMostDamage());
-                                        }
-                                        else
-                                        {
-                                            t.awardPrize(e.getPlayer());
-                                        }
-
-                                    } else {
-                                        t.awardPrize(e.getPlayer());
-                                    }
-
-                                    t.remove();
-                                    Utils.sendLevelupSound(p);
-
-                                } else {
-
-                                    for (String s : Messages.getAndFormatList("messages.need-to-kill-all-mobs")) {
-                                        p.sendMessage(s);
-                                    }
-
-                                    p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
-                                    Utils.sendBreakSound(e.getPlayer());
-                                }
-
-                            } else {
-
-                                if (t.getTreasureData().getTreasureKey().requiresKey()) {
-                                    Utils.substractItem(p, t.getTreasureData().getTreasureKey().getTreasureKey(1), 1);
-                                }
-
-                                if(t.getTreasureData().rewardAllPlayersWhoParticipated())
-                                {
-                                    t.awardPrizes();
-                                }
-                                else
-                                {
-                                    t.awardPrize(e.getPlayer());
-                                }
-
-                                t.remove();
-                                Utils.sendLevelupSound(p);
-                            }
+                            openTreasure(p, t);
 
                         }
-
 
                 }
             }
         }
+
+    }
+
+    @EventHandler
+    public void onBreak(BlockBreakEvent e) {
+
+        if (Treasure.isTreasure(e.getBlock().getLocation())) {
+
+            e.setCancelled(true);
+
+            Location o = e.getBlock().getLocation();
+            Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
+            Player p = e.getPlayer();
+
+            Treasure t = Treasure.getTreasure(l);
+
+            if(isCreative(p)) return;
+
+            if(disableBreakToAward(p, t)) return;
+            if(hasCooldown(p)) return;
+            if(!canTreasureBeOpened(p, t)) return;
+            if(!hasKey(p, t)) return;
+
+            openTreasure(p, t);
+
+        } else {
+
+            if (!Settings.getBoolean("disable-griefing-protection")) {
+
+                if (Treasure.isNearTreasure(e.getPlayer())) {
+
+                    if (e.getPlayer().hasPermission("mystictreasures.bypass")) return;
+
+                    e.setCancelled(true);
+                    e.getPlayer().sendMessage(Messages.get("cannot-break-near-treasure"));
+
+                }
+
+            }
+
+        }
+
 
     }
 

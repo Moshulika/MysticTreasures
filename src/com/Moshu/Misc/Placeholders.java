@@ -42,9 +42,11 @@ public class Placeholders extends PlaceholderExpansion {
         return "1.0";
     }
 
-    /*
-     * Use this method to setup placeholders
-     * This is somewhat similar to EZPlaceholderhook
+    /**
+     * TODO add the latest winner with damage given, and other stats.
+     * @param player
+     * @param identifier
+     * @return
      */
     @Override
     public String onRequest(OfflinePlayer player, String identifier) {

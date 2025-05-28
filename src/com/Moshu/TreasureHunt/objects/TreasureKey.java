@@ -48,7 +48,7 @@ public class TreasureKey {
         this.lore = lore;
     }
 
-    public ItemStack getTreasureKey(int amount)
+    public ItemStack getItemStack(int amount)
     {
 
         ItemStack is = new ItemStack(getItem(), amount);
@@ -71,7 +71,7 @@ public class TreasureKey {
     public boolean isTreasureKey(ItemStack apparentKey)
     {
 
-        ItemStack realKey = getTreasureKey(1);
+        ItemStack realKey = getItemStack(1);
 
         if(realKey.getType() == apparentKey.getType())
         {

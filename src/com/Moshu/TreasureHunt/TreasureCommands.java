@@ -81,7 +81,23 @@ public class TreasureCommands implements CommandExecutor {
                     sender.sendMessage(Messages.get("wrong-command"));
 
 
-                } else if (args[0].equalsIgnoreCase("debug")) {
+                }
+                else if(args[0].equalsIgnoreCase("showcase"))
+                {
+
+                    if (sender instanceof Player) {
+
+                        Player p = (Player) sender;
+                        TreasureMenu.showcase(p);
+
+                    }
+                    else
+                    {
+                        Utils.sendNotPlayer();
+                    }
+
+                }
+                else if (args[0].equalsIgnoreCase("debug")) {
 
                     if (sender instanceof Player) {
 
@@ -281,7 +297,7 @@ public class TreasureCommands implements CommandExecutor {
                     }
 
                     int amount = Integer.parseInt(args[3]);
-                    Utils.addToInventory(t, TreasureData.getByIdentifier(id).getTreasureKey().getTreasureKey(amount));
+                    Utils.addToInventory(t, TreasureData.getByIdentifier(id).getTreasureKey().getItemStack(amount));
                     sender.sendMessage(Messages.get("received-key"));
 
                 } else {

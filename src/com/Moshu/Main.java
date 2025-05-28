@@ -59,6 +59,7 @@ public class Main extends JavaPlugin {
 
         Bukkit.getServer().getPluginManager().registerEvents(new TreasureEvents(), this);
         Bukkit.getServer().getPluginManager().registerEvents(updater, this);
+        Bukkit.getServer().getPluginManager().registerEvents(new TreasureMenu(), this);
 
         s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fHooking into WorldGuard"));
         getWorldGuard();

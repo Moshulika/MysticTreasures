@@ -1,8 +1,10 @@
 treasure:
   default:
+    ####################### GENERAL SETTINGS #####################
     world-name: "world"
     treasure-name: "Hidden Treasure"
     treasure-block: ENDER_CHEST
+    menu-item: ENDER_CHEST
     treasure-particles: COMPOSTER
     treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
     treasure-icon: EMERALD #Only if DecentHolograms or FancyHolograms is not installed
@@ -16,30 +18,46 @@ treasure:
     flare-particle: COMPOSTER
     fireworks: true #Spawn fireworks upon clicking the treasure
     fall-from-the-sky: true
+    ####### HOW TO GIVE PLAYERS THE REWARDS! CHOOSE ONLY ONE OR LEAVE ALL FALSE ##############
+    get-rewards-from-chest: false #Should the players be able to open the chest and just take the items from there?
     reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
     reward-highest-damage: false #Reward the player who gives to most damage to the treasure keepers
     drop-items-on-ground: false #Drops Item Rewards on ground. Only works when 'reward-all-players-who-participated' and 'reward-highest-damage' is false
     dropped-item-name: "&6Treasure Loot"
+    #######################################################################
     distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
     mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
     enable-mob-tracker: true
-    coords-near-treasure: 0
+    coords-near-treasure: 0 #For the {x-offset} and {z-offset} placeholder. Adds this value to the real coords to give only an approx. area around the treasure
     require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
     animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
-    minutes-before-pickup: 0
-    clicks-to-open: 1 #How many right clicks are required to open the treasure?
+    minutes-before-pickup: 0 #Players cannot access the treasure before this time
+    clicks-to-open: 10 #How many right clicks are required to open the treasure?
+    cooldown-between-clicks: 10 #In ms
+    #################### DEBUFF #################################
+    debuff:
+      enable: true
+      clicks-to-debuff: 5 #Must have click to open NOT be 1 and clicks-to-debuff < clicks-to-open.
+      shockwave: true
+      respawn-mobs: true
+      potion-effects:
+        - "BLINDNESS:1:100" #EFFECT:LEVEL:DURATION
+    ################### SPAWN SETTINGS ##############################
     spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
     spawn-coords: #Make sure to place valid coords - inside your world border
       - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z
+    ################## TREASURE KEY ##############################
     treasure-key:
-      enabled: false
+      enabled: true
       item: TRIPWIRE_HOOK
       name: "&c&l&oTREASURE KEY"
       lore:
         - "&7&oOpen a treasure chest"
         - "&7&ousing this mysterious key"
+    ##############################################################
     potion-effects:
       - "REGENERATION:1"
+    #################### TREASURE KEEPERS ########################
     mobs:
       zombie:
         entity-type: "ZOMBIE"
@@ -48,6 +66,7 @@ treasure:
         range: "5-10"
         chance: 100
         max-health: 50
+        menu-item: "ZOMBIE_SPAWN_EGG"
         potion-effects:
           - "REGENERATION:5"
         equipment:
@@ -91,9 +110,11 @@ treasure:
             chance: 100
             enchantments:
               - ""
+    ################# REWARDS ########################
     item-rewards:
       diamond: #Can be any text, it doesn't count. It's a reward identifier.
         item: DIAMOND #Material name
+        menu-item: "DIAMOND"
         name: "&6&l&oREWARD #1" #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
         lore:                   #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
           - "&7&oHave fun with this reward!"
@@ -110,5 +131,6 @@ treasure:
         chance: 100 #Percentage (60%)
     command-rewards:
       money:
+        menu-item: "EMERALD"
         command: "eco give %player% 100"
         chance: 100

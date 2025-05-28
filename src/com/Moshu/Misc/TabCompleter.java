@@ -45,6 +45,8 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
                     c.add("clear");
                 }
 
+                c.add("showcase");
+
                 ArrayList<String> completions = new ArrayList<>();
 
                 return StringUtil.copyPartialMatches(args[0], c, completions);

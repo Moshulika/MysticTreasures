@@ -25,6 +25,8 @@ public class ItemReward {
     private int amount; // stored as a String (e.g., "1-10") unless parsed further
     private int chance;
     private List<String> enchants;
+    private String range;
+    private String menuItem;
 
     // Getters and setters
     public String getIdentifier() {
@@ -64,6 +66,10 @@ public class ItemReward {
     public void setChance(int chance) {
         this.chance = chance;
     }
+    public String getRange() { return range; }
+    public void setRange(String range) { this.range = range; }
+    public String getMenuItem() { return menuItem; }
+    public void setMenuItem(String menuItem) { this.menuItem = menuItem; }
 
     public ItemStack getItemStack()
     {

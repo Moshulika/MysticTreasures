@@ -11,7 +11,10 @@ settings:
   protect-mobs-from-sun: true #Should zombies not set on fire from the sun?
   potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects
   broadcast-to-all-worlds: false #Send the actionbar message to all the worlds. If multiple treasures are started only one treasure will appear in the actionbar.
-  winner-cooldown: 1440 #How long in minutes, a treasure winner has to wait before claiming another treasure
+  winner-cooldown: 5 #How long in minutes, a treasure winner has to wait before claiming another treasure
+  inventory-click-cooldown: 50 #in milliseconds
+  max-players-looting: 3
+  click-cooldown: 1 #How much time to take another item in ms
   fall-protection:
     duration: 1200
     level: 2

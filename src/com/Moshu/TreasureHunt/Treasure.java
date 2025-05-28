@@ -16,6 +16,7 @@ import io.th0rgal.oraxen.api.OraxenFurniture;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -27,9 +28,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Treasure {
@@ -39,7 +38,9 @@ public class Treasure {
     private boolean isActive;
     private Entity furnitureEntity;
     private final HashMap<UUID, Double> playerDamage = new HashMap<>();
-
+    private boolean isLocked = true;
+    private Inventory rewardInventory;
+    private ArrayList<Player> receivedCommandRewards = new ArrayList<>();
 
     private TreasureData treasureData;
 
@@ -57,7 +58,57 @@ public class Treasure {
         this.h = h;
         this.l = h.getLocation();
         this.treasureData = d;
+        isLocked = d.getTreasureKey().requiresKey();
         this.isActive = false;
+
+        setupInventory();
+
+    }
+
+    private void setupInventory()
+    {
+
+        if(getTreasureData().canOpenChest())
+        {
+
+            rewardInventory = Bukkit.createInventory(null, 54, Messages.get("treasure-reward-menu-title"));
+
+            for(ItemReward i : getTreasureData().getItemRewards())
+            {
+
+                if (i.getChance() <= Utils.chance()) continue;
+
+                ItemStack is = i.getItemStack();
+
+                int slot = Utils.randInt(1, 53);
+
+                if(rewardInventory.getItem(slot) != null)
+                {
+
+                    if(rewardInventory.getItem(slot).getType() != Material.AIR) {
+
+                        if (rewardInventory.firstEmpty() != -1) break;
+                        slot = rewardInventory.firstEmpty();
+
+                    }
+                }
+
+                rewardInventory.setItem(slot, is);
+
+            }
+
+        }
+
+    }
+
+    public boolean receivedCommandRewards(Player p)
+    {
+        return receivedCommandRewards.contains(p);
+    }
+
+    public Inventory getRewardInventory()
+    {
+        return rewardInventory;
     }
 
     public TreasureData getTreasureData()
@@ -95,6 +146,28 @@ public class Treasure {
     public boolean wereTreasureKeepersDamaged()
     {
         return !playerDamage.isEmpty();
+    }
+
+    public Map.Entry<UUID, Double> getXthMostDamage(int x) {
+
+        if (playerDamage == null || playerDamage.size() < x || x <= 0) {
+            return null;
+        }
+
+        List<Map.Entry<UUID, Double>> sortedEntries = new ArrayList<>(playerDamage.entrySet());
+        sortedEntries.sort((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()));
+
+        return sortedEntries.get(x - 1);
+    }
+
+    public boolean isLocked()
+    {
+        return isLocked;
+    }
+
+    public void unlock()
+    {
+        isLocked = false;
     }
 
     @Nullable
@@ -261,6 +334,9 @@ public class Treasure {
             DHAPI.createHologram("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5, 1.5, 0.5), false).setDownOrigin(true);
             Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
 
+            String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
+            double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
+
             ArrayList<String> lines = new ArrayList<>();
 
             for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
@@ -419,7 +495,7 @@ public class Treasure {
 
     }
 
-    private void spawnTreasureKeepers()
+    public void spawnTreasureKeepers()
     {
 
         for(TreasureKeeper k : getTreasureData().getTreasureKeepers())
@@ -429,9 +505,9 @@ public class Treasure {
 
     }
 
-    public boolean isLocked()
+    public boolean canBeOpened()
     {
-        return getRemainingMobs().isEmpty() && timePassedBeforePickup();
+        return getRemainingMobs().isEmpty() && timePassedBeforePickup() && !isLocked();
     }
 
     private void tickTreasure(Location location, Particle part, int distance_to_spawn)
@@ -454,7 +530,20 @@ public class Treasure {
                         Bukkit.getScheduler().runTask(plugin, () -> remove());
                     }
 
+                    if(getTreasureData().canOpenChest())
+                    {
+                        if(getRewardInventory().isEmpty()) Bukkit.getScheduler().runTask(plugin, () -> remove());
+                    }
+
                     if (isActive()) {
+
+                        String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
+                        String playerWithSecondDamage = getXthMostDamage(2) == null ? "N/A" : Bukkit.getOfflinePlayer(getXthMostDamage(2).getKey()).getName();
+                        String playerWithThirdDamage = getXthMostDamage(3) == null ? "N/A" : Bukkit.getOfflinePlayer(getXthMostDamage(3).getKey()).getName();
+
+                        double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
+                        double secondMostDamageGiven = getXthMostDamage(2) == null ? 0 : getXthMostDamage(2).getValue();
+                        double thirdMostDamageGiven = getXthMostDamage(3) == null ? 0 : getXthMostDamage(3).getValue();
 
                         w.spawnParticle(part, Utils.getParticleLocation(location), 3);
                         w.spawnParticle(part, Utils.getParticleLocation(location), 3);
@@ -464,9 +553,16 @@ public class Treasure {
                         for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
                             lines.add(s
                                     .replace("{time}", Utils.getCountDown(getHunt().getRemainingTime()))
-                                    .replace("{status}", isLocked() ? unlocked : locked)
+                                    .replace("{status}", canBeOpened() ? unlocked : locked)
                                     .replace("{alias}", getTreasureData().getTreasureName())
-                                    .replace("{remaining_mobs}", getRemainingMobs().size() + ""));
+                                    .replace("{requires-key}", isLocked() ? "Yes" : "No")
+                                    .replace("{remaining_mobs}", getRemainingMobs().size() + "")
+                                    .replace("{player-with-most-damage}", playerWithMostDamage)
+                                    .replace("{most-damage-given}", mostDamageGiven + "")
+                                    .replace("{second-most-damage-given-player}", playerWithSecondDamage)
+                                    .replace("{third-most-damage-given-player}", playerWithThirdDamage)
+                                    .replace("{second-most-damage}", secondMostDamageGiven + "")
+                                    .replace("{third-most-damage}", thirdMostDamageGiven + ""));
                         }
 
                         if (Utils.isEnabled("DecentHolograms")) {
@@ -781,12 +877,17 @@ public class Treasure {
         }
     }
 
+    public static ArrayList<Player> getPlayersNearTreasure(Treasure t)
+    {
+        return Utils.getNearbyPlayers(t.getLocation(), Settings.getProtectionRadius());
+    }
+
     public static boolean isNearTreasure(Player p) {
 
 
         for (Hunt h : Hunt.getActiveTreasures()) {
 
-            if (Locations.distanceTo(p.getLocation(), h.getLocation()) <= Settings.getInt("protection-radius")) {
+            if (Locations.distanceTo(p.getLocation(), h.getLocation()) <= Settings.getProtectionRadius()) {
                 return true;
             }
 
@@ -832,6 +933,15 @@ public class Treasure {
 
     }
 
+    public void runCommandPrizes(Player p)
+    {
+        for (CommandReward c : getTreasureData().getCommandRewards()) {
+            c.run(p);
+        }
+
+        receivedCommandRewards.add(p);
+    }
+
     public void awardPrizes() {
 
         launchFireworks();
@@ -850,9 +960,7 @@ public class Treasure {
                 cd.set();
             }
 
-            for (CommandReward c : getTreasureData().getCommandRewards()) {
-                c.run(p);
-            }
+            runCommandPrizes(p);
 
             for(ItemReward i : getTreasureData().getItemRewards())
             {
@@ -895,10 +1003,7 @@ public class Treasure {
         }
 
         launchFireworks();
-
-        for (CommandReward c : getTreasureData().getCommandRewards()) {
-            c.run(p);
-        }
+        runCommandPrizes(p);
 
         int xOffset = (int) ((Math.random() * 2 * 5 + 1) - 5);
         int zOffset = (int) ((Math.random() * 2 * 5 + 1) - 5);
@@ -1043,6 +1148,8 @@ public class Treasure {
 
         SendCenteredMessage scm = new SendCenteredMessage();
         String participantsNames = Joiner.on(", ").join(getParticipantsNames());
+        String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
+        double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
@@ -1050,7 +1157,9 @@ public class Treasure {
 
                 for (String s : Messages.getAndFormatList("messages.winner-broadcast")) {
 
-                    scm.sendCenteredMessage(p, s.replace("{player}", participantsNames));
+                    scm.sendCenteredMessage(p, s.replace("{player}", participantsNames)
+                            .replace("{player-with-most-damage}", playerWithMostDamage)
+                            .replace("{most-damage-given}", mostDamageGiven + ""));
 
                 }
 
@@ -1073,13 +1182,18 @@ public class Treasure {
     {
 
         SendCenteredMessage scm = new SendCenteredMessage();
+        String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
+        double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
             for (Player p : Bukkit.getOnlinePlayers()) {
 
                 for (String s : Messages.getAndFormatList("messages.winner-broadcast")) {
 
-                    scm.sendCenteredMessage(p, s.replace("{player}", k.getName()));
+                    scm.sendCenteredMessage(p, s.replace("{player}", k.getName())
+                            .replace("{player-with-most-damage}", playerWithMostDamage)
+                            .replace("{most-damage-given}", mostDamageGiven + ""));
 
                 }
 

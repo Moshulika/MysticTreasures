@@ -16,6 +16,7 @@ public class CommandReward {
     private String identifier; // e.g., "money"
     private String command;
     private int chance;
+    private String menuItem;
 
     // Getters and setters
     public String getIdentifier() {
@@ -36,6 +37,8 @@ public class CommandReward {
     public void setChance(int chance) {
         this.chance = chance;
     }
+    public String getMenuItem() { return menuItem; }
+    public void setMenuItem(String menuItem) { this.menuItem = menuItem; }
 
     public void run(Player p)
     {

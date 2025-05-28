@@ -329,13 +329,13 @@ public class Hunt {
 
         for(String s : list)
         {
-            newList.add(s.replace("%time%", Utils.getCountDown(h.getRemainingTime()))
-                    .replace("%keepers%", "" + h.getTreasure().getRemainingMobs().size())
-                    .replace("%x%", "" + h.getLocation().getBlockX())
-                    .replace("%y%", "" + h.getLocation().getBlockY())
-                    .replace("%world%", h.getLocation().getWorld().getName())
-                    .replace("%participants%", "" + h.getTreasure().getParticipants().size())
-                    .replace("%key%", "" + h.getTreasureData().getTreasureKey().requiresKey()));
+            newList.add(s.replace("{time}", Utils.getCountDown(h.getRemainingTime()))
+                    .replace("{keepers}", "" + h.getTreasure().getRemainingMobs().size())
+                    .replace("{x}", "" + h.getLocation().getBlockX())
+                    .replace("{y}", "" + h.getLocation().getBlockY())
+                    .replace("{world}", h.getLocation().getWorld().getName())
+                    .replace("{participants}", "" + h.getTreasure().getParticipants().size())
+                    .replace("{key}", "" + h.getTreasureData().getTreasureKey().requiresKey()));
         }
 
         return newList;
@@ -345,7 +345,6 @@ public class Hunt {
     {
 
         Inventory inv = Bukkit.createInventory(null, 27, Messages.get("active-hunts-menu.title"));
-        ItemStack item = Utils.checkMaterial(Messages.get("active-hunts-menu.item"));;
         ItemMeta meta;
 
         String name = Utils.format(Messages.get("active-hunts-menu.name"));
@@ -354,11 +353,11 @@ public class Hunt {
         for(Hunt h : getActiveTreasures())
         {
 
+            ItemStack item = new ItemStack(Utils.checkMaterial(h.getTreasureData().getMenuItem()));
             meta = item.getItemMeta();
-
             if(meta == null) continue;
 
-            meta.setDisplayName(name.replace("%treasure_name%", h.getTreasure().getTreasureData().getTreasureName()));
+            meta.setDisplayName(name.replace("{treasure_name}", h.getTreasure().getTreasureData().getTreasureName()));
             meta.setLore(menuItemLore(Messages.getAndFormatList("messages.active-hunts-menu.lore"), h));
             item.setItemMeta(meta);
 

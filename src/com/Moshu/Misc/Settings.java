@@ -25,6 +25,8 @@ public class Settings {
     private static int SLOW_FALLING_DURATION = 1200;
     private static int SLOW_FALLING_LEVEL = 2;
     private static List<String> BLACKLISTED_COMMANDS = new ArrayList<>();
+    private static int PROTECTION_RADIUS = 50;
+    private static int INVENTORY_CLICK_COOLDOWN = 50;
 
     public static List<String> getAllowedWorlds()
     {
@@ -60,6 +62,16 @@ public class Settings {
         SLOW_FALLING_DURATION = config.getInt("settings.fall-protection.duration", 1200);
         SLOW_FALLING_LEVEL = config.getInt("settings.fall-protection.level", 2);
         BLACKLISTED_COMMANDS = config.getStringList("settings.blacklisted-commands");
+        PROTECTION_RADIUS = config.getInt("settings.protection-radius");
+        INVENTORY_CLICK_COOLDOWN = config.getInt("settings.inventory-click-cooldown");
+    }
+
+    public static int getInventoryClickCooldown() {
+        return INVENTORY_CLICK_COOLDOWN;
+    }
+
+    public static int getProtectionRadius() {
+        return PROTECTION_RADIUS;
     }
 
     public static int getSlowFallingDuration() {

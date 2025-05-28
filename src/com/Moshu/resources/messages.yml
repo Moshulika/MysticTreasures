@@ -36,23 +36,80 @@ messages:
   received-key: "&6&lTreasure&e&lHunt &fYou received a treasure key!"
   reload-with-hunt-active: "&6&lTreasure&e&lHunt &fYou cannot reload the plugin while a treasure is active!"
   blacklisted-command: "&6&lTreasure&e&lHunt &fThis command cannot be used while near a treasure!"
+  only-right-click: "&6&lTreasure&e&lHunt &fYou can only open the treasure by right-clicking it"
   treasure-locked: "&c&lLOCKED"
   treasure-unlocked: "&a&lUNLOCKED"
   days: "day(s)"
   hours: "hour(s)"
   minutes: "minute(s)"
+  treasure-reward-menu-title: "Treasure Rewards"
+  showcase-key-menu-title: "Treasure Key"
   active-hunts-menu:
     title: "Active Hunts"
-    item: "CHEST"
-    name: "&a&l&o%treasure_name%"
+    name: "&a&l&o{treasure_name}"
     lore:
       - ""
-      - "  &a⏰ &fRemaining time: &a%time%"
-      - "  &a⛨ &fTreasure Keepers: &a%keepers%"
-      - "  &a➷ &fX: &a%x%&f, Y: &a%y%"
-      - "  &a🗺 &fWorld: &a%world%"
-      - "  &a⚔ &fParticipants: &a%participants%"
-      - "  &a🔑 &fRequires key: &a%key%"
+      - "  &a⏰ &fRemaining time: &a{time}"
+      - "  &a⛨ &fTreasure Keepers: &a{keepers}"
+      - "  &a➷ &fX: &a{x}&f, Y: &a{y}"
+      - "  &a🗺 &fWorld: &a{world}"
+      - "  &a⚔ &fParticipants: &a{participants}"
+      - "  &a🔑 &fRequires key: &a{key}"
+      - ""
+  showcase-hunts-menu:
+    title: "Available hunts"
+    name: "&a&l&o{treasure_name}"
+    lore:
+      - ""
+      - "  &a⛨ &fTreasure Keepers: &a{keepers}"
+      - "  &a➷ &fRewards: {rewards}"
+      - "  &a➷ &fDuration: {duration}"
+      - "  &a➷ &fRequire mobs dead: {requires_mobs_dead}"
+      - "  &a➷ &fDebuff: {debuff}"
+      - "  &a🗺 &fWorld: &a{world}"
+      - "  &a🔑 &fRequires key: &a{requires_key}"
+      - ""
+      - "  &a&l&oLEFT CLICK &fto see the rewards"
+      - "  &a&l&oRIGHT CLICK &fto see the treasure keepers"
+      - ""
+    other-buttons:
+      home:
+        item: "BOOK"
+        name: "&a&l&oHOME"
+      rewards:
+        item: "EMERALD"
+        name: "&a&l&oREWARDS"
+      keepers:
+        item: "DIAMOND_SWORD"
+        name: "&a&l&oKEEPERS"
+      key:
+        item: "TRIPWIRE_HOOK"
+        name: "&a&l&oKEY"
+  showcase-rewards-menu:
+    title: "Hunt rewards"
+    reward-item-name: "&a&l&o{reward_name}"
+    reward-item-lore:
+      - ""
+      - "  &a⛨ &fItem: &a{item}"
+      - "  &a➷ &fAmount: {amount}"
+      - "  &a➷ &fChance: {chance}"
+      - ""
+    command-item: "COMMAND_BLOCK"
+    command-item-name: "&a&l&o{reward_name}"
+    command-item-lore:
+      - ""
+      - "  &a⛨ &fCommand: {command}"
+      - "  &a➷ &fChance: {chance}"
+      - ""
+  showcase-keepers-menu:
+    title: "Treasure Keepers"
+    name: "&a&l&o{keeper_name}"
+    lore:
+      - ""
+      - "  &a⛨ &fEntity: {entity}"
+      - "  &a➷ &fMyhicMob: {mythic}"
+      - "  &a➷ &fRange: {range}"
+      - "  &a➷ &fHealth: {health}"
       - ""
   winner-broadcast:
     - ""
@@ -75,6 +132,7 @@ messages:
   treasure-hologram:
     - "&6&l{alias}"
     - "&fStatus: {status}"
+    - "&fRequires Key: {requires-key}"
     - ""
     - "&fDespawning in {time}"
     - "&fThere are {remaining_mobs} Treasure Keepers"
@@ -96,3 +154,10 @@ messages:
     - "&6&lTreasure&e&lHunt &fThe treasure is protected by a magic spell!"
     - "&6&lTreasure&e&lHunt &fGet rid of the Treasure Keepers in order to claim it's belongings!"
     - ""
+  debuff-reached:
+    - ""
+    - "&6&lTreasure&e&lHunt &fThe treasure is protected by a magic spell!"
+    - "&6&lTreasure&e&lHunt &fGet rid of the Treasure Keepers in order to claim it's belongings!"
+    - ""
+  unlocked-treasure:
+    - "&6&lTreasure&e&lHunt &fYou unlocked the treasure! Now everyone can access it!"

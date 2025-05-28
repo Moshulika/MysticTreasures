@@ -75,6 +75,10 @@ public class TreasureData {
     private final boolean rewardMostDamageGiven;
     private ConfigurationSection defaultSection;
     private int coordsNearTreasure;
+    private String menuItem;
+    private int cooldownBetweenClicks;
+    private TreasureDebuff debuff;
+    private boolean openChest;
 
     private static ArrayList<TreasureData> treasureData;
     private final static ArrayList<String> treasureIdentifiers = new ArrayList<>();
@@ -121,6 +125,26 @@ public class TreasureData {
     public static ArrayList<TreasureData> getTreasureData()
     {
         return treasureData;
+    }
+
+    public boolean canOpenChest()
+    {
+        return openChest;
+    }
+
+    public int getCooldownBetweenClicks()
+    {
+        return cooldownBetweenClicks;
+    }
+
+    public String getMenuItem()
+    {
+        return menuItem;
+    }
+
+    public TreasureDebuff getDebuff()
+    {
+        return debuff;
     }
 
     public static TreasureData getByIdentifier(String id)
@@ -293,6 +317,54 @@ public class TreasureData {
         return potionEffectsList;
     }
 
+    private ArrayList<PotionEffect> deserializeEffectsWithDuration(List<String> potionEffects)
+    {
+
+        ArrayList<PotionEffect> potionEffectsList = new ArrayList<>();
+        PotionEffectType t;
+
+        String[] arr;
+        String name;
+        int level;
+        int duration;
+
+        for(String s : potionEffects)
+        {
+
+            arr = s.split(":");
+            name =  arr[0];
+
+            if(arr.length != 3)
+            {
+                plugin.getLogger().warning("Invalid potion effect: " + s);
+                continue;
+            }
+
+            if(!Utils.isInt(arr[1]) || !Utils.isInt(arr[2]))
+            {
+                plugin.getLogger().warning("Invalid potion effect: " + s);
+                continue;
+            }
+
+            level = Integer.parseInt(arr[1]);
+            duration = Integer.parseInt(arr[2]);
+
+            t = PotionEffectType.getByName(name);
+
+            if(t == null)
+            {
+                plugin.getLogger().warning("Invalid potion effect: " + s);
+                continue;
+            }
+
+
+            potionEffectsList.add(new PotionEffect(t, duration, level));
+
+        }
+
+        return potionEffectsList;
+    }
+
     /**
      * Does not check if the coords are in the border.
      * User's responsability for now
@@ -413,6 +485,9 @@ public class TreasureData {
         this.spawnToCertainCoords = defaultSection.getBoolean("spawn-to-certain-coords", false);
         this.spawnCoords = deserializeLocations(defaultSection.getStringList("spawn-coords"));
         this.rewardMostDamageGiven = defaultSection.getBoolean("reward-highest-damage", false);
+        this.menuItem = defaultSection.getString("menu-item", "STONE");
+        this.cooldownBetweenClicks = defaultSection.getInt("cooldown-between-clicks", 0);
+        this.openChest = defaultSection.getBoolean("get-rewards-from-chest", false);
 
         try
         {
@@ -457,6 +532,24 @@ public class TreasureData {
             plugin.getLogger().warning("Configuration section 'treasure-key' does not exist!");
         }
 
+        // Load Debuff section
+        ConfigurationSection debuffSection = defaultSection.getConfigurationSection("debuff");
+
+        if (debuffSection != null) {
+
+            debuff = new TreasureDebuff(this);
+            debuff.setEnabled(debuffSection.getBoolean("enable", false));
+            debuff.setShockwave(debuffSection.getBoolean("shockwave", true));
+            debuff.setRespawnMobs(debuffSection.getBoolean("respawn-mobs", true));
+            debuff.setClicksToDebuff(debuffSection.getInt("clicks-to-debuff", 10));
+            debuff.setPotionEffects(deserializeEffectsWithDuration(debuffSection.getStringList("potion-effects")));
+
+        }
+        else
+        {
+            plugin.getLogger().warning("Configuration section 'treasure-key' does not exist!");
+        }
+
 
         // Load all Mobs
         ConfigurationSection mobsSection = defaultSection.getConfigurationSection("mobs");
@@ -477,8 +570,10 @@ public class TreasureData {
                     mob.setMythicMob(mobSection.getBoolean("mythic-mobs", false));
                     mob.setKeeperIdentifier(mobSection.getString("entity-type", "ZOMBIE"));
                     mob.setCustomName(mobSection.getString("custom-name", "Treasure Keeper"));
+                    mob.setRange(mobSection.getString("range", "5-10"));
                     mob.setAmount(getAmountFromRange(mobSection.getString("range", "5-10")));
                     mob.setChance(mobSection.getInt("chance", 100));
+                    mob.setMenuItem(mobSection.getString("menu-item", "STONE"));
                     mob.setMaxHealth(mobSection.getInt("max-health", 20));
                     mob.setPotionEffects(deserializeEffects(mobSection.getStringList("potion-effects")));
                     mob.setAnimatedSpawn(animateMobSpawning());
@@ -526,9 +621,11 @@ public class TreasureData {
                     reward.setItem(mat);
                     reward.setName(rewardSection.getString("name", "&6&l&oREWARD #1"));
                     reward.setLore(rewardSection.getStringList("lore"));
+                    reward.setRange(rewardSection.getString("amount", "5-10"));
                     reward.setAmount(getAmountFromRange(rewardSection.getString("amount", "5-10")));
                     reward.setChance(rewardSection.getInt("chance", 40));
                     reward.setEnchants(rewardSection.getStringList("enchantments"));
+                    reward.setMenuItem(rewardSection.getString("menu-item", "STONE"));
                     itemRewards.add(reward);
 
                 }
@@ -559,6 +656,8 @@ public class TreasureData {
                     cr.setIdentifier(commandId);
                     cr.setCommand(commandSection.getString("command"));
                     cr.setChance(commandSection.getInt("chance"));
+                    cr.setMenuItem(commandSection.getString("menu-item", "STONE"));
+
                     commandRewards.add(cr);
 
                 }

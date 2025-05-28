@@ -47,9 +47,27 @@ public class TreasureKeeper {
     private boolean isSpawned;
     private final TreasureData t;
     private UUID uuid;
+    private String menuItem;
+    private String range;
 
     public TreasureKeeper(TreasureData t) {
         this.t = t;
+    }
+
+    public String getRange() {
+        return range;
+    }
+
+    public void setRange(String range) {
+        this.range = range;
+    }
+
+    public String getMenuItem() {
+        return menuItem;
+    }
+
+    public void setMenuItem(String menuItem) {
+        this.menuItem = menuItem;
     }
 
     public void setDrops(TreasureKeeperDrops drops) {
