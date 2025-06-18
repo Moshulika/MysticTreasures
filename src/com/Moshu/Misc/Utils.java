@@ -1601,11 +1601,24 @@ public class Utils
     public static ItemStack checkMaterial(String mat)
     {
 
+        if(mat == null)
+        {
+            plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
+            return new ItemStack(Material.STONE);
+        }
+
         Material m;
 
         try {
 
             m = Material.getMaterial(mat);
+
+            if(m == null)
+            {
+                plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
+                return new ItemStack(Material.STONE);
+            }
+
             return new ItemStack(m);
 
         }

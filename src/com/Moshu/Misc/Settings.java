@@ -2,6 +2,8 @@ package com.Moshu.Misc;
 
 
 import com.Moshu.Main;
+import com.Moshu.TreasureHunt.objects.ObfuscatedReward;
+import com.Moshu.TreasureHunt.objects.RewardObfuscator;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -27,6 +29,7 @@ public class Settings {
     private static List<String> BLACKLISTED_COMMANDS = new ArrayList<>();
     private static int PROTECTION_RADIUS = 50;
     private static int INVENTORY_CLICK_COOLDOWN = 50;
+    private static int MAX_CONCURRENT_PLAYERS_IN_INV = 3;
 
     public static List<String> getAllowedWorlds()
     {
@@ -62,15 +65,24 @@ public class Settings {
         SLOW_FALLING_DURATION = config.getInt("settings.fall-protection.duration", 1200);
         SLOW_FALLING_LEVEL = config.getInt("settings.fall-protection.level", 2);
         BLACKLISTED_COMMANDS = config.getStringList("settings.blacklisted-commands");
-        PROTECTION_RADIUS = config.getInt("settings.protection-radius");
-        INVENTORY_CLICK_COOLDOWN = config.getInt("settings.inventory-click-cooldown");
+        PROTECTION_RADIUS = config.getInt("settings.protection-radius", 50);
+        INVENTORY_CLICK_COOLDOWN = config.getInt("settings.click-cooldown", 50);
+        MAX_CONCURRENT_PLAYERS_IN_INV = config.getInt("settings.max-players-looting", 3);
+
     }
 
     public static int getInventoryClickCooldown() {
         return INVENTORY_CLICK_COOLDOWN;
     }
 
+    public static int getMaxPlayersLooting()
+    {
+        if(MAX_CONCURRENT_PLAYERS_IN_INV <= 0) return 1;
+        return MAX_CONCURRENT_PLAYERS_IN_INV;
+    }
+
     public static int getProtectionRadius() {
+        if(PROTECTION_RADIUS <= 5) return 5;
         return PROTECTION_RADIUS;
     }
 

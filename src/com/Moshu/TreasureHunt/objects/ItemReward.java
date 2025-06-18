@@ -1,7 +1,14 @@
 package com.Moshu.TreasureHunt.objects;
 
 import com.Moshu.Misc.Utils;
+import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
+import io.lumine.mythic.lib.api.item.NBTItem;
+import io.th0rgal.oraxen.api.OraxenItems;
+import net.Indyuce.mmoitems.MMOItems;
+import net.Indyuce.mmoitems.api.Type;
+import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
+import net.Indyuce.mmoitems.manager.TypeManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -10,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,6 +28,7 @@ public class ItemReward {
 
     private String identifier; // e.g., "diamond" or "emerald"
     private Material item;
+    String itemStr;
     private String name;
     private List<String> lore;
     private int amount; // stored as a String (e.g., "1-10") unless parsed further
@@ -35,12 +44,15 @@ public class ItemReward {
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
-    public Material getItem() {
-        return item;
+
+    public String getItemId() {
+        return itemStr;
     }
-    public void setItem(Material item) {
-        this.item = item;
+
+    public void setItemString(String item) {
+        this.itemStr = item;
     }
+
     public String getName() {
         return name;
     }
@@ -71,8 +83,149 @@ public class ItemReward {
     public String getMenuItem() { return menuItem; }
     public void setMenuItem(String menuItem) { this.menuItem = menuItem; }
 
+    public boolean isMMOItem()
+    {
+
+        if(Utils.isEnabled("MMOItems"))
+        {
+
+            //type:id
+            String type = getItemId().split(":")[0];
+            TypeManager types = MMOItems.plugin.getTypes();
+            return types.has(type);
+
+        }
+
+        return false;
+
+    }
+
+    public boolean isOraxen()
+    {
+        if(Utils.isEnabled("Oraxen"))
+        {
+            return OraxenItems.exists(getItemId());
+        }
+
+        return false;
+    }
+
+    public boolean isNexo()
+    {
+
+        if(Utils.isEnabled("Nexo"))
+        {
+            return NexoItems.exists(getItemId());
+        }
+
+        return false;
+
+    }
+
+    public boolean isItemsAdder()
+    {
+
+        if(Utils.isEnabled("ItemsAdder"))
+        {
+            return CustomStack.isInRegistry(getItemId());
+        }
+
+        return false;
+
+    }
+
+    public ItemReward build()
+    {
+
+        if(isItemsAdder() ||  isOraxen() || isNexo()) return this;
+
+        item = Material.matchMaterial(itemStr);
+
+        if(item == null)
+        {
+            plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
+            item = Material.STONE;
+        }
+
+        return this;
+    }
+
     public ItemStack getItemStack()
     {
+
+        if(isItemsAdder())
+        {
+            CustomStack stack = CustomStack.getInstance(getItemId());
+
+            if(stack != null)
+            {
+                ItemStack is = stack.getItemStack();
+                is.setAmount(amount);
+                return is;
+            }
+            else
+            {
+                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                return new ItemStack(Material.STONE);
+            }
+
+        }
+
+        if(isOraxen())
+        {
+            ItemStack stack = OraxenItems.getItemById(getItemId()).build();
+
+            if(stack != null)
+            {
+                stack.setAmount(getAmount());
+                return stack;
+            }
+            else
+            {
+                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                return new ItemStack(Material.STONE);
+            }
+        }
+
+        if(isNexo())
+        {
+            ItemStack stack = NexoItems.itemFromId(getItemId()).build();
+
+            if(stack != null)
+            {
+                stack.setAmount(getAmount());
+                return stack;
+            }
+            else
+            {
+                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                return new ItemStack(Material.STONE);
+            }
+        }
+
+        if(isMMOItem())
+        {
+
+            if(getItemId().split(":").length != 2)
+            {
+                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                return new ItemStack(Material.STONE);
+            }
+
+            String type = getItemId().split(":")[0];
+            String id = getItemId().split(":")[1];
+
+            MMOItem mmoitem = MMOItems.plugin.getMMOItem(MMOItems.plugin.getTypes().get(type), id);
+
+            if(mmoitem == null)
+            {
+                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                return new ItemStack(Material.STONE);
+            }
+
+            return mmoitem.newBuilder().build();
+
+        }
 
         ItemStack itemStack = new ItemStack(item, amount);
         ItemMeta itemMeta = itemStack.getItemMeta();

@@ -12,9 +12,14 @@ settings:
   potion-effect-radius: 20 #How close you need to be to the treasure in order to be affected by the potion effects
   broadcast-to-all-worlds: false #Send the actionbar message to all the worlds. If multiple treasures are started only one treasure will appear in the actionbar.
   winner-cooldown: 5 #How long in minutes, a treasure winner has to wait before claiming another treasure
-  inventory-click-cooldown: 50 #in milliseconds
-  max-players-looting: 3
+  max-players-looting: 3 #How many players can access the inventory at once
   click-cooldown: 1 #How much time to take another item in ms
+  obfuscate-rewards: false
+  obfuscated-reward-item:
+    item: DIRT
+    name: "???"
+    lore:
+      - "What is this?"
   fall-protection:
     duration: 1200
     level: 2

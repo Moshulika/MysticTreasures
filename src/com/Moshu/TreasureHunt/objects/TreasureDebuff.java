@@ -78,17 +78,18 @@ public class TreasureDebuff {
         this.potionEffects = potionEffects;
     }
 
-    public void debuff(int clicks, Treasure t)
+    public void debuff(Treasure t)
     {
 
         if(!isEnabled()) return;
+        if(t.alreadyDebuffed()) return;
         if(clicksToDebuff >= getTreasureData().getClicksToOpen())
         {
             plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
             return;
         }
 
-        if(clicks == getClicksToDebuff())
+        if(t.getCurrentClicks() == getClicksToDebuff())
         {
 
             Location treasureLoc = t.getLocation();

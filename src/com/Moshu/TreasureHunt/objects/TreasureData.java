@@ -2,6 +2,8 @@ package com.Moshu.TreasureHunt.objects;
 
 import com.Moshu.Misc.FileHandler;
 import com.Moshu.Misc.Utils;
+import com.nexomc.nexo.api.NexoBlocks;
+import com.nexomc.nexo.api.NexoFurniture;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
@@ -29,6 +31,8 @@ public class TreasureData {
         BLOCK,
         FURNITURE,
         ORAXEN_FURNITURE,
+        NEXO_FURNITURE,
+        NEXO_BLOCK,
         OTHER
     }
 
@@ -89,6 +93,7 @@ public class TreasureData {
         treasureData = h.setup();
 
         fetchTreasuresIdentifiers();
+
 
     }
 
@@ -213,6 +218,9 @@ public class TreasureData {
         String name = treasureBlockString;
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
         boolean oraxen = Utils.isEnabled("Oraxen");
+        boolean nexo = Utils.isEnabled("Nexo");
+
+        plugin.getLogger().log(Level.INFO, "Loading treasure block..");
 
         if (itemsAdder) {
 
@@ -254,6 +262,29 @@ public class TreasureData {
             }
 
         }
+        else if(nexo)
+        {
+
+            try {
+
+                if (NexoFurniture.isFurniture(name)) {
+                    return TreasureType.NEXO_FURNITURE;
+                }
+                else if(NexoBlocks.isCustomBlock(name))
+                {
+                    return TreasureType.NEXO_BLOCK;
+                }
+                else {
+                    return TreasureType.VANILLA;
+                }
+
+
+            } catch (NullPointerException | ClassCastException e) {
+                plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+                return TreasureType.VANILLA;
+            }
+
+        }
         else return TreasureType.VANILLA;
 
     }
@@ -262,6 +293,7 @@ public class TreasureData {
     {
 
         String[] arr = s.split("-");
+        if(arr.length == 0) return 0;
 
         for(String x : arr)
         {
@@ -281,6 +313,9 @@ public class TreasureData {
     {
 
         ArrayList<PotionEffect> potionEffectsList = new ArrayList<>();
+        if(potionEffects.isEmpty()) return potionEffectsList;
+
+
         PotionEffectType t;
 
         String[] arr;
@@ -290,8 +325,15 @@ public class TreasureData {
         for(String s : potionEffects)
         {
 
+            if(s.isEmpty()) continue;
+
             arr = s.split(":");
-            name =  arr[0];
+
+            if(arr.length != 2)
+            {
+                plugin.getLogger().warning("Invalid potion effect: " + s);
+                continue;
+            }
 
             if(!Utils.isInt(arr[1]))
             {
@@ -299,6 +341,7 @@ public class TreasureData {
                 continue;
             }
 
+            name =  arr[0];
             level = Integer.parseInt(arr[1]);
 
             t = PotionEffectType.getByName(name);
@@ -321,6 +364,8 @@ public class TreasureData {
     {
 
         ArrayList<PotionEffect> potionEffectsList = new ArrayList<>();
+        if(potionEffects.isEmpty()) return potionEffectsList;
+
         PotionEffectType t;
 
         String[] arr;
@@ -331,14 +376,17 @@ public class TreasureData {
         for(String s : potionEffects)
         {
 
+            if(s.isEmpty()) continue;
+
             arr = s.split(":");
-            name =  arr[0];
 
             if(arr.length != 3)
             {
                 plugin.getLogger().warning("Invalid potion effect: " + s);
                 continue;
             }
+
+            name =  arr[0];
 
             if(!Utils.isInt(arr[1]) || !Utils.isInt(arr[2]))
             {
@@ -503,6 +551,7 @@ public class TreasureData {
         }
 
         setTreasureType(fetchTreasureBlockType());
+        plugin.getLogger().log(Level.INFO, "Loaded treasure type: " + treasureType + " from id: " + treasureBlockString);
 
         // Load TreasureKey
         ConfigurationSection keySection = defaultSection.getConfigurationSection("treasure-key");
@@ -511,17 +560,11 @@ public class TreasureData {
 
 
             String itemStr = keySection.getString("item", "TRIPWIRE_HOOK");
-            Material mat = Material.matchMaterial(itemStr);
-
-            if (mat == null) {
-                plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
-                mat = Material.STONE;
-            }
 
             this.treasureKey = new TreasureKey(
 
                     keySection.getBoolean("enabled", false),
-                    mat,
+                    itemStr,
                     keySection.getString("name", "&c&l&oTREASURE KEY"),
                     keySection.getStringList("lore")
             );
@@ -610,15 +653,9 @@ public class TreasureData {
                     reward.setIdentifier(rewardId);
 
                     String itemStr = rewardSection.getString("item", "STONE");
-                    Material mat = Material.matchMaterial(itemStr);
 
-                    if(mat == null)
-                    {
-                        plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
-                        mat = Material.STONE;
-                    }
 
-                    reward.setItem(mat);
+                    reward.setItemString(itemStr);
                     reward.setName(rewardSection.getString("name", "&6&l&oREWARD #1"));
                     reward.setLore(rewardSection.getStringList("lore"));
                     reward.setRange(rewardSection.getString("amount", "5-10"));
@@ -626,6 +663,7 @@ public class TreasureData {
                     reward.setChance(rewardSection.getInt("chance", 40));
                     reward.setEnchants(rewardSection.getStringList("enchantments"));
                     reward.setMenuItem(rewardSection.getString("menu-item", "STONE"));
+                    reward.build();
                     itemRewards.add(reward);
 
                 }

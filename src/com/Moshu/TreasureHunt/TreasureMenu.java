@@ -27,10 +27,12 @@ public class TreasureMenu implements Listener {
         int treasureKeepers = d.getTreasureKeepers().size();
         int rewards = d.getCommandRewards().size() + d.getItemRewards().size();
         int duration = d.getDuration();
-        String requiresMobsDead = d.requireAllMobsDead() ? "Yes" : "No";
-        String debuff = d.getDebuff().isEnabled() ? "Yes" : "No";
+        String yes = Messages.get("menu-yes");
+        String no = Messages.get("menu-no");
+        String requiresMobsDead = d.requireAllMobsDead() ? yes : no;
+        String debuff = d.getDebuff().isEnabled() ? yes : no;
         String world = d.getWorldName();
-        String requiresKey = d.getTreasureKey().requiresKey() ? "Yes" : "No";
+        String requiresKey = d.getTreasureKey().requiresKey() ? yes : no;
 
         for(String s : lore)
         {
@@ -55,7 +57,7 @@ public class TreasureMenu implements Listener {
         for(String s : lore)
         {
 
-            newList.add(s.replace("{item}", Utils.setCapitals(i.getItem().name().toLowerCase().replace("_", " ")))
+            newList.add(s.replace("{item}", Utils.setCapitals(Utils.format(i.getName())))
                     .replace("{amount}", i.getRange())
                     .replace("{chance}", i.getChance() + "%"));
 
@@ -83,8 +85,11 @@ public class TreasureMenu implements Listener {
     {
         ArrayList<String> newList = new ArrayList<>();
 
+        String yes = Messages.get("menu-yes");
+        String no = Messages.get("menu-no");
+
         String entity = i.isMythicMob() ? i.getMobId() : i.getEntityType().name();
-        String mythic = i.isMythicMob() ? "Yes" : "No";
+        String mythic = i.isMythicMob() ? yes : no;
 
         for(String s : lore)
         {
@@ -92,6 +97,7 @@ public class TreasureMenu implements Listener {
             newList.add(s.replace("{entity}", Utils.setCapitals(entity.toLowerCase()
                             .replace("_", " ")))
                             .replace("{mythic}", mythic)
+                            .replace("{buffed}", i.getPotionEffects().isEmpty() ? no : yes)
                             .replace("{range}", i.getRange())
                             .replace("{health}", i.getMaxHealth() + "")
                     );
@@ -117,7 +123,7 @@ public class TreasureMenu implements Listener {
 
             if(im == null) continue;
 
-            im.setDisplayName(name.replace("{treasure_name}", d.getTreasureName()));
+            im.setDisplayName(Utils.format(name.replace("{treasure_name}", d.getTreasureName())));
 
             ArrayList<String> lore = Messages.getAndFormatList("messages.showcase-hunts-menu.lore");
             im.setLore(applyPlaceholders(lore, d));
@@ -173,12 +179,18 @@ public class TreasureMenu implements Listener {
 
         for (ItemReward i : data.getItemRewards().subList(0, Math.min(data.getItemRewards().size(), 46))) {
 
+            if(i.isOraxen() || i.isNexo() || i.isItemsAdder())
+            {
+                inv.addItem(i.getItemStack());
+                continue;
+            }
+
             ItemStack is = Utils.checkMaterial(i.getMenuItem());
             im = is.getItemMeta();
 
             if (im == null) continue;
 
-            im.setDisplayName(name.replace("{reward_name}", Utils.setCapitals(i.getIdentifier())));
+            im.setDisplayName(Utils.format(name.replace("{reward_name}", Utils.setCapitals(i.getIdentifier()))));
 
             ArrayList<String> lore = Messages.getAndFormatList("messages.showcase-rewards-menu.reward-item-lore");
             im.setLore(applyPlaceholdersToItemRewards(lore, i));
@@ -197,7 +209,7 @@ public class TreasureMenu implements Listener {
 
             if (im == null) continue;
 
-            im.setDisplayName(name.replace("{reward_name}", Utils.setCapitals(i.getIdentifier())));
+            im.setDisplayName(Utils.format(name.replace("{reward_name}", Utils.setCapitals(i.getIdentifier()))));
 
             ArrayList<String> lore = Messages.getAndFormatList("messages.showcase-rewards-menu.command-item-lore");
             im.setLore(applyPlaceholdersToCommandRewards(lore, i));
@@ -249,7 +261,7 @@ public class TreasureMenu implements Listener {
             im = is.getItemMeta();
 
             if (im == null) continue;
-            im.setDisplayName(name.replace("{keeper_name}", k.getCustomName()));
+            im.setDisplayName(Utils.format(name.replace("{keeper_name}", k.getCustomName())));
 
             ArrayList<String> lore = Messages.getAndFormatList("messages.showcase-keepers-menu.lore");
             im.setLore(applyPlaceholdersToTreasureKeepers(lore, k));

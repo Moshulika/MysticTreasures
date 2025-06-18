@@ -6,6 +6,7 @@ import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.objects.TreasureKeeper;
 import com.Moshu.TreasureHunt.objects.TreasureKeeperDrops;
+import com.Moshu.TreasureHunt.objects.TreasureKey;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import org.bukkit.*;
@@ -13,13 +14,16 @@ import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -29,6 +33,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 
 public class TreasureEvents implements Listener {
 
@@ -36,6 +41,13 @@ public class TreasureEvents implements Listener {
 
     private static HashMap<Player, Long> click_cooldowns = new HashMap<>();
     HashMap<Player, Long> inventoryClickCooldown = new HashMap<>();
+
+    private boolean FIRST_OPEN = true;
+
+    private boolean isFirstOpened()
+    {
+        return FIRST_OPEN;
+    }
 
     private boolean disableBreakToAward(Player p, Treasure t)
     {
@@ -97,17 +109,27 @@ public class TreasureEvents implements Listener {
 
         int needed_clicks = t.getTreasureData().getClicksToOpen();
 
-        if(getClicks(t, p) < needed_clicks) {
+        if(t.getCurrentClicks() < needed_clicks) {
 
             if(System.currentTimeMillis() - click_cooldowns.getOrDefault(p, 0L) < t.getTreasureData().getCooldownBetweenClicks())
             {
                 return false;
             }
 
-            p.sendMessage(Messages.get("remaining-clicks")
-                    .replace("{current_clicks}", "" + getClicks(t, p))
-                    .replace("{needed_clicks}", "" + needed_clicks));
-            addClicks(t, p);
+            if(t.getCurrentClicks() == 0)
+            {
+                p.sendMessage(Messages.get("starting-clicks")
+                        .replace("{current_clicks}", "" + t.getCurrentClicks())
+                        .replace("{needed_clicks}", "" + needed_clicks));
+            }
+            else {
+
+                p.sendMessage(Messages.get("remaining-clicks")
+                        .replace("{current_clicks}", "" + t.getCurrentClicks())
+                        .replace("{needed_clicks}", "" + needed_clicks));
+            }
+
+            t.incrementCurrentClicks();
             Utils.sendBreakSound(p);
 
             click_cooldowns.put(p, System.currentTimeMillis());
@@ -175,6 +197,46 @@ public class TreasureEvents implements Listener {
 
     }
 
+    private void rewardHandler(Player p, Treasure t)
+    {
+        if(t.getTreasureData().canOpenChest()) {
+
+            if(t.getRewardInventory().getViewers().size() >= Settings.getMaxPlayersLooting())
+            {
+                p.sendMessage(Messages.get("max-players-looting"));
+                return;
+            }
+
+            if(Utils.hasFullInventory(p))
+            {
+                p.sendMessage(Messages.get("full-inventory-opening-treasure"));
+                return;
+            }
+
+            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
+                p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
+                return;
+            }
+
+            if(isFirstOpened())
+            {
+                t.announceWinner(p);
+                FIRST_OPEN = false;
+            }
+
+            if(!t.receivedCommandRewards(p))
+            {
+                t.runCommandPrizes(p);
+            }
+
+            p.openInventory(t.getRewardInventory());
+        }
+        else
+        {
+            awardAndRemove(p, t);
+        }
+    }
+
     private void openTreasure(Player p, Treasure t)
     {
 
@@ -186,31 +248,12 @@ public class TreasureEvents implements Listener {
 
         if (t.getTreasureData().requireAllMobsDead()) {
 
-            if (t.mobsCleared())
-            {
-                if(t.getTreasureData().canOpenChest()) {
-                    if(!t.receivedCommandRewards(p)) t.runCommandPrizes(p);
-                    p.openInventory(t.getRewardInventory());
-                }
-                else
-                {
-                    awardAndRemove(p, t);
-                }
-            }
+            if (t.mobsCleared()) rewardHandler(p, t);
             else sendMobsNotCleared(p);
 
         } else {
 
-            if(t.getTreasureData().canOpenChest()) {
-
-                if(!t.receivedCommandRewards(p)) t.runCommandPrizes(p);
-                p.openInventory(t.getRewardInventory());
-
-            }
-            else
-            {
-                awardAndRemove(p, t);
-            }
+            rewardHandler(p, t);
 
         }
     }
@@ -620,16 +663,6 @@ public class TreasureEvents implements Listener {
         return clicks.get(t);
     }
 
-    private int getClicks(Treasure t, Player p)
-    {
-        return getHuntClicks(t).get(p) == null ? 1 : getHuntClicks(t).get(p);
-    }
-
-    private void addClicks(Treasure t, Player p)
-    {
-        getHuntClicks(t).put(p, getClicks(t, p) + 1);
-    }
-
     @EventHandler
     public void onDeath(EntityDeathEvent e)
     {
@@ -673,6 +706,28 @@ public class TreasureEvents implements Listener {
 
     }
 
+    @EventHandler
+    public void onDrag(InventoryDragEvent e) {
+
+        try {
+
+            Object view = InventoryDragEvent.class.getMethod("getView").invoke(e);
+
+            Method getTitle = view.getClass().getMethod("getTitle");
+            getTitle.setAccessible(true);
+            String title = (String) getTitle.invoke(view);
+
+            if (title.equals(Messages.get("treasure-reward-menu-title"))) {
+                e.setCancelled(true);
+            }
+
+        } catch (Exception ex) {
+            plugin.getLogger().severe("Could not use reflection for InventoryDragEvent on version " + Bukkit.getBukkitVersion() + ", " + Bukkit.getMinecraftVersion());
+            ex.printStackTrace();
+        }
+
+    }
+
 
     @EventHandler
     public void inventoryClick(InventoryClickEvent e) {
@@ -682,6 +737,7 @@ public class TreasureEvents implements Listener {
         try {
 
             Object view = InventoryClickEvent.class.getMethod("getView").invoke(e);
+
             Method getTitle = view.getClass().getMethod("getTitle");
             getTitle.setAccessible(true);
             String title = (String) getTitle.invoke(view);
@@ -695,12 +751,40 @@ public class TreasureEvents implements Listener {
             if(title.equals(Messages.get("treasure-reward-menu-title")))
             {
 
-                if(System.currentTimeMillis() - inventoryClickCooldown.getOrDefault(p, 0L) < Settings.getInventoryClickCooldown()) e.setCancelled(true);
+                if(System.currentTimeMillis() - inventoryClickCooldown.getOrDefault(p, 0L) < Settings.getInventoryClickCooldown())
+                {
+                    p.sendMessage(Messages.get("clicking-too-fast"));
+                    e.setCancelled(true);
+                    return;
+                }
+
                 inventoryClickCooldown.put(p, System.currentTimeMillis());
+
+                Method getTopInventoryMethod = view.getClass().getMethod("getTopInventory");
+                getTopInventoryMethod.setAccessible(true);
+                Object topInventory = getTopInventoryMethod.invoke(view);
+
+                Method getClickedInventoryMethod = InventoryClickEvent.class.getMethod("getClickedInventory");
+                getClickedInventoryMethod.setAccessible(true);
+                Object clickedInventory = getClickedInventoryMethod.invoke(e);
+
+                String actionName = e.getAction().name();
+                boolean isTaking = actionName.startsWith("PICKUP") || actionName.equals("MOVE_TO_OTHER_INVENTORY");
+
+                if (!isTaking && clickedInventory.equals(topInventory)) {
+                   e.setCancelled(true);
+                }
+
+                boolean isShiftClickIntoTop = actionName.equals("MOVE_TO_OTHER_INVENTORY") && e.getRawSlot() >= 54;
+                if (isShiftClickIntoTop) {
+                    e.setCancelled(true);
+                }
+
 
             }
 
         } catch (Exception ex) {
+            plugin.getLogger().severe("Could not use reflection for InventoryClickEvent on version " + Bukkit.getBukkitVersion() + ", " + Bukkit.getMinecraftVersion());
             ex.printStackTrace();
         }
     }
@@ -708,39 +792,42 @@ public class TreasureEvents implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
 
+        if (e.getHand() == EquipmentSlot.OFF_HAND) return;
+        if (e.getPlayer().getGameMode() == GameMode.SPECTATOR) return;
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+
         if (Hunt.huntActiveInWorld(e.getPlayer().getWorld())) {
 
-            if(e.getHand() == EquipmentSlot.OFF_HAND) return;
+            Location o = e.getClickedBlock().getLocation();
+            Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
 
-            if (e.getPlayer().getGameMode() != GameMode.SPECTATOR) {
+            Player p = e.getPlayer();
 
-                if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (Treasure.isTreasure(l)) {
 
-                        Location o = e.getClickedBlock().getLocation();
-                        Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
+                e.setCancelled(true);
 
-                        Player p = e.getPlayer();
+                Treasure t = Treasure.getTreasure(l);
 
-                        if (Treasure.isTreasure(l)) {
+                if (hasCooldown(p)) return;
+                if (!canTreasureBeOpened(p, t)) return;
+                if (!hasKey(p, t)) return;
 
-                            e.setCancelled(true);
+                t.getTreasureData().getDebuff().debuff(t);
 
-                            Treasure t = Treasure.getTreasure(l);
+                if (!hasRequiredClicks(p, t)) return;
 
-                            if(hasCooldown(p)) return;
-                            if(!canTreasureBeOpened(p, t)) return;
-                            if(!hasKey(p, t)) return;
+                openTreasure(p, t);
+                return;
 
-                            t.getTreasureData().getDebuff().debuff(getClicks(t,p), t);
 
-                            if(!hasRequiredClicks(p, t)) return;
-
-                            openTreasure(p, t);
-
-                        }
-
-                }
             }
+        }
+
+        if(TreasureKey.isKey(e.getPlayer().getInventory().getItemInMainHand()))
+        {
+            e.getPlayer().sendMessage(Messages.get("interact-with-key"));
+            e.setCancelled(true);
         }
 
     }

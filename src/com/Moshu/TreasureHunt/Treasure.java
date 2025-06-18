@@ -6,6 +6,8 @@ import com.Moshu.TreasureHunt.objects.ItemReward;
 import com.Moshu.TreasureHunt.objects.TreasureData;
 import com.Moshu.TreasureHunt.objects.TreasureKeeper;
 import com.google.common.base.Joiner;
+import com.nexomc.nexo.api.NexoBlocks;
+import com.nexomc.nexo.api.NexoFurniture;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
@@ -41,6 +43,8 @@ public class Treasure {
     private boolean isLocked = true;
     private Inventory rewardInventory;
     private ArrayList<Player> receivedCommandRewards = new ArrayList<>();
+    private int currentClicks = 0;
+    private boolean secondWaveActivated = false;
 
     private TreasureData treasureData;
 
@@ -99,6 +103,21 @@ public class Treasure {
 
         }
 
+    }
+
+    public boolean alreadyDebuffed()
+    {
+        return secondWaveActivated;
+    }
+
+    public int getCurrentClicks()
+    {
+        return currentClicks;
+    }
+
+    public void incrementCurrentClicks()
+    {
+        currentClicks++;
     }
 
     public boolean receivedCommandRewards(Player p)
@@ -254,7 +273,7 @@ public class Treasure {
 
             if(t.isSpawned())
             {
-                if(t.getUUID().toString().equals(uuid.toString())) return t;
+                if(t.getUUIDs().contains(uuid)) return t;
             }
 
         }
@@ -442,7 +461,6 @@ public class Treasure {
             Location location;
 
             Location temp_location = getLocation().clone();
-            World w = temp_location.getWorld();
 
             Particle part = getTreasureData().getTreasureParticles();
             int distance_to_spawn = getTreasureData().getDistanceFromPlayerToSpawnMobs();
@@ -454,7 +472,7 @@ public class Treasure {
             }
             else location = temp_location.clone();
 
-            placeTreasureBlock(w.getName(), location);
+            placeTreasureBlock(location);
 
             Bukkit.getScheduler().runTaskLater(plugin, () ->
             {
@@ -549,13 +567,15 @@ public class Treasure {
                         w.spawnParticle(part, Utils.getParticleLocation(location), 3);
 
                         ArrayList<String> lines = new ArrayList<>();
+                        String yes = Messages.get("menu-yes");
+                        String no = Messages.get("menu-no");
 
                         for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
                             lines.add(s
                                     .replace("{time}", Utils.getCountDown(getHunt().getRemainingTime()))
                                     .replace("{status}", canBeOpened() ? unlocked : locked)
                                     .replace("{alias}", getTreasureData().getTreasureName())
-                                    .replace("{requires-key}", isLocked() ? "Yes" : "No")
+                                    .replace("{requires-key}", isLocked() ? yes : no)
                                     .replace("{remaining_mobs}", getRemainingMobs().size() + "")
                                     .replace("{player-with-most-damage}", playerWithMostDamage)
                                     .replace("{most-damage-given}", mostDamageGiven + "")
@@ -733,7 +753,7 @@ public class Treasure {
 
     }
 
-    private void placeTreasureBlock(String world, Location location)
+    private void placeTreasureBlock(Location location)
     {
 
         ItemStack stack;
@@ -741,6 +761,7 @@ public class Treasure {
 
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
         boolean oraxen = Utils.isEnabled("Oraxen");
+        boolean nexo = Utils.isEnabled("Nexo");
         String name = getTreasureData().getTreasureBlockString();
 
         TreasureData.TreasureType type = getTreasureData().getTreasureType();
@@ -759,13 +780,14 @@ public class Treasure {
             {
 
                 CustomBlock block = CustomBlock.place(name, location);
+                furnitureEntity = null;
 
             }
             else if(type == TreasureData.TreasureType.FURNITURE)
             {
 
                 CustomFurniture furniture = CustomFurniture.spawn(name, location.getBlock());
-                furnitureEntity = furniture.getEntity();
+                furnitureEntity = furniture.getArmorstand();
 
             }
             else
@@ -783,6 +805,27 @@ public class Treasure {
             if(type == TreasureData.TreasureType.ORAXEN_FURNITURE)
             {
                 furnitureEntity = OraxenFurniture.place(name, location, Rotation.NONE, BlockFace.NORTH);
+            }
+            else
+            {
+                stack = Utils.checkMaterial(name);
+                mat = stack.getType();
+
+                location.getBlock().setType(mat);
+            }
+
+        }
+        else if(nexo)
+        {
+
+            if(type == TreasureData.TreasureType.NEXO_FURNITURE)
+            {
+                furnitureEntity = NexoFurniture.place(name, location, Rotation.NONE, BlockFace.NORTH);
+            }
+            else if(type == TreasureData.TreasureType.NEXO_BLOCK)
+            {
+                NexoBlocks.place(name, location);
+                furnitureEntity = null;
             }
             else
             {
@@ -935,11 +978,21 @@ public class Treasure {
 
     public void runCommandPrizes(Player p)
     {
-        for (CommandReward c : getTreasureData().getCommandRewards()) {
-            c.run(p);
+
+        try
+        {
+            for (CommandReward c : getTreasureData().getCommandRewards()) {
+                c.run(p);
+            }
+
+        }
+        catch (Exception e)
+        {
+            plugin.getLogger().warning("Tried to run the command rewards, but one of the commands is invalid!");
         }
 
         receivedCommandRewards.add(p);
+
     }
 
     public void awardPrizes() {
@@ -1095,10 +1148,35 @@ public class Treasure {
 
     }
 
+    private void setCooldownForChestOpeners()
+    {
+        int cooldown = Settings.getCooldown();
+
+        for(Player p : receivedCommandRewards)
+        {
+            if (cooldown != 0) {
+                Cooldown cd = new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60);
+                cd.set();
+            }
+        }
+    }
+
     public void remove()
     {
 
         TreasureData.TreasureType type = getTreasureData().getTreasureType();
+
+        if(getTreasureData().canOpenChest()) {
+
+            setCooldownForChestOpeners();
+
+            List<HumanEntity> viewers = new ArrayList<>(getRewardInventory().getViewers());
+
+            for (HumanEntity h : viewers) {
+                h.closeInventory();
+            }
+
+        }
 
         if(type == TreasureData.TreasureType.BLOCK)
         {
@@ -1106,15 +1184,23 @@ public class Treasure {
         }
         else if(type == TreasureData.TreasureType.ENTITY)
         {
-            CustomEntity.byAlreadySpawned(furnitureEntity).destroy();
+            if(furnitureEntity != null) CustomEntity.byAlreadySpawned(furnitureEntity).destroy();
         }
         else if(type == TreasureData.TreasureType.FURNITURE)
         {
-            CustomFurniture.remove(furnitureEntity, false);
+            if(furnitureEntity != null) CustomFurniture.remove(furnitureEntity, false);
         }
         else if(type == TreasureData.TreasureType.ORAXEN_FURNITURE)
         {
-            OraxenFurniture.remove(furnitureEntity, null);
+            if(furnitureEntity != null) OraxenFurniture.remove(furnitureEntity, null);
+        }
+        else if(type == TreasureData.TreasureType.NEXO_FURNITURE)
+        {
+            if(furnitureEntity != null) NexoFurniture.remove(furnitureEntity);
+        }
+        else if(type == TreasureData.TreasureType.NEXO_BLOCK)
+        {
+            NexoBlocks.remove(getLocation());
         }
 
         getLocation().getBlock().setType(Material.AIR);
@@ -1178,7 +1264,7 @@ public class Treasure {
         TreasureTask.updateLastHunt();
     }
 
-    private void announceWinner(Player k)
+    public void announceWinner(Player k)
     {
 
         SendCenteredMessage scm = new SendCenteredMessage();

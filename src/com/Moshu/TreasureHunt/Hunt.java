@@ -292,8 +292,8 @@ public class Hunt {
     public static String isActiveString(String id)
     {
 
-        if(isHuntActive(id)) return "Yes";
-        return "No";
+        if(isHuntActive(id)) return Messages.get("menu-yes");
+        return Messages.get("menu-no");
 
     }
 

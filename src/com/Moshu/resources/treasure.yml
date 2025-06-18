@@ -14,24 +14,24 @@ treasure:
     duration: 20 #The duration of the treasure before it despawns
     cooldown: 15 #Cooldown between treasures in minutes
     delay: 200 #In ticks, the delay from the announcement that the treasure will spawn until it really spawns
-    flare-type: "many" #Options: none, few, many
+    flare-type: "none" #Options: none, few, many
     flare-particle: COMPOSTER
     fireworks: true #Spawn fireworks upon clicking the treasure
     fall-from-the-sky: true
     ####### HOW TO GIVE PLAYERS THE REWARDS! CHOOSE ONLY ONE OR LEAVE ALL FALSE ##############
-    get-rewards-from-chest: false #Should the players be able to open the chest and just take the items from there?
+    get-rewards-from-chest: true #Should the players be able to open the chest and just take the items from there?
     reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
     reward-highest-damage: false #Reward the player who gives to most damage to the treasure keepers
     drop-items-on-ground: false #Drops Item Rewards on ground. Only works when 'reward-all-players-who-participated' and 'reward-highest-damage' is false
     dropped-item-name: "&6Treasure Loot"
     #######################################################################
-    distance-from-player-to-spawn-mobs: 0 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
+    distance-from-player-to-spawn-mobs: 40 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
     mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
     enable-mob-tracker: true
     coords-near-treasure: 0 #For the {x-offset} and {z-offset} placeholder. Adds this value to the real coords to give only an approx. area around the treasure
     require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
     animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
-    minutes-before-pickup: 0 #Players cannot access the treasure before this time
+    minutes-before-pickup: 5 #Players cannot access the treasure before this time
     clicks-to-open: 10 #How many right clicks are required to open the treasure?
     cooldown-between-clicks: 10 #In ms
     #################### DEBUFF #################################
@@ -48,7 +48,7 @@ treasure:
       - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z
     ################## TREASURE KEY ##############################
     treasure-key:
-      enabled: true
+      enabled: false
       item: TRIPWIRE_HOOK
       name: "&c&l&oTREASURE KEY"
       lore:
@@ -59,44 +59,44 @@ treasure:
       - "REGENERATION:1"
     #################### TREASURE KEEPERS ########################
     mobs:
-      zombie:
-        entity-type: "ZOMBIE"
+      pillager:
+        entity-type: "PILLAGER"
         mythic-mobs: false
-        custom-name: "Bobby"
+        custom-name: "Enemy"
         range: "5-10"
         chance: 100
-        max-health: 50
-        menu-item: "ZOMBIE_SPAWN_EGG"
+        max-health: 30
+        menu-item: "PILLAGER_SPAWN_EGG"
         potion-effects:
-          - "REGENERATION:5"
+          - ""
         equipment:
           helmet:
-            item: "DIAMOND_HELMET" #Set to 'none' to disable
+            item: "none" #Set to 'none' to disable
             slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           chest:
-            item: "DIAMOND_CHESTPLATE" #Set to 'none' to disable
+            item: "none" #Set to 'none' to disable
             slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           legs:
-            item: "DIAMOND_LEGGINGS" #Set to 'none' to disable
+            item: "none" #Set to 'none' to disable
             slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           feet:
-            item: "DIAMOND_BOOTS" #Set to 'none' to disable
+            item: "none" #Set to 'none' to disable
             slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
           hand:
-            item: "DIAMOND_SWORD" #Set to 'none' to disable
+            item: "none" #Set to 'none' to disable
             slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "SHARPNESS:4"
           offhand:
-            item: "DIAMOND_PICKAXE" #Set to 'none' to disable
+            item: "none" #Set to 'none' to disable
             slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "EFFICIENCY:4"
@@ -107,7 +107,262 @@ treasure:
             lore:
               - "Some text here"
             amount: "1-10"
-            chance: 100
+            chance: 0
+            enchantments:
+              - ""
+      vindicator:
+        entity-type: "VINDICATOR"
+        mythic-mobs: false
+        custom-name: "Enemy"
+        range: "2-4"
+        chance: 75
+        max-health: 30
+        menu-item: "VINDICATOR_SPAWN_EGG"
+        potion-effects:
+          - ""
+        equipment:
+          helmet:
+            item: "none" #Set to 'none' to disable
+            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          chest:
+            item: "none" #Set to 'none' to disable
+            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          legs:
+            item: "none" #Set to 'none' to disable
+            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          feet:
+            item: "none" #Set to 'none' to disable
+            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          hand:
+            item: "none" #Set to 'none' to disable
+            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "SHARPNESS:4"
+          offhand:
+            item: "none" #Set to 'none' to disable
+            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "EFFICIENCY:4"
+        drops:
+          diamonds:
+            item: "DIAMOND"
+            name: "&6Awesome Drop"
+            lore:
+              - "Some text here"
+            amount: "1-10"
+            chance: 0
+            enchantments:
+              - ""
+      ravager:
+        entity-type: "RAVAGER"
+        mythic-mobs: false
+        custom-name: "Big Enemy"
+        range: "2-3"
+        chance: 100
+        max-health: 100
+        menu-item: "RAVAGER_SPAWN_EGG"
+        potion-effects:
+          - ""
+        equipment:
+          helmet:
+            item: "none" #Set to 'none' to disable
+            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          chest:
+            item: "none" #Set to 'none' to disable
+            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          legs:
+            item: "none" #Set to 'none' to disable
+            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          feet:
+            item: "none" #Set to 'none' to disable
+            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          hand:
+            item: "none" #Set to 'none' to disable
+            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "SHARPNESS:4"
+          offhand:
+            item: "none" #Set to 'none' to disable
+            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "EFFICIENCY:4"
+        drops:
+          diamonds:
+            item: "DIAMOND"
+            name: "&6Awesome Drop"
+            lore:
+              - "Some text here"
+            amount: "1-10"
+            chance: 0
+            enchantments:
+              - ""
+      archer:
+        entity-type: "SKELETON"
+        mythic-mobs: false
+        custom-name: "Enemy"
+        range: "1-10"
+        chance: 50
+        max-health: 30
+        menu-item: "SKELETON_SPAWN_EGG"
+        potion-effects:
+          - "REGENERATION:3"
+        equipment:
+          helmet:
+            item: "none" #Set to 'none' to disable
+            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          chest:
+            item: "none" #Set to 'none' to disable
+            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          legs:
+            item: "none" #Set to 'none' to disable
+            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          feet:
+            item: "none" #Set to 'none' to disable
+            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          hand:
+            item: "none" #Set to 'none' to disable
+            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "SHARPNESS:4"
+          offhand:
+            item: "none" #Set to 'none' to disable
+            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "EFFICIENCY:4"
+        drops:
+          diamonds:
+            item: "DIAMOND"
+            name: "&6Awesome Drop"
+            lore:
+              - "Some text here"
+            amount: "1-10"
+            chance: 0
+            enchantments:
+              - ""
+      zombie:
+        entity-type: "ZOMBIE"
+        mythic-mobs: false
+        custom-name: "Enemy"
+        range: "1-10"
+        chance: 50
+        max-health: 30
+        menu-item: "ZOMBIE_SPAWN_EGG"
+        potion-effects:
+          - "STRENGTH:2"
+        equipment:
+          helmet:
+            item: "none" #Set to 'none' to disable
+            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          chest:
+            item: "none" #Set to 'none' to disable
+            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          legs:
+            item: "none" #Set to 'none' to disable
+            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          feet:
+            item: "none" #Set to 'none' to disable
+            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          hand:
+            item: "none" #Set to 'none' to disable
+            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "SHARPNESS:4"
+          offhand:
+            item: "none" #Set to 'none' to disable
+            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "EFFICIENCY:4"
+        drops:
+          diamonds:
+            item: "DIAMOND"
+            name: "&6Awesome Drop"
+            lore:
+              - "Some text here"
+            amount: "1-10"
+            chance: 0
+            enchantments:
+              - ""
+      spider:
+        entity-type: "CAVE_SPIDER"
+        mythic-mobs: false
+        custom-name: "Enemy"
+        range: "1-5"
+        chance: 25
+        max-health: 30
+        menu-item: "CAVE_SPIDER_SPAWN_EGG"
+        potion-effects:
+          - "INVISIBILITY:1"
+        equipment:
+          helmet:
+            item: "none" #Set to 'none' to disable
+            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          chest:
+            item: "none" #Set to 'none' to disable
+            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          legs:
+            item: "none" #Set to 'none' to disable
+            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          feet:
+            item: "none" #Set to 'none' to disable
+            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "PROTECTION:4"
+          hand:
+            item: "none" #Set to 'none' to disable
+            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "SHARPNESS:4"
+          offhand:
+            item: "none" #Set to 'none' to disable
+            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+            enchantments:
+              - "EFFICIENCY:4"
+        drops:
+          diamonds:
+            item: "DIAMOND"
+            name: "&6Awesome Drop"
+            lore:
+              - "Some text here"
+            amount: "1-10"
+            chance: 0
             enchantments:
               - ""
     ################# REWARDS ########################
@@ -115,22 +370,55 @@ treasure:
       diamond: #Can be any text, it doesn't count. It's a reward identifier.
         item: DIAMOND #Material name
         menu-item: "DIAMOND"
-        name: "&6&l&oREWARD #1" #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
-        lore:                   #THIS WON'T WORK WITH ITEMS ADDER DUE TO HOW THEY RECOGNISE ITEMS
-          - "&7&oHave fun with this reward!"
-        amount: 1-10 #Between 1 and 10 diamonds
-        chance: 40 #Percentage (60%)
-        enchantments:
-          - ""
-      emerald: #Can be any text, it doesn't count. It's a reward identifier.
-        item: EMERALD #Material name
-        name: "&6&l&oREWARD #1"
+        name: "&6&l&oDIAMONDS"
         lore:
           - "&7&oHave fun with this reward!"
         amount: 1-10 #Between 1 and 10 diamonds
         chance: 100 #Percentage (60%)
+        enchantments:
+          - ""
+      emerald: #Can be any text, it doesn't count. It's a reward identifier.
+        item: EMERALD #Material name
+        menu-item: "EMERALD"
+        name: "&6&l&oEMERALDS"
+        lore:
+          - "&7&oHave fun with this reward!"
+        amount: 1-10 #Between 1 and 10 diamonds
+        chance: 100 #Percentage (60%)
+      iron: #Can be any text, it doesn't count. It's a reward identifier.
+        item: IRON_INGOT #Material name
+        menu-item: "IRON_INGOT"
+        name: "&6&l&oIRON"
+        lore:
+          - "&7&oHave fun with this reward!"
+        amount: 1-10 #Between 1 and 10 diamonds
+        chance: 100 #Percentage (60%)
+      apple: #Can be any text, it doesn't count. It's a reward identifier.
+        item: ENCHANTED_GOLDEN_APPLE #Material name
+        menu-item: "ENCHANTED_GOLDEN_APPLE"
+        name: "&6&l&oGOLDEN APPLE"
+        lore:
+          - "&7&oHave fun with this reward!"
+        amount: 1-3 #Between 1 and 10 diamonds
+        chance: 25 #Percentage (60%)
+      dirt: #Can be any text, it doesn't count. It's a reward identifier.
+        item: DIRT #Material name
+        menu-item: "DIRT"
+        name: "&6&l&oDIRT"
+        lore:
+          - "&7&oHave fun with this reward!"
+        amount: 8-16 #Between 1 and 10 diamonds
+        chance: 75 #Percentage (60%)
+      bush: #Can be any text, it doesn't count. It's a reward identifier.
+        item: DEAD_BUSH #Material name
+        menu-item: "DEAD_BUSH"
+        name: "&6&l&oDEAD BUSH"
+        lore:
+          - "&7&oHave fun with this reward!"
+        amount: 4-8 #Between 1 and 10 diamonds
+        chance: 50 #Percentage (60%)
     command-rewards:
       money:
-        menu-item: "EMERALD"
-        command: "eco give %player% 100"
+        menu-item: "SUNFLOWER"
+        command: "eco give %player% 2500"
         chance: 100

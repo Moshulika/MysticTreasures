@@ -3,7 +3,6 @@ package com.Moshu.TreasureHunt.objects;
 import com.Moshu.Misc.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Hunt;
-import com.Moshu.TreasureHunt.Treasure;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-//Modifiers, armor, etc
 public class TreasureKeeper {
 
     private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
@@ -46,7 +44,7 @@ public class TreasureKeeper {
     private boolean animatedSpawn;
     private boolean isSpawned;
     private final TreasureData t;
-    private UUID uuid;
+    private ArrayList<UUID> uuids = new ArrayList<>();
     private String menuItem;
     private String range;
 
@@ -99,16 +97,6 @@ public class TreasureKeeper {
     private void setSpawned(boolean spawned)
     {
         this.isSpawned = spawned;
-    }
-
-    public UUID getUUID()
-    {
-        return uuid;
-    }
-
-    private void setUUID(UUID uuid)
-    {
-        this.uuid = uuid;
     }
 
     public void setAnimatedSpawn(boolean animatedSpawn) {
@@ -183,6 +171,16 @@ public class TreasureKeeper {
             return EntityType.ZOMBIE;
         }
 
+    }
+
+    public void addUUID(UUID uuid)
+    {
+        uuids.add(uuid);
+    }
+
+    public ArrayList<UUID> getUUIDs()
+    {
+        return uuids;
     }
 
     public String getCustomName() {
@@ -296,19 +294,23 @@ public class TreasureKeeper {
 
                 if (mob != null) {
 
-                    ActiveMob knight = mob.spawn(BukkitAdapter.adapt(getNearLocation(loc)), 1);
-                    Entity entity = knight.getEntity().getBukkitEntity();
-                    entity.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
-                    entity.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
+                    for(int i = 0; i < getAmount(); i++) {
 
-                    if (isAnimatedSpawn()) smoothEntitySpawnFromGrave(entity);
+                        ActiveMob knight = mob.spawn(BukkitAdapter.adapt(getNearLocation(loc)), 1);
+                        Entity entity = knight.getEntity().getBukkitEntity();
+                        entity.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
+                        entity.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
 
-                    setUUID(entity.getUniqueId());
-                    spawnedEntityRegister.add(entity);
+                        if (isAnimatedSpawn()) smoothEntitySpawnFromGrave(entity);
+
+                        addUUID(entity.getUniqueId());
+                        spawnedEntityRegister.add(entity);
+
+                    }
                 }
                 else
                 {
-                    plugin.getLogger().warning("Mythic Mob not found in your configuration. Make sure if you don't use MythicMobs to set the config option to false!!");
+                    plugin.getLogger().warning("Mythic Mob not found in your configuration. Make sure if you don't use MythicMobs to set the config option to false!");
                 }
 
 
@@ -318,24 +320,30 @@ public class TreasureKeeper {
 
                 fetchEntityType(getKeeperIdentifier());
 
-                LivingEntity e = (LivingEntity) loc.getWorld().spawnEntity(getNearLocation(loc), getEntityType());
-                e.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
-                e.setMetadata("treasure-keeper-" + getMobId(), new FixedMetadataValue(plugin, "treasure-keeper-" + getMobId()));
-                e.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
+                for(int i = 0; i < getAmount(); i++) {
 
-                e.setRemoveWhenFarAway(false);
 
-                e.setMaxHealth(getMaxHealth());
-                e.setHealth(getMaxHealth());
-                e.setCustomName(Utils.format(getCustomName()));
-                e.setCustomNameVisible(true);
+                    LivingEntity e = (LivingEntity) loc.getWorld().spawnEntity(getNearLocation(loc), getEntityType());
+                    e.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
+                    e.setMetadata("treasure-keeper-" + getMobId(), new FixedMetadataValue(plugin, "treasure-keeper-" + getMobId()));
+                    e.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
 
-                equip(e);
+                    e.setRemoveWhenFarAway(false);
 
-                if (isAnimatedSpawn()) smoothEntitySpawnFromGrave(e);
+                    e.setMaxHealth(getMaxHealth());
+                    e.setHealth(getMaxHealth());
+                    e.setCustomName(Utils.format(getCustomName()));
+                    e.setCustomNameVisible(true);
 
-                setUUID(e.getUniqueId());
-                spawnedEntityRegister.add(e);
+                    equip(e);
+
+                    if (isAnimatedSpawn()) smoothEntitySpawnFromGrave(e);
+
+                    addUUID(e.getUniqueId());
+                    spawnedEntityRegister.add(e);
+
+                }
+
             }
 
             setSpawned(true);

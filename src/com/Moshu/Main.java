@@ -1,6 +1,7 @@
 package com.Moshu;
 import com.Moshu.Misc.*;
 import com.Moshu.TreasureHunt.*;
+import com.Moshu.TreasureHunt.objects.RewardObfuscator;
 import com.Moshu.TreasureHunt.objects.TreasureData;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
@@ -12,12 +13,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.logging.Level;
 
 public class Main extends JavaPlugin {
 
@@ -61,8 +60,12 @@ public class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(updater, this);
         Bukkit.getServer().getPluginManager().registerEvents(new TreasureMenu(), this);
 
+        Bukkit.getServer().getPluginManager().registerEvents(new RewardObfuscator(), this);
+
         s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fHooking into WorldGuard"));
         getWorldGuard();
+
+        checkCustomItemsDependencies();
 
         createDataFiles();
         FileUpdater.update();
@@ -75,24 +78,34 @@ public class Main extends JavaPlugin {
 
         delayedHooks();
 
-        TreasureData.load();
-        Settings.recacheSettings();
-        TreasureEffects.check();
-        TreasureTask.task();
-        ActionBar.start();
-
         metrics();
-
         Utils.readClassName();
 
+        if(Utils.isEnabled("PacketEvents")) {
+            PacketEventsUtils.initPacketEvents();
+        }
     }
 
+    @Override
+    public void onLoad()
+    {
+
+        if(Utils.isEnabled("PacketEvents"))
+        {
+            PacketEventsUtils.loadPacketEvents();
+        }
+
+    }
 
     @Override
     public void onDisable()
     {
-
         Treasure.removeAll();
+
+        if(Utils.isEnabled("PacketEvents"))
+        {
+            PacketEventsUtils.disablePacketEvents();
+        }
 
     }
 
@@ -105,10 +118,30 @@ public class Main extends JavaPlugin {
             CommandSender s = Bukkit.getConsoleSender();
 
             s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fStarting post-load setup"));
+
+            getLogger().log(Level.INFO, "Loading treasure data..");
+            TreasureData.load();
+            Settings.recacheSettings();
+            RewardObfuscator.load();
+            TreasureEffects.check();
+            TreasureTask.task();
+            ActionBar.start();
+
             updater.check();
 
         }, 1);
 
+
+    }
+
+    private void checkCustomItemsDependencies()
+    {
+        boolean itemsAdder = Utils.isEnabled("ItemsAdder");
+        boolean oraxen = Utils.isEnabled("Oraxen");
+        boolean nexo = Utils.isEnabled("Nexo");
+
+        getLogger().log(Level.INFO, "Checking items dependencies");
+        getLogger().log(Level.INFO, "ItemsAdder: " + itemsAdder + ", Oraxen: " + oraxen + ", Nexo: " + nexo);
 
     }
 
@@ -144,6 +177,7 @@ public class Main extends JavaPlugin {
             config.load(configf);
             messages.load(messagesf);
             Settings.recacheSettings();
+            RewardObfuscator.load();
 
         }
         catch (IOException | InvalidConfigurationException e)
