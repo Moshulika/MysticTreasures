@@ -71,6 +71,7 @@ public class Main extends JavaPlugin {
         FileUpdater.update();
 
         if(Utils.isEnabled("PlaceholderAPI")) {
+            s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fHooking into PAPI"));
             new Placeholders().register();
         }
 
@@ -81,17 +82,18 @@ public class Main extends JavaPlugin {
         metrics();
         Utils.readClassName();
 
-        if(Utils.isEnabled("PacketEvents")) {
+        if(Utils.isEnabled("packetevents")) {
+            s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fHooking into PacketEvents"));
             PacketEventsUtils.initPacketEvents();
+            s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fPacketEvents ready: " + PacketEventsUtils.isReady()));
         }
     }
 
     @Override
-    public void onLoad()
-    {
+    public void onLoad() {
 
-        if(Utils.isEnabled("PacketEvents"))
-        {
+        if(Utils.isLoaded("packetevents")) {
+            Bukkit.getConsoleSender().sendMessage("Loading PacketEvents..");
             PacketEventsUtils.loadPacketEvents();
         }
 
@@ -102,7 +104,7 @@ public class Main extends JavaPlugin {
     {
         Treasure.removeAll();
 
-        if(Utils.isEnabled("PacketEvents"))
+        if(Utils.isEnabled("packetevents"))
         {
             PacketEventsUtils.disablePacketEvents();
         }

@@ -77,7 +77,6 @@ public class TreasureCommands implements CommandExecutor {
 
                 } else if (args[0].equalsIgnoreCase("stop")) {
 
-
                     sender.sendMessage(Messages.get("wrong-command"));
 
 
@@ -89,7 +88,6 @@ public class TreasureCommands implements CommandExecutor {
 
                         Player p = (Player) sender;
                         TreasureMenu.showcase(p);
-
                     }
                     else
                     {
@@ -102,6 +100,12 @@ public class TreasureCommands implements CommandExecutor {
                     if (sender instanceof Player) {
 
                         Player p = (Player) sender;
+
+                        if(!p.hasPermission("mystictreasures.admin"))
+                        {
+                            p.sendMessage(Messages.get("no-permission"));
+                            return true;
+                        }
 
                         if (debugging.contains(p)) {
                             p.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fYou've stopped debugging"));
@@ -116,6 +120,16 @@ public class TreasureCommands implements CommandExecutor {
                     }
 
                 } else if (args[0].equalsIgnoreCase("reload")) {
+
+                    if(sender instanceof Player) {
+
+                        if(!sender.hasPermission("mystictreasures.admin"))
+                        {
+                            sender.sendMessage(Messages.get("no-permission"));
+                            return true;
+                        }
+
+                    }
 
                     if(!Hunt.getHunts().isEmpty())
                     {
@@ -238,7 +252,7 @@ public class TreasureCommands implements CommandExecutor {
                         if (TreasureData.getTreasureIdentifiers().contains(args[2])) {
 
                             if (!(sender instanceof Player)) {
-                                sender.sendMessage(Messages.get("wrong-command"));
+                                Utils.sendNotPlayer();
                                 return true;
                             }
 
@@ -273,9 +287,19 @@ public class TreasureCommands implements CommandExecutor {
                     sender.sendMessage(Messages.get("wrong-command"));
                 }
 
-            } else if (args.length == 4) {
+            }
+            else if (args.length == 4) {
+
                 if (args[0].equalsIgnoreCase("key")) {
 
+                    if(sender instanceof Player)
+                    {
+                        if(!sender.hasPermission("mystictreasures.admin"))
+                        {
+                            sender.sendMessage(Messages.get("no-permission"));
+                            return true;
+                        }
+                    }
 
                     if (Bukkit.getPlayer(args[1]) == null) {
                         sender.sendMessage(Messages.get("player-not-found"));

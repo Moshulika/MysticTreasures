@@ -1042,6 +1042,18 @@ public class Utils
    }
 
     /**
+     * Check if a plugin is loaded
+     * @param plugin the plugin to check
+     * @return true/false
+     */
+    public static boolean isLoaded(String plugin)
+    {
+
+        return Bukkit.getPluginManager().getPlugin(plugin) != null;
+
+    }
+
+    /**
      * Sets a capital letter on the first word of the string
      * @param s the string
      * @return the formatted string
@@ -1385,7 +1397,7 @@ public class Utils
      */
     public static void sendNotPlayer()
     {
-        Bukkit.getConsoleSender().sendMessage(Utils.format( "&c&lConsole > &fYou need to be a player in order to use this command."));
+        Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lConsole > &fYou need to be a player in order to use this command."));
     }
 
     /**

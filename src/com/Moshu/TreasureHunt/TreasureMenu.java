@@ -177,9 +177,11 @@ public class TreasureMenu implements Listener {
 
         String name = Utils.format(Messages.get("showcase-rewards-menu.reward-item-name"));
 
+        //if(data.getItemRewards().isEmpty()) return;
+
         for (ItemReward i : data.getItemRewards().subList(0, Math.min(data.getItemRewards().size(), 46))) {
 
-            if(i.isOraxen() || i.isNexo() || i.isItemsAdder())
+            if(i.isOraxen() || i.isNexo() || i.isItemsAdder() || i.isMMOItem())
             {
                 inv.addItem(i.getItemStack());
                 continue;
@@ -254,6 +256,7 @@ public class TreasureMenu implements Listener {
         ItemMeta im;
 
         String name = Utils.format(Messages.get("showcase-keepers-menu.name"));
+        //if(data.getTreasureKeepers().isEmpty()) return;
 
         for (TreasureKeeper k : data.getTreasureKeepers().subList(0, Math.min(data.getTreasureKeepers().size(), 46))) {
 

@@ -1,7 +1,6 @@
 package com.Moshu.Misc;
 
 import com.Moshu.TreasureHunt.objects.RewardObfuscator;
-import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.User;
@@ -11,6 +10,7 @@ public class PacketListener implements com.github.retrooper.packetevents.event.P
 
     @Override
     public void onPacketSend(PacketSendEvent event) {
+
         User user = event.getUser();
         if (event.getPacketType() != PacketType.Play.Server.OPEN_WINDOW) return;
 

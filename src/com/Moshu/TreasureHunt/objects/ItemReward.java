@@ -137,7 +137,7 @@ public class ItemReward {
     public ItemReward build()
     {
 
-        if(isItemsAdder() ||  isOraxen() || isNexo()) return this;
+        if(isItemsAdder() || isOraxen() || isNexo()) return this;
 
         item = Material.matchMaterial(itemStr);
 

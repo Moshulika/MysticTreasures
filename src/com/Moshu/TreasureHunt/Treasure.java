@@ -125,6 +125,11 @@ public class Treasure {
         return receivedCommandRewards.contains(p);
     }
 
+    public ArrayList<Player> getReceivedCommandRewards()
+    {
+        return receivedCommandRewards;
+    }
+
     public Inventory getRewardInventory()
     {
         return rewardInventory;
@@ -550,7 +555,17 @@ public class Treasure {
 
                     if(getTreasureData().canOpenChest())
                     {
-                        if(getRewardInventory().isEmpty()) Bukkit.getScheduler().runTask(plugin, () -> remove());
+                        if(getRewardInventory().isEmpty())
+                        {
+
+                            if(getReceivedCommandRewards().isEmpty()) {
+                                plugin.getLogger().warning("There is no ItemReward configured (either there is none, or none of the rewards will be given to players due to their chance). This thing is incompatible with the `get-rewards-from-chest` setting. If you have this setting set to `true` you should have at least one reward with 100% chance in order to make sure there is always a reward.");
+                                this.cancel();
+                            }
+
+                            Bukkit.getScheduler().runTask(plugin, () -> remove());
+                            return;
+                        }
                     }
 
                     if (isActive()) {

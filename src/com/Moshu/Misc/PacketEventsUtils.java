@@ -20,13 +20,23 @@ public class PacketEventsUtils {
         PacketEvents.getAPI().init();
     }
 
+    public static boolean isReady()
+    {
+        return PacketEvents.getAPI().isInitialized() && PacketEvents.getAPI().isLoaded();
+    }
+
+    public static boolean initReady()
+    {
+        return PacketEvents.getAPI().isInitialized();
+    }
+
     public static void loadPacketEvents()
     {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(Bukkit.getPluginManager().getPlugin("MysticTreasures")));
         PacketEvents.getAPI().load();
 
         PacketEvents.getAPI().getEventManager().registerListener(
-                new PacketListener(), PacketListenerPriority.NORMAL);
+                new PacketListener(), PacketListenerPriority.HIGH);
     }
 
     public static void disablePacketEvents()

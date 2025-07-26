@@ -40,9 +40,9 @@ public class RewardObfuscator implements Listener {
         obfName = config.getString("settings.obfuscated-reward-item.name", "???");
         obfLore = config.getStringList("settings.obfuscated-reward-item.lore");
 
-        OBFUSCATE = OBFUSCATE && (Utils.isEnabled("ProtocolLib") || Utils.isEnabled("PacketEvents"));
+        OBFUSCATE = OBFUSCATE && (Utils.isEnabled("ProtocolLib") || Utils.isEnabled("packetevents"));
         protocolPlugin = Utils.isEnabled("ProtocolLib") ? "ProtocolLib" :
-                Utils.isEnabled("PacketEvents") ? "PacketEvents" : "none";
+                Utils.isEnabled("PacketEvents") ? "packetevents" : "none";
 
         plugin.getLogger().log(Level.INFO, "Obfuscated rewards: " + OBFUSCATE + ", protocol plugin: " + protocolPlugin);
 
@@ -68,7 +68,7 @@ public class RewardObfuscator implements Listener {
 
     public static boolean isUsingPacketEvents()
     {
-        return protocolPlugin.equals("PacketEvents");
+        return protocolPlugin.equals("packetevents");
     }
 
     private static final Map<UUID, Integer> windowIds = new HashMap<>();

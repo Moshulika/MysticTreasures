@@ -6,6 +6,9 @@ import org.bukkit.entity.Player;
 
 public class CommandReward {
 
+
+    //TODO: Add custom item support to showcase items of command rewards
+
     public CommandReward()
     {
         this.identifier = null;

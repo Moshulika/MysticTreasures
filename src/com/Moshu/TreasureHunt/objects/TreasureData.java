@@ -654,7 +654,6 @@ public class TreasureData {
 
                     String itemStr = rewardSection.getString("item", "STONE");
 
-
                     reward.setItemString(itemStr);
                     reward.setName(rewardSection.getString("name", "&6&l&oREWARD #1"));
                     reward.setLore(rewardSection.getStringList("lore"));
