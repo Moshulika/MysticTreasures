@@ -8,6 +8,8 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -20,6 +22,56 @@ public class TreasureTask {
     public static void updateLastHunt()
     {
         lastHunt = System.currentTimeMillis();
+    }
+
+    public static void schedulerTask() {
+
+        BukkitRunnable task = new BukkitRunnable() {
+
+            HashMap<String, Long> timestamps = new HashMap<String, Long>();
+
+            @Override
+            public void run() {
+
+                for (TreasureScheduler s : TreasureData.getAllTreasureSchedulers()) {
+
+                    if (s.shouldSpawn()) {
+
+                        if(timestamps.containsKey(s.getId()))
+                        {
+                            if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - timestamps.get(s.getId())) < 5) continue;
+                        }
+
+                        if (s.spawn())
+                        {
+                            timestamps.put(s.getId(), System.currentTimeMillis());
+                            break;
+                        }
+                        else
+                            plugin.getLogger().log(Level.SEVERE, "Something went wrong while trying to spawn scheduled treasure treasure!");
+
+                    }
+
+                }
+
+            }
+
+
+        };
+
+        task.runTaskTimer(plugin, 0, 300);
+
+    }
+
+    private static boolean preventConcurrentSpawn()
+    {
+
+        for(TreasureScheduler s : TreasureData.getAllTreasureSchedulers())
+        {
+            if(s.shouldSpawn()) return true;
+        }
+
+        return false;
     }
 
     public static void task()
@@ -38,7 +90,7 @@ public class TreasureTask {
             if(w == null)
             {
                 plugin.getLogger().log(Level.SEVERE, "Invalid world name inside " + identifier + "'s treasure configuration. Make sure the world declared in `world-name` exists on your server!");
-                return;
+                continue;
             }
 
             BukkitRunnable run = new BukkitRunnable()
@@ -47,13 +99,13 @@ public class TreasureTask {
                 @Override
                 public void run() {
 
+                    if(preventConcurrentSpawn()) return;
                     if(Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
 
                     if(Utils.chance() < d.getChanceForTreasure())
                     {
-                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < d.getCooldown()) return;
 
-                        //Cica poti porni 2 treasure-uri de acelasi fel
+                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < d.getCooldown()) return;
                         if(Hunt.isHuntActive(identifier)) return;
 
                         Hunt h = new Hunt(identifier, d.getDuration());

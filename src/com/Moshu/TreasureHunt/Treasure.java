@@ -489,12 +489,12 @@ public class Treasure {
 
             }, 1);
 
-            this.isActive = true;
-
             hologram();
             enableEffects();
             flare();
-            
+
+            this.isActive = true;
+
             tickTreasure(location, part, distance_to_spawn);
             announceSpawnedTreasure();
 
@@ -563,7 +563,7 @@ public class Treasure {
                                 this.cancel();
                             }
 
-                            Bukkit.getScheduler().runTask(plugin, () -> remove());
+                            if(isActive()) Bukkit.getScheduler().runTask(plugin, () -> remove());
                             return;
                         }
                     }

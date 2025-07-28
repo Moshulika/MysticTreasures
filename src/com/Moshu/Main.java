@@ -127,6 +127,7 @@ public class Main extends JavaPlugin {
             RewardObfuscator.load();
             TreasureEffects.check();
             TreasureTask.task();
+            TreasureTask.schedulerTask();
             ActionBar.start();
 
             updater.check();

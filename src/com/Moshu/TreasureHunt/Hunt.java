@@ -129,6 +129,12 @@ public class Hunt {
 
         treasure = new Treasure(this, getTreasureData());
 
+        if(Locations.isUnsafe(l, getTreasureData().getMaxTreasureDistance()))
+        {
+            plugin.getLogger().severe("Spawn location for treasure `" + getTreasureData().getTreasureName() + "` is unsafe. Modify your location!");
+            return;
+        }
+
         this.startTime = System.currentTimeMillis();
         setActive(getTreasureData().getIdentifier());
         treasure.create();
@@ -250,6 +256,13 @@ public class Hunt {
     {
 
         if(getTreasure() == null) return;
+        if(!getTreasure().isActive()) return;
+
+        Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-stopped-confirmation")
+                .replace("{x}", getLocation().getBlockX() + "")
+                .replace("{z}", getLocation().getBlockZ() + "")
+                .replace("{alias}", getTreasureData().getTreasureName())
+                .replace("{world}", getLocation().getWorld().getName()));
 
         getTreasure().remove();
     }

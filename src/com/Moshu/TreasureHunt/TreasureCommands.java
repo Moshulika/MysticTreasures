@@ -219,6 +219,13 @@ public class TreasureCommands implements CommandExecutor {
                             return true;
                         }
 
+                        //Treasure is not yet spawned, so block stopping the treasure because it will cause bugs.
+                        if(!Hunt.getHuntByIdentifier(id).getTreasure().isActive())
+                        {
+                            sender.sendMessage(Messages.get("hunt-not-active"));
+                            return true;
+                        }
+
                         Hunt.getHuntByIdentifier(id).stop();
                         sender.sendMessage(Messages.get("hunt-stopped"));
 
@@ -264,7 +271,6 @@ public class TreasureCommands implements CommandExecutor {
                             }
 
                             String id = args[2];
-                            //Cica poti sa pornesti doua treasure-uri de acelasi fel
                             if (Hunt.isHuntActive(id)) {
                                 sender.sendMessage(Messages.get("hunt-already-active"));
                                 return true;

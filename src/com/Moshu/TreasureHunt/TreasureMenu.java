@@ -336,6 +336,13 @@ public class TreasureMenu implements Listener {
             else if(title.equals(Messages.get("showcase-rewards-menu.title")))
             {
                 e.setCancelled(true);
+
+                if(!treasureData.containsKey(p) || treasureData.get(p) == null)
+                {
+                    p.closeInventory();
+                    return;
+                }
+
                 if(e.getSlot() == 48) keyMenu(p, treasureData.get(p));
                 if(e.getSlot() == 49) showcase(p);
                 if(e.getSlot() == 50) keepersMenu(treasureData.get(p), p);
@@ -344,6 +351,13 @@ public class TreasureMenu implements Listener {
             else if(title.equals(Messages.get("showcase-keepers-menu.title")))
             {
                 e.setCancelled(true);
+
+                if(!treasureData.containsKey(p) || treasureData.get(p) == null)
+                {
+                    p.closeInventory();
+                    return;
+                }
+
                 if(e.getSlot() == 49) showcase(p);
                 if(e.getSlot() == 48) rewardMenu(treasureData.get(p), p);
                 if(e.getSlot() == 50) keyMenu(p, treasureData.get(p));
@@ -351,6 +365,13 @@ public class TreasureMenu implements Listener {
             else if(title.equals(Messages.get("showcase-key-menu-title")))
             {
                 e.setCancelled(true);
+
+                if(!treasureData.containsKey(p) || treasureData.get(p) == null)
+                {
+                    p.closeInventory();
+                    return;
+                }
+
                 if(e.getSlot() == 49) showcase(p);
                 if(e.getSlot() == 48) rewardMenu(treasureData.get(p), p);
                 if(e.getSlot() == 50) keepersMenu(treasureData.get(p), p);

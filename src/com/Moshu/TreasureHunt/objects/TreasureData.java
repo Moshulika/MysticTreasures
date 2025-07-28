@@ -2,6 +2,7 @@ package com.Moshu.TreasureHunt.objects;
 
 import com.Moshu.Misc.FileHandler;
 import com.Moshu.Misc.Utils;
+import com.Moshu.TreasureHunt.TreasureScheduler;
 import com.nexomc.nexo.api.NexoBlocks;
 import com.nexomc.nexo.api.NexoFurniture;
 import dev.lone.itemsadder.api.CustomBlock;
@@ -83,7 +84,9 @@ public class TreasureData {
     private int cooldownBetweenClicks;
     private TreasureDebuff debuff;
     private boolean openChest;
+    private ArrayList<TreasureScheduler> ownTreasureSchedulers = new ArrayList<>();
 
+    private static ArrayList<TreasureScheduler> allTreasureSchedulers = new ArrayList<>();
     private static ArrayList<TreasureData> treasureData;
     private final static ArrayList<String> treasureIdentifiers = new ArrayList<>();
 
@@ -93,8 +96,6 @@ public class TreasureData {
         treasureData = h.setup();
 
         fetchTreasuresIdentifiers();
-
-
     }
 
     public static void reload()
@@ -130,6 +131,16 @@ public class TreasureData {
     public static ArrayList<TreasureData> getTreasureData()
     {
         return treasureData;
+    }
+
+    public ArrayList<TreasureScheduler> getOwnTreasureSchedulers()
+    {
+        return ownTreasureSchedulers;
+    }
+
+    public static ArrayList<TreasureScheduler> getAllTreasureSchedulers()
+    {
+        return allTreasureSchedulers;
     }
 
     public boolean canOpenChest()
@@ -523,8 +534,8 @@ public class TreasureData {
         this.coordsNearTreasure = defaultSection.getInt("coords-near-treasure", 0);
         this.enableMobTracker = defaultSection.getBoolean("enable-mob-tracker", true);
         this.animateMobSpawning = defaultSection.getBoolean("animate-mob-spawning", true);
-        this.interval = defaultSection.getInt("interval", 30);
-        this.duration = defaultSection.getInt("duration", 20);
+        this.interval = Math.max(1, defaultSection.getInt("interval", 30));
+        this.duration = Math.max(1, defaultSection.getInt("duration", 20));
         this.cooldown = defaultSection.getInt("cooldown", 15);
         this.minutesBeforePickup = defaultSection.getInt("minutes-before-pickup", 0);
         this.clicksToOpen = defaultSection.getInt("clicks-to-open", 1);
@@ -550,8 +561,10 @@ public class TreasureData {
             plugin.getLogger().warning("Invalid treasure particles or flare particles: " + e.getMessage());
         }
 
+        plugin.getLogger().log(Level.INFO, "Loading treasure with id: `" + defaultSection.getName() + "`, and name: " + treasureName);
+
         setTreasureType(fetchTreasureBlockType());
-        plugin.getLogger().log(Level.INFO, "Loaded treasure type: " + treasureType + " from id: " + treasureBlockString);
+        plugin.getLogger().log(Level.INFO, "Fetched treasure type: " + treasureType + " from id: " + treasureBlockString);
 
         // Load TreasureKey
         ConfigurationSection keySection = defaultSection.getConfigurationSection("treasure-key");
@@ -568,6 +581,8 @@ public class TreasureData {
                     keySection.getString("name", "&c&l&oTREASURE KEY"),
                     keySection.getStringList("lore")
             );
+
+            plugin.getLogger().log(Level.INFO, "Fetched treasure key, enabled: " + treasureKey.requiresKey());
 
         }
         else
@@ -587,10 +602,13 @@ public class TreasureData {
             debuff.setClicksToDebuff(debuffSection.getInt("clicks-to-debuff", 10));
             debuff.setPotionEffects(deserializeEffectsWithDuration(debuffSection.getStringList("potion-effects")));
 
+            plugin.getLogger().log(Level.INFO, "Fetched treasure debuff, enabled: " + debuff.isEnabled() + ", shockwave: " + debuff.isShockwave() +
+                    ", respawn-mobs: " + debuff.isRespawnMobs() + ", clicks-to-debuff: " + debuff.getClicksToDebuff());
+
         }
         else
         {
-            plugin.getLogger().warning("Configuration section 'treasure-key' does not exist!");
+            plugin.getLogger().warning("Configuration section 'debuff' does not exist!");
         }
 
 
@@ -634,6 +652,9 @@ public class TreasureData {
                     plugin.getLogger().warning("Configuration section '" + mobId + "' does not exist!");
                 }
             }
+
+            plugin.getLogger().log(Level.INFO, "Fetched " + treasureKeepers.size() + " treasure keepers");
+
         }
 
         // Load ItemRewards
@@ -671,6 +692,9 @@ public class TreasureData {
                     plugin.getLogger().warning("Configuration section '" + rewardSection + "' does not exist!");
                 }
             }
+
+            plugin.getLogger().log(Level.INFO, "Fetched " + itemRewards.size() + " item rewards");
+
         }
         else
         {
@@ -703,11 +727,56 @@ public class TreasureData {
                     plugin.getLogger().warning("Configuration section '" + commandId + "' does not exist!");
                 }
             }
+
+            plugin.getLogger().log(Level.INFO, "Fetched " + commandRewards.size() + " command rewards");
+
         }
         else
         {
             plugin.getLogger().warning("Configuration section 'command-rewards' does not exist!");
         }
+
+
+        ConfigurationSection schedulerSection = defaultSection.getConfigurationSection("scheduler");
+        if (schedulerSection != null) {
+
+            Set<String> schedulerSectionKeys = schedulerSection.getKeys(false);
+
+            for (String schedulerId : schedulerSectionKeys) {
+
+                ConfigurationSection schSection = schedulerSection.getConfigurationSection(schedulerId);
+
+                if (schSection != null) {
+
+                    TreasureScheduler treasureScheduler = new TreasureScheduler();
+                    treasureScheduler.setId(schedulerId);
+                    treasureScheduler.setDay(schSection.getString("day", "monday"));
+                    treasureScheduler.setTime(schSection.getString("time", "17:00"));
+                    treasureScheduler.setWorld(schSection.getString("world", "world"));
+                    treasureScheduler.setEncodedCoords(schSection.getString("coords", "0:0:0"));
+                    treasureScheduler.setEnabled(schSection.getBoolean("enabled", false));
+                    treasureScheduler.setData(this);
+
+                    ownTreasureSchedulers.add(treasureScheduler);
+
+                    plugin.getLogger().log(Level.INFO, "Fetched scheduler `" + treasureScheduler.getId() + "` with settings: " + treasureScheduler.getDay()
+                    + " at " + treasureScheduler.getTime() + " @ " + treasureScheduler.getWorld() + " " + treasureScheduler.getEncodedCoords());
+
+                }
+                else
+                {
+                    plugin.getLogger().warning("Configuration section '" + schSection + "' does not exist!");
+                }
+            }
+
+            allTreasureSchedulers.addAll(ownTreasureSchedulers);
+
+        }
+        else
+        {
+            plugin.getLogger().warning("Configuration section 'scheduler' does not exist!");
+        }
+
 
     }
 

@@ -46,6 +46,13 @@ treasure:
     spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
     spawn-coords: #Make sure to place valid coords - inside your world border
       - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z
+    scheduler:
+      schedule-1: #You can add multiple schedulers for the same treasure at different days/time
+        enabled: false
+        day: "monday" #Set to "daily" or "monday, tuesday, wednesday, etc.."
+        time: "17:00" #"Use 24h format (for ex 18:30 instead of 6:30PM)"
+        world: "world" #The world to spawn
+        coords: "101:100:55" #Set to "random" or set the coords with the format X:Y:Z
     ################## TREASURE KEY ##############################
     treasure-key:
       enabled: false

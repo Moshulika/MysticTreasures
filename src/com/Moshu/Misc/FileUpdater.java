@@ -75,6 +75,11 @@ public class FileUpdater {
             messages.set("messages.minutes", "minute(s)");
         }
 
+        if(messages.get("messages.treasure-stopped-confirmation") == null)
+        {
+            messages.set("messages.treasure-stopped-confirmation", "&6&lTreasure&e&lHunt &fwas stopped @ {world}, X: {x}, Z: {z}");
+        }
+
         commit();
         
     }
