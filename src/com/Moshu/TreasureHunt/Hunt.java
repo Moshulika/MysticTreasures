@@ -129,7 +129,7 @@ public class Hunt {
 
         treasure = new Treasure(this, getTreasureData());
 
-        if(Locations.isUnsafe(l, getTreasureData().getMaxTreasureDistance()))
+        if(!Locations.isSafeEnough(this.l))
         {
             plugin.getLogger().severe("Spawn location for treasure `" + getTreasureData().getTreasureName() + "` is unsafe. Modify your location!");
             return;

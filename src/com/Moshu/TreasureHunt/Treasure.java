@@ -700,7 +700,7 @@ public class Treasure {
             @Override
             public void run() {
 
-                if (e.isOnGround()) {
+                if (e.isOnGround() || e.isInLava() || e.isInWater()) {
 
                     Bukkit.getScheduler().runTask(plugin, e::remove);
                     location.getWorld().spawnParticle(EXPLOSION, e.getLocation(), 1);

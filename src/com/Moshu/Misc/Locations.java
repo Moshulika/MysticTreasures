@@ -210,6 +210,11 @@ public class Locations {
 
     }
 
+    public static boolean isSafeEnough(Location loc)
+    {
+        return !isLiquidUnder(loc) && !allowedBlockUnder(loc);
+    }
+
     /**
      *
      * @param loc, the location
