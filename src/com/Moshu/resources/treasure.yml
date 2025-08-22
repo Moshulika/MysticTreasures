@@ -8,6 +8,7 @@ treasure:
     treasure-particles: COMPOSTER
     treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
     treasure-icon: EMERALD #Only if DecentHolograms or FancyHolograms is not installed
+    treasure-spawns-inside: false #Set to true if you configure your treasure so that it spawns somewhere inside
     chance-for-treasure: 20 #The chance to spawn a random treasure
     max-treasure-distance: 15000 #Bypasses the border setting, if the border is 20k, and this is 15k, the max distance for the treasure will be 15k. Usefull for when you don't set your border
     interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
@@ -17,11 +18,12 @@ treasure:
     flare-type: "none" #Options: none, few, many
     flare-particle: COMPOSTER
     fireworks: true #Spawn fireworks upon clicking the treasure
-    fall-from-the-sky: true
+    fall-from-the-sky: true #Set to true if you want to just make the treasure appear. Helps if you want to spawn the treasure inside.
     ####### HOW TO GIVE PLAYERS THE REWARDS! CHOOSE ONLY ONE OR LEAVE ALL FALSE ##############
     get-rewards-from-chest: true #Should the players be able to open the chest and just take the items from there?
     reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
     reward-highest-damage: false #Reward the player who gives to most damage to the treasure keepers
+    only-reward-top-x: 0 #How many players in the top damage should receive the award?
     drop-items-on-ground: false #Drops Item Rewards on ground. Only works when 'reward-all-players-who-participated' and 'reward-highest-damage' is false
     dropped-item-name: "&6Treasure Loot"
     #######################################################################
@@ -374,6 +376,17 @@ treasure:
               - ""
     ################# REWARDS ########################
     item-rewards:
+      only-to-top-1: #Can be any text, it doesn't count. It's a reward identifier.
+        item: DIAMOND #Material name
+        menu-item: "#1 DIAMOND"
+        name: "&6&l&oDIAMONDS"
+        lore:
+          - "&7&oHave fun with this reward!"
+        amount: 1-10 #Between 1 and 10 diamonds
+        chance: 100 #Percentage (60%)
+        award-to-top: 1 #Only the top 1 players receives this award
+        enchantments:
+          - ""
       diamond: #Can be any text, it doesn't count. It's a reward identifier.
         item: DIAMOND #Material name
         menu-item: "DIAMOND"
@@ -429,3 +442,4 @@ treasure:
         menu-item: "SUNFLOWER"
         command: "eco give %player% 2500"
         chance: 100
+        award-to-top: 1 #Only the top 1 players receives this award

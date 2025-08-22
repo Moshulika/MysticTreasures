@@ -1,7 +1,5 @@
 package com.Moshu.Misc;
 
-import com.Moshu.TreasureHunt.Treasure;
-import com.Moshu.TreasureHunt.objects.TreasureData;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -10,7 +8,6 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -21,7 +18,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -212,7 +208,7 @@ public class Locations {
 
     public static boolean isSafeEnough(Location loc)
     {
-        return !isLiquidUnder(loc) && !allowedBlockUnder(loc);
+        return !isLiquidUnder(loc) && !isPassableBlockUnder(loc);
     }
 
     /**
@@ -231,15 +227,15 @@ public class Locations {
                 !blacklistedBiome(loc) &&
                 !isLeaves(loc) &&
                 !isLiquidUnder(loc) &&
-                !allowedBlockUnder(loc);
+                !isPassableBlockUnder(loc);
 
 
     }
 
 
-    public static boolean allowedBlockUnder(Location loc)
+    public static boolean isPassableBlockUnder(Location loc)
     {
-        Block b = loc.subtract(0, 1,0).getBlock();
+        Block b = loc.clone().subtract(0, 1,0).getBlock();
         return b.isPassable() || b.getType() == Material.SNOW;
     }
 

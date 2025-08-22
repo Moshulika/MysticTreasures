@@ -130,6 +130,9 @@ public class Main extends JavaPlugin {
             TreasureTask.schedulerTask();
             ActionBar.start();
 
+            DiscordWebhook webhook = DiscordWebhook.getInstance();
+            webhook.init();
+
             updater.check();
 
         }, 1);

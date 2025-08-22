@@ -188,7 +188,12 @@ public class TreasureEvents implements Listener {
                 t.awardPrize(p);
             }
 
-        } else {
+        }
+        else if(t.getTreasureData().shouldOnlyRewardTopX())
+        {
+            t.awardPrizesToTop(t.getTreasureData().getOnlyRewardTopX());
+        }
+        else {
             t.awardPrize(p);
         }
 

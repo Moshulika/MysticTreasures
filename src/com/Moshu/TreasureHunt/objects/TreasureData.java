@@ -10,6 +10,7 @@ import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import org.bukkit.*;
+import org.bukkit.command.Command;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -84,6 +85,8 @@ public class TreasureData {
     private int cooldownBetweenClicks;
     private TreasureDebuff debuff;
     private boolean openChest;
+    private boolean spawnsInside;
+    private int onlyRewardTopX;
     private ArrayList<TreasureScheduler> ownTreasureSchedulers = new ArrayList<>();
 
     private static ArrayList<TreasureScheduler> allTreasureSchedulers = new ArrayList<>();
@@ -158,6 +161,10 @@ public class TreasureData {
         return menuItem;
     }
 
+    public boolean isSpawnsInside() { return spawnsInside; }
+
+    public int getOnlyRewardTopX() { return onlyRewardTopX; }
+
     public TreasureDebuff getDebuff()
     {
         return debuff;
@@ -176,6 +183,11 @@ public class TreasureData {
 
         return null;
 
+    }
+
+    public boolean shouldOnlyRewardTopX()
+    {
+        return onlyRewardTopX > 0;
     }
 
     public boolean rewardMostDamageGiven()
@@ -547,6 +559,8 @@ public class TreasureData {
         this.menuItem = defaultSection.getString("menu-item", "STONE");
         this.cooldownBetweenClicks = defaultSection.getInt("cooldown-between-clicks", 0);
         this.openChest = defaultSection.getBoolean("get-rewards-from-chest", false);
+        this.spawnsInside = defaultSection.getBoolean("treasure-spawns-inside", false);
+        this.onlyRewardTopX = defaultSection.getInt("only-reward-top-x", 0);
 
         try
         {
@@ -683,6 +697,7 @@ public class TreasureData {
                     reward.setChance(rewardSection.getInt("chance", 40));
                     reward.setEnchants(rewardSection.getStringList("enchantments"));
                     reward.setMenuItem(rewardSection.getString("menu-item", "STONE"));
+                    reward.setRewardToTopX(rewardSection.getInt("award-to-top", 0));
                     reward.build();
                     itemRewards.add(reward);
 
@@ -778,6 +793,82 @@ public class TreasureData {
         }
 
 
+    }
+
+    public String getSanitizedRewards(int max)
+    {
+
+        if(max <= 0) max = 3;
+
+        StringBuilder rewards = new StringBuilder();
+        List<ItemReward> rewardsList = getItemRewards();
+
+        ItemReward currentReward;
+
+        max = Math.min(max, rewardsList.size());
+
+        for(int i = 0; i < max; i++)
+        {
+
+            currentReward = rewardsList.get(i);
+            rewards.append(currentReward.getAmount()).append("x ").append(currentReward.getName());
+            rewards.append(", ");
+
+        }
+
+        String s = rewards.toString();
+        return s.substring(0, s.length() - 2);
+    }
+
+    public String getSanitizedCommandRewards(int max)
+    {
+
+        if(max <= 0) max = 3;
+
+        StringBuilder rewards = new StringBuilder();
+        List<CommandReward> rewardsList = getCommandRewards();
+
+        CommandReward currentReward;
+
+        max = Math.min(max, rewardsList.size());
+
+        for(int i = 0; i < max; i++)
+        {
+
+            currentReward = rewardsList.get(i);
+            rewards.append(currentReward.getIdentifier());
+            rewards.append(", ");
+
+        }
+
+        String s = rewards.toString();
+        return s.substring(0, s.length() - 2);
+    }
+
+    public String getSanitizedTreasureKeepers(int max)
+    {
+
+        if(max <= 0) max = 3;
+
+        StringBuilder keepers = new StringBuilder();
+        List<TreasureKeeper> keepersList = getTreasureKeepers();
+
+        TreasureKeeper currentKeeper;
+
+        max = Math.min(max, keepersList.size());
+
+        for(int i = 0; i < max; i++)
+        {
+
+            currentKeeper = keepersList.get(i);
+            keepers.append(currentKeeper.getAmount()).append("x ");
+            keepers.append(currentKeeper.getCustomName());
+            keepers.append(", ");
+
+        }
+
+        String s = keepers.toString();
+        return s.substring(0, s.length() - 2);
     }
 
     public int getCoordsNearTreasure() {

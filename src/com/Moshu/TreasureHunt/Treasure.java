@@ -125,6 +125,19 @@ public class Treasure {
         return receivedCommandRewards.contains(p);
     }
 
+    public List<UUID> getSortedPlayersByDamage() {
+
+        List<Map.Entry<UUID, Double>> entries = new ArrayList<>(playerDamage.entrySet());
+        entries.sort((e1, e2) -> Double.compare(e2.getValue(), e1.getValue()));
+
+        List<UUID> sortedUUIDs = new ArrayList<>();
+        for (Map.Entry<UUID, Double> entry : entries) {
+            sortedUUIDs.add(entry.getKey());
+        }
+
+        return sortedUUIDs;
+    }
+
     public ArrayList<Player> getReceivedCommandRewards()
     {
         return receivedCommandRewards;
@@ -498,6 +511,12 @@ public class Treasure {
             tickTreasure(location, part, distance_to_spawn);
             announceSpawnedTreasure();
 
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, ()->
+            {
+               DiscordWebhook webhook = DiscordWebhook.getInstance();
+               webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.SPAWN, this);
+            });
+
         });
 
 
@@ -506,16 +525,6 @@ public class Treasure {
     public Hunt getHunt()
     {
         return h;
-    }
-
-    private Location getNearLocation()
-    {
-
-        int x = Utils.randInt(-6, 6);
-        int z = Utils.randInt(-6, 6);
-
-        return Utils.getHighestBlock(l.getWorld(), l.getBlockX(), l.getBlockZ(), l.getWorld().getSpawnLocation()).add(x, 0, z);
-
     }
 
     public void spawnTreasureKeepers()
@@ -533,6 +542,105 @@ public class Treasure {
         return getRemainingMobs().isEmpty() && timePassedBeforePickup() && !isLocked();
     }
 
+    private Location getNearLocationInside(Location loc)
+    {
+        int x = Utils.randInt(-6, 6);
+        int z = Utils.randInt(-6, 6);
+
+        Location randomLoc = loc.clone().add(x, 0, z);
+
+        return Utils.getSafeBlock(randomLoc, loc.getWorld().getSpawnLocation());
+    }
+
+    private void checkMobWandering(Location location, int wandering_distance, boolean spawnsInside)
+    {
+        for(Entity e : getRemainingMobs())
+        {
+
+            if(!e.getLocation().getWorld().getName().equals(location.getWorld().getName()))
+            {
+                e.remove();
+                continue;
+            }
+
+            if(e.getLocation().distance(location) > wandering_distance)
+            {
+
+                Bukkit.getScheduler().runTask(plugin, ()->
+                {
+                    e.teleport(getNearLocationInside(location));
+                });
+            }
+
+        }
+    }
+
+    private void spawnMobsOnPlayerApproach(int distance_to_spawn, Location location, World w)
+    {
+        if(distance_to_spawn > 0 && !Utils.getNearbyPlayers(location, distance_to_spawn).isEmpty() && !spawned) {
+            Bukkit.getScheduler().runTaskLater(plugin, () ->
+            {
+                w.strikeLightningEffect(location);
+                spawnTreasureKeepers();
+                enableEffects();
+                spawned = true;
+            }, 1);
+        }
+    }
+
+    private void tickHologram(Location location, World w, Particle part, String unlocked, String locked)
+    {
+        String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
+        String playerWithSecondDamage = getXthMostDamage(2) == null ? "N/A" : Bukkit.getOfflinePlayer(getXthMostDamage(2).getKey()).getName();
+        String playerWithThirdDamage = getXthMostDamage(3) == null ? "N/A" : Bukkit.getOfflinePlayer(getXthMostDamage(3).getKey()).getName();
+
+        double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
+        double secondMostDamageGiven = getXthMostDamage(2) == null ? 0 : getXthMostDamage(2).getValue();
+        double thirdMostDamageGiven = getXthMostDamage(3) == null ? 0 : getXthMostDamage(3).getValue();
+
+        w.spawnParticle(part, Utils.getParticleLocation(location), 3);
+        w.spawnParticle(part, Utils.getParticleLocation(location), 3);
+
+        ArrayList<String> lines = new ArrayList<>();
+        String yes = Messages.get("menu-yes");
+        String no = Messages.get("menu-no");
+
+        for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
+            lines.add(s
+                    .replace("{time}", Utils.getCountDown(getHunt().getRemainingTime()))
+                    .replace("{status}", canBeOpened() ? unlocked : locked)
+                    .replace("{alias}", getTreasureData().getTreasureName())
+                    .replace("{requires-key}", isLocked() ? yes : no)
+                    .replace("{remaining_mobs}", getRemainingMobs().size() + "")
+                    .replace("{player-with-most-damage}", playerWithMostDamage)
+                    .replace("{most-damage-given}", mostDamageGiven + "")
+                    .replace("{second-most-damage-given-player}", playerWithSecondDamage)
+                    .replace("{third-most-damage-given-player}", playerWithThirdDamage)
+                    .replace("{second-most-damage}", secondMostDamageGiven + "")
+                    .replace("{third-most-damage}", thirdMostDamageGiven + ""));
+        }
+
+        if (Utils.isEnabled("DecentHolograms")) {
+
+            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
+
+                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
+
+                Bukkit.getScheduler().runTask(plugin, ()->
+                {
+                    DHAPI.setHologramLines(h, lines);
+                    h.updateAll();
+                });
+
+            }
+
+        }
+        else if(Utils.isEnabled("FancyHolograms"))
+        {
+            HologramHandler.getInstance().update(w, lines);
+        }
+    }
+
     private void tickTreasure(Location location, Particle part, int distance_to_spawn)
     {
 
@@ -541,6 +649,8 @@ public class Treasure {
 
         String unlocked =  Messages.get("treasure-unlocked");
         String locked =  Messages.get("treasure-locked");
+
+        boolean spawnsInside = getTreasureData().isSpawnsInside() || getTreasureData().spawnToCertainCoords();
 
         BukkitRunnable run = new BukkitRunnable() {
 
@@ -563,96 +673,23 @@ public class Treasure {
                                 this.cancel();
                             }
 
-                            if(isActive()) Bukkit.getScheduler().runTask(plugin, () -> remove());
+                            if(isActive()) Bukkit.getScheduler().runTask(plugin, () ->
+                            {
+                                remove();
+                                Bukkit.getScheduler().runTask(plugin, () -> l.getChunk().setForceLoaded(false));
+                                this.cancel();
+                            });
+
                             return;
                         }
                     }
 
                     if (isActive()) {
 
-                        String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
-                        String playerWithSecondDamage = getXthMostDamage(2) == null ? "N/A" : Bukkit.getOfflinePlayer(getXthMostDamage(2).getKey()).getName();
-                        String playerWithThirdDamage = getXthMostDamage(3) == null ? "N/A" : Bukkit.getOfflinePlayer(getXthMostDamage(3).getKey()).getName();
+                        tickHologram(location, w, part, unlocked, locked);
 
-                        double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
-                        double secondMostDamageGiven = getXthMostDamage(2) == null ? 0 : getXthMostDamage(2).getValue();
-                        double thirdMostDamageGiven = getXthMostDamage(3) == null ? 0 : getXthMostDamage(3).getValue();
-
-                        w.spawnParticle(part, Utils.getParticleLocation(location), 3);
-                        w.spawnParticle(part, Utils.getParticleLocation(location), 3);
-
-                        ArrayList<String> lines = new ArrayList<>();
-                        String yes = Messages.get("menu-yes");
-                        String no = Messages.get("menu-no");
-
-                        for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
-                            lines.add(s
-                                    .replace("{time}", Utils.getCountDown(getHunt().getRemainingTime()))
-                                    .replace("{status}", canBeOpened() ? unlocked : locked)
-                                    .replace("{alias}", getTreasureData().getTreasureName())
-                                    .replace("{requires-key}", isLocked() ? yes : no)
-                                    .replace("{remaining_mobs}", getRemainingMobs().size() + "")
-                                    .replace("{player-with-most-damage}", playerWithMostDamage)
-                                    .replace("{most-damage-given}", mostDamageGiven + "")
-                                    .replace("{second-most-damage-given-player}", playerWithSecondDamage)
-                                    .replace("{third-most-damage-given-player}", playerWithThirdDamage)
-                                    .replace("{second-most-damage}", secondMostDamageGiven + "")
-                                    .replace("{third-most-damage}", thirdMostDamageGiven + ""));
-                        }
-
-                        if (Utils.isEnabled("DecentHolograms")) {
-
-                            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
-
-                                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
-
-                                Bukkit.getScheduler().runTask(plugin, ()->
-                                {
-                                    DHAPI.setHologramLines(h, lines);
-                                    h.updateAll();
-                                });
-
-                            }
-
-                        }
-
-                        else if(Utils.isEnabled("FancyHolograms"))
-                        {
-
-                            HologramHandler.getInstance().update(w, lines);
-
-                        }
-
-                        if(distance_to_spawn > 0 && !Utils.getNearbyPlayers(location, distance_to_spawn).isEmpty() && !spawned) {
-                            Bukkit.getScheduler().runTaskLater(plugin, () ->
-                            {
-                                w.strikeLightningEffect(location);
-                                spawnTreasureKeepers();
-                                enableEffects();
-                                spawned = true;
-                            }, 1);
-                        }
-
-                        for(Entity e : getRemainingMobs())
-                        {
-
-                            if(!e.getLocation().getWorld().getName().equals(location.getWorld().getName()))
-                            {
-                                e.remove();
-                                continue;
-                            }
-
-                            if(e.getLocation().distance(location) > wandering_distance)
-                            {
-
-                                Bukkit.getScheduler().runTask(plugin, ()->
-                                {
-                                    e.teleport(getNearLocation());
-                                });
-                            }
-
-                        }
-
+                        spawnMobsOnPlayerApproach(distance_to_spawn, location, w);
+                        checkMobWandering(location, wandering_distance, spawnsInside);
 
                     } else {
                         getHunt().setInactive();
@@ -997,6 +1034,9 @@ public class Treasure {
         try
         {
             for (CommandReward c : getTreasureData().getCommandRewards()) {
+
+                if(c.shouldRewardToTopX() && !c.isTopX(getHowManyPlayersOpenedChest() + 1)) continue;
+
                 c.run(p);
             }
 
@@ -1010,13 +1050,24 @@ public class Treasure {
 
     }
 
-    public void awardPrizes() {
+    private int getHowManyPlayersOpenedChest()
+    {
+        return receivedCommandRewards.size();
+    }
+
+    public void awardPrizesToTop(int topPlayers) {
 
         launchFireworks();
-
         int cooldown = Settings.getCooldown();
 
-        for (Player p : getParticipants()) {
+        int topCounter = 0;
+
+        for (UUID u : getSortedPlayersByDamage()) {
+
+            if(topCounter >= topPlayers) break;
+
+            if(Bukkit.getPlayer(u) == null) continue;
+            Player p = Bukkit.getPlayer(u);
 
             if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
                 p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
@@ -1032,6 +1083,8 @@ public class Treasure {
 
             for(ItemReward i : getTreasureData().getItemRewards())
             {
+
+                if(i.shouldGiveOnlyToTopX() && !i.isTopX(topCounter)) continue;
                 if (i.getChance() <= Utils.chance()) continue;
 
                 ItemStack item = i.getItemStack();
@@ -1054,6 +1107,59 @@ public class Treasure {
             }
 
             announceWinners();
+            topCounter++;
+        }
+
+    }
+
+    public void awardPrizes() {
+
+        launchFireworks();
+
+        int cooldown = Settings.getCooldown();
+        int topCounter = 0;
+
+        for (Player p : getParticipants()) {
+
+            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
+                p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
+                return;
+            }
+
+            if (cooldown != 0) {
+                Cooldown cd = new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60);
+                cd.set();
+            }
+
+            runCommandPrizes(p);
+
+            for(ItemReward i : getTreasureData().getItemRewards())
+            {
+
+                if(i.shouldGiveOnlyToTopX() && !i.isTopX(topCounter)) continue;
+                if (i.getChance() <= Utils.chance()) continue;
+
+                ItemStack item = i.getItemStack();
+
+                if (!Utils.hasFullInventory(p)) {
+
+                    if (item == null || item.getType() == Material.AIR) continue;
+
+                    p.getInventory().addItem(item);
+
+                } else {
+
+                    if (item == null || item.getType() == Material.AIR) continue;
+
+                    p.getWorld().dropItemNaturally(p.getLocation(), item);
+                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", item.getAmount() + "").replace("{item}", Utils.setCapitals(item.getType().toString().toLowerCase().replace("_", " "))));
+
+                }
+
+            }
+
+            announceWinners();
+            topCounter++;
         }
 
     }
@@ -1277,6 +1383,13 @@ public class Treasure {
         });
 
         TreasureTask.updateLastHunt();
+
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, ()->
+        {
+            DiscordWebhook webhook = DiscordWebhook.getInstance();
+            webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.CLAIM, this);
+        });
+
     }
 
     public void announceWinner(Player k)
@@ -1307,6 +1420,11 @@ public class Treasure {
         });
 
         TreasureTask.updateLastHunt();
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, ()->
+        {
+            DiscordWebhook webhook = DiscordWebhook.getInstance();
+            webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.CLAIM, this);
+        });
     }
 
     private Location getItemLocation(Location l)

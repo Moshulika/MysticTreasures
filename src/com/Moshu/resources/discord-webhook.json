@@ -1,0 +1,87 @@
+{
+  "treasure-spawn": {
+    "username": "Mystic Treasures",
+    "avatar_url": "https://i.imgur.com/xSIc9ml.png",
+    "embeds": [
+      {
+        "title": "🧭 A Mystic Treasure Has Spawned!",
+        "description": "**{treasure-name}** has appeared in the world. Will you be the one to claim it?",
+        "color": 16753920,
+        "fields": [
+          {
+            "name": "🕒 Duration",
+            "value": "{treasure-duration}",
+            "inline": true
+          },
+          {
+            "name": "🌍 World",
+            "value": "{treasure-world}",
+            "inline": true
+          },
+          {
+            "name": "📍 Coordinates",
+            "value": "{treasure-coords}",
+            "inline": true
+          },
+          {
+            "name": "🔐 Requires Key",
+            "value": "{treasure-requires-key}",
+            "inline": true
+          },
+          {
+            "name": "🧝 Treasure Keepers",
+            "value": "{treasure-keepers}",
+            "inline": true
+          }
+        ],
+        "footer": {
+          "text": "Spawned via Mystic Treasures"
+        },
+        "timestamp": "{now}"
+      }
+    ]
+  },
+  "treasure-claim": {
+    "username": "Mystic Treasures",
+    "avatar_url": "https://i.imgur.com/xSIc9ml.png",
+    "embeds": [
+      {
+        "title": "🎉 A Treasure Has Been Claimed!",
+        "description": "**{treasure-name}** was claimed by **{treasure-winner}**!",
+        "color": 65280,
+        "fields": [
+          {
+            "name": "🏅 Winner",
+            "value": "{treasure-winner}",
+            "inline": true
+          },
+          {
+            "name": "🥈 Top 3",
+            "value": "{treasure-top-3}",
+            "inline": true
+          },
+          {
+            "name": "🎁 Item Rewards",
+            "value": "{item-rewards}",
+            "inline": false
+          },
+          {
+            "name": "⚙️ Command Rewards",
+            "value": "{command-rewards}",
+            "inline": false
+          },
+          {
+            "name": "🧝 Treasure Keepers",
+            "value": "{treasure-keepers}",
+            "inline": true
+          }
+        ],
+        "footer": {
+          "text": "Mystic Treasures"
+        },
+        "timestamp": "{now}"
+      }
+    ]
+  }
+
+}

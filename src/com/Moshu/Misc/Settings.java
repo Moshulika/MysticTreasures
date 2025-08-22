@@ -130,7 +130,7 @@ public class Settings {
     {
         try
         {
-            return plugin.getConfig().getString("settings." + path);
+            return plugin.getConfig().getString("settings." + path, "Error loading string " + path);
         }
         catch (Exception e)
         {

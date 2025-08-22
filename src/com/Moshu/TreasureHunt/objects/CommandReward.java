@@ -14,12 +14,14 @@ public class CommandReward {
         this.identifier = null;
         this.command = null;
         this.chance = 0;
+        this.rewardToTopX = 0;
     }
 
     private String identifier; // e.g., "money"
     private String command;
     private int chance;
     private String menuItem;
+    private int rewardToTopX;
 
     // Getters and setters
     public String getIdentifier() {
@@ -27,6 +29,13 @@ public class CommandReward {
     }
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
+    }
+    public void setRewardToTopX(int rewardToTopX) { this.rewardToTopX = rewardToTopX; }
+    public int getRewardToTopX() { return this.rewardToTopX; }
+    public boolean shouldRewardToTopX() { return this.rewardToTopX > 0; }
+    public boolean isTopX(int currentTop)
+    {
+        return currentTop == rewardToTopX;
     }
     public String getCommand() {
         return command;

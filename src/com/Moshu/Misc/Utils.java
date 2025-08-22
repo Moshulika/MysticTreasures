@@ -1310,6 +1310,34 @@ public class Utils
     }
 
     /**
+     * Get the highest block at a location
+     * @param originalLoc the location that could be unsafe
+     * @return the location with the highest block
+     */
+    public static Location getSafeBlock(Location originalLoc, Location backup)
+    {
+
+        int i = originalLoc.getBlockY();
+
+        int x = originalLoc.getBlockX();
+        int z = originalLoc.getBlockZ();
+        World w = originalLoc.getWorld();
+
+        while (i <= 320) {
+
+            if (new Location(w, x, i, z).getBlock().isEmpty())
+            {
+                return new Location(w, x, i, z).add(0.0D, 1.0D, 0.0D);
+            }
+
+            i++;
+
+        }
+
+        return backup;
+    }
+
+    /**
      * Get the highest block at a location for a nether world
      * @param world the world
      * @param x the x coordinate

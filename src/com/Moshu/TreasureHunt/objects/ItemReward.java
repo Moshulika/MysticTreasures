@@ -36,6 +36,7 @@ public class ItemReward {
     private List<String> enchants;
     private String range;
     private String menuItem;
+    private int rewardToTopX;
 
     // Getters and setters
     public String getIdentifier() {
@@ -51,6 +52,26 @@ public class ItemReward {
 
     public void setItemString(String item) {
         this.itemStr = item;
+    }
+
+    public int getRewardToTopX()
+    {
+        return rewardToTopX;
+    }
+
+    public void setRewardToTopX(int rewardToTopX)
+    {
+        this.rewardToTopX = rewardToTopX;
+    }
+
+    public boolean isTopX(int currentTop)
+    {
+        return currentTop == rewardToTopX;
+    }
+
+    public boolean shouldGiveOnlyToTopX()
+    {
+        return rewardToTopX > 0;
     }
 
     public String getName() {
