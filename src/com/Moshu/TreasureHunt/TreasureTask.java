@@ -1,34 +1,55 @@
 package com.Moshu.TreasureHunt;
 
-import com.Moshu.Misc.Settings;
+import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
-import com.Moshu.TreasureHunt.objects.TreasureData;
+import com.Moshu.TreasureHunt.Components.TreasureData;
+import com.Moshu.TreasureHunt.Core.Hunt;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+/**
+ * Manages the scheduling and execution of treasure hunt tasks.
+ * This class handles both scheduled treasure spawns and random treasure generation
+ * based on configured intervals and conditions.
+ * 
+ * The class provides two main task types:
+ * - Scheduler tasks: Execute based on predefined schedules
+ * - Random tasks: Execute based on chance and cooldown systems
+ * 
+ * @author Moshu
+ * @version 1.0
+ */
 public class TreasureTask {
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
     private static long lastHunt;
 
+    /**
+     * Updates the timestamp of the last treasure hunt.
+     * Used to track cooldown periods between hunts.
+     */
     public static void updateLastHunt()
     {
         lastHunt = System.currentTimeMillis();
     }
 
+    /**
+     * Starts the scheduler task that checks for scheduled treasure spawns.
+     * Runs every 15 seconds (300 ticks) and processes all configured treasure schedulers.
+     * Prevents spawning treasures too frequently by maintaining timestamps.
+     */
     public static void schedulerTask() {
 
         BukkitRunnable task = new BukkitRunnable() {
 
-            HashMap<String, Long> timestamps = new HashMap<String, Long>();
+            final HashMap<String, Long> timestamps = new HashMap<String, Long>();
 
             @Override
             public void run() {
@@ -39,11 +60,16 @@ public class TreasureTask {
 
                         if(timestamps.containsKey(s.getId()))
                         {
-                            if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - timestamps.get(s.getId())) < 5) continue;
+                            if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - timestamps.get(s.getId())) < 5)
+                            {
+                                plugin.getLogger().log(Level.WARNING, "Skipping scheduled treasure for being to close to previous treasure!");
+                                continue;
+                            }
                         }
 
                         if (s.spawn())
                         {
+                            plugin.getLogger().log(Level.INFO, "Spawning scheduled treasure: " + s.getId());
                             timestamps.put(s.getId(), System.currentTimeMillis());
                             break;
                         }
@@ -63,6 +89,11 @@ public class TreasureTask {
 
     }
 
+    /**
+     * Checks if any scheduled treasure should spawn to prevent concurrent spawns.
+     * 
+     * @return True if a scheduled treasure is about to spawn, false otherwise
+     */
     private static boolean preventConcurrentSpawn()
     {
 
@@ -74,6 +105,11 @@ public class TreasureTask {
         return false;
     }
 
+    /**
+     * Starts the random treasure generation task.
+     * Creates tasks for each treasure data configuration with random delays
+     * and processes them based on chance and cooldown systems.
+     */
     public static void task()
     {
 

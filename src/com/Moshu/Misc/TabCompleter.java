@@ -1,13 +1,10 @@
 package com.Moshu.Misc;
 
-import com.Moshu.TreasureHunt.objects.TreasureData;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
+import com.Moshu.TreasureHunt.Components.TreasureData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;

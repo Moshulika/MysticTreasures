@@ -1,9 +1,12 @@
 package com.Moshu.Misc;
 
-import com.Moshu.TreasureHunt.Hunt;
-import com.Moshu.TreasureHunt.Treasure;
-import org.bukkit.*;
-import org.bukkit.entity.Player;
+import com.Moshu.Misc.Storage.Settings;
+import com.Moshu.TreasureHunt.Core.Hunt;
+import com.Moshu.TreasureHunt.Core.Treasure;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 

@@ -1,37 +1,21 @@
 package com.Moshu.Misc;
 
 import com.Moshu.Main;
-import net.kyori.adventure.key.Key;
+import com.Moshu.Misc.Storage.Messages;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import javax.annotation.Nullable;
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.*;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -802,7 +786,7 @@ public class Utils
 
             if(!enchant.canEnchantItem(itemStack))
             {
-                plugin.getLogger().warning("Enchantment " + enchantment + " can not be used on " + itemStack.getType().toString());
+                plugin.getLogger().warning("Enchantment " + enchantment + " can not be used on " + itemStack.getType());
                 continue;
             }
 

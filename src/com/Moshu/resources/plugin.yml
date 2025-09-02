@@ -1,12 +1,12 @@
-##########################################
-#                                        #
-#                HEADER                  #
-#                                        #
-##########################################
-
+###############################################################################
+#
+# 💎 MYSTIC TREASURES
+#       BY MOSHULIKA
+#
+###############################################################################
 main: com.Moshu.Main
 name: MysticTreasures
-version: 2.8
+version: 2.9
 description: The world is full of treasures!
 author: Moshu
 website: mc.b-zone.ro
@@ -16,7 +16,6 @@ api-version: "1.13"
 commands:
   hunt:
     description: "Interact with the plugin"
-
 
 permissions:
   mystictreasures.hunt:

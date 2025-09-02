@@ -1,5 +1,6 @@
 package com.Moshu.Misc;
 
+import com.Moshu.Misc.Storage.Settings;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;

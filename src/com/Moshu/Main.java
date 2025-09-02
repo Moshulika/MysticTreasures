@@ -1,8 +1,22 @@
 package com.Moshu;
+
 import com.Moshu.Misc.*;
-import com.Moshu.TreasureHunt.*;
-import com.Moshu.TreasureHunt.objects.RewardObfuscator;
-import com.Moshu.TreasureHunt.objects.TreasureData;
+import com.Moshu.Misc.Hooks.DiscordWebhook;
+import com.Moshu.Misc.Hooks.Metrics;
+import com.Moshu.Misc.Hooks.PacketEventsUtils;
+import com.Moshu.Misc.Hooks.Placeholders;
+import com.Moshu.Misc.Storage.FileUpdater;
+import com.Moshu.Misc.Storage.Messages;
+import com.Moshu.Misc.Storage.Settings;
+import com.Moshu.TreasureHunt.Components.Rewards.RewardObfuscator;
+import com.Moshu.TreasureHunt.Components.TreasureData;
+import com.Moshu.TreasureHunt.Core.Interaction.TreasureCommands;
+import com.Moshu.TreasureHunt.Core.Interaction.TreasureEvents;
+import com.Moshu.TreasureHunt.Core.Interaction.TreasureMenu;
+import com.Moshu.TreasureHunt.Core.Treasure;
+import com.Moshu.TreasureHunt.Handlers.ActionBar;
+import com.Moshu.TreasureHunt.Handlers.TreasureEffects;
+import com.Moshu.TreasureHunt.TreasureTask;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,6 +32,21 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
+/**
+ * Main plugin class for MysticTreasures.
+ * This is the primary entry point for the treasure hunting plugin that manages
+ * scheduled treasure hunts, player interactions, and all plugin functionality.
+ * 
+ * The plugin provides a comprehensive treasure hunting system with:
+ * - Scheduled treasure spawns
+ * - Player interaction and rewards
+ * - Integration with various Bukkit plugins
+ * - Configuration management
+ * - Cooldown systems
+ * 
+ * @author Moshu
+ * @version 1.0
+ */
 public class Main extends JavaPlugin {
 
 
@@ -33,6 +62,11 @@ public class Main extends JavaPlugin {
     TreasureCommands treasureCommands = new TreasureCommands(this);
     FileUpdater fileUpdater = new FileUpdater(this);
 
+    /**
+     * Called when the plugin is enabled.
+     * Initializes all plugin components, registers events and commands,
+     * sets up integrations with other plugins, and starts the treasure task.
+     */
     @Override
     public void onEnable()
     {
@@ -89,6 +123,10 @@ public class Main extends JavaPlugin {
         }
     }
 
+    /**
+     * Called when the plugin is loaded.
+     * Performs early initialization tasks that need to happen before enable.
+     */
     @Override
     public void onLoad() {
 
@@ -99,6 +137,10 @@ public class Main extends JavaPlugin {
 
     }
 
+    /**
+     * Called when the plugin is disabled.
+     * Performs cleanup operations and saves any pending data.
+     */
     @Override
     public void onDisable()
     {
@@ -111,6 +153,10 @@ public class Main extends JavaPlugin {
 
     }
 
+    /**
+     * Sets up delayed hooks and initialization tasks that need to run after the server has fully started.
+     * This includes loading treasure data, starting tasks, and initializing various components.
+     */
     public void delayedHooks()
     {
 
@@ -133,6 +179,8 @@ public class Main extends JavaPlugin {
             DiscordWebhook webhook = DiscordWebhook.getInstance();
             webhook.init();
 
+            Treasure.cleanup();
+
             updater.check();
 
         }, 1);
@@ -140,6 +188,10 @@ public class Main extends JavaPlugin {
 
     }
 
+    /**
+     * Checks for custom item plugin dependencies and logs their status.
+     * Currently checks for ItemsAdder, Oraxen, and Nexo plugins.
+     */
     private void checkCustomItemsDependencies()
     {
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
@@ -152,20 +204,35 @@ public class Main extends JavaPlugin {
     }
 
 
-    private File configf, messagesf, cooldowndsf;
+    private File configf, messagesf, cooldowndsf, discord_webhookf;
 
     private FileConfiguration config, messages, cooldowns;
 
+    /**
+     * Gets the cooldowns configuration file.
+     * 
+     * @return The FileConfiguration object for cooldowns
+     */
     public FileConfiguration getCooldownsFile()
     {
         return cooldowns;
     }
 
+    /**
+     * Gets the messages configuration file.
+     * 
+     * @return The FileConfiguration object for messages
+     */
     public FileConfiguration getMessages()
     {
         return messages;
     }
 
+    /**
+     * Gets the main configuration file.
+     * 
+     * @return The FileConfiguration object for the main config
+     */
     public FileConfiguration getConfigFile()
     {
         return config;
@@ -184,6 +251,7 @@ public class Main extends JavaPlugin {
             messages.load(messagesf);
             Settings.recacheSettings();
             RewardObfuscator.load();
+            DiscordWebhook.getInstance().init();
 
         }
         catch (IOException | InvalidConfigurationException e)
@@ -199,6 +267,10 @@ public class Main extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(Utils.format( s));
     }
 
+    /**
+     * Initializes bStats metrics collection if enabled in configuration.
+     * Sends plugin usage statistics to bStats for analytics.
+     */
     public void metrics()
     {
 
@@ -227,11 +299,16 @@ public class Main extends JavaPlugin {
         return (WorldGuardPlugin) plugin;
     }
 
+    /**
+     * Creates and loads all necessary configuration files.
+     * Creates config.yml, messages.yml, and cooldowns.yml if they don't exist.
+     */
     public void createDataFiles() {
 
         configf = new File(getDataFolder(), "config.yml");
         messagesf = new File(getDataFolder(), "messages.yml");
         cooldowndsf = new File(getDataFolder(), "cooldowns.yml");
+        discord_webhookf = new File(getDataFolder(), "discord-webhook.json");
 
         if (!configf.exists())
         {
@@ -251,6 +328,13 @@ public class Main extends JavaPlugin {
             cooldowndsf.getParentFile().mkdirs();
             saveResource("cooldowns.yml", false);
             Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fCooldowns.yml &fnot found, creating."));
+        }
+
+        if(!discord_webhookf.exists())
+        {
+            discord_webhookf.getParentFile().mkdirs();
+            saveResource("discord-webhook.json", false);
+            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fdiscrod-webhook.json &fnot found, creating."));
         }
 
         config = new YamlConfiguration();

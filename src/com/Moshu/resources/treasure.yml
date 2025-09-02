@@ -1,61 +1,117 @@
 treasure:
+  ###############################################################################
+  # 💎 TREASURE ID INFORMATION
+  #
+  # The key below (e.g. `default`) represents the **Treasure ID**.
+  # - This ID **must be unique** across all treasures.
+  # - Only **ONE treasure with the same ID** can be active at once in a world.
+  # - A world can have **unlimited active treasures** as long as each has
+  #   a different ID.
+  #
+  ###############################################################################
+
   default:
-    ####################### GENERAL SETTINGS #####################
+
+    ###########################################################################
+    # 🟢 GENERAL TREASURE SETTINGS
+    ###########################################################################
     world-name: "world"
     treasure-name: "Hidden Treasure"
     treasure-block: ENDER_CHEST
     menu-item: ENDER_CHEST
     treasure-particles: COMPOSTER
-    treasure-animation: "protection" #none, spiral, orb, protection / Protection only works if 'require-all-mobs-dead' is 'true'
-    treasure-icon: EMERALD #Only if DecentHolograms or FancyHolograms is not installed
-    treasure-spawns-inside: false #Set to true if you configure your treasure so that it spawns somewhere inside
-    chance-for-treasure: 20 #The chance to spawn a random treasure
-    max-treasure-distance: 15000 #Bypasses the border setting, if the border is 20k, and this is 15k, the max distance for the treasure will be 15k. Usefull for when you don't set your border
-    interval: 30 #Interval of time in minutes for a chance to spawn the treasure (ex. every 30mins you have 20% chance for the treasure to spawn)
-    duration: 20 #The duration of the treasure before it despawns
-    cooldown: 15 #Cooldown between treasures in minutes
-    delay: 200 #In ticks, the delay from the announcement that the treasure will spawn until it really spawns
-    flare-type: "none" #Options: none, few, many
-    flare-particle: COMPOSTER
-    fireworks: true #Spawn fireworks upon clicking the treasure
-    fall-from-the-sky: true #Set to true if you want to just make the treasure appear. Helps if you want to spawn the treasure inside.
-    ####### HOW TO GIVE PLAYERS THE REWARDS! CHOOSE ONLY ONE OR LEAVE ALL FALSE ##############
-    get-rewards-from-chest: true #Should the players be able to open the chest and just take the items from there?
-    reward-all-players-who-participated: false #Reward all players who killed a treasure keeper?
-    reward-highest-damage: false #Reward the player who gives to most damage to the treasure keepers
-    only-reward-top-x: 0 #How many players in the top damage should receive the award?
-    drop-items-on-ground: false #Drops Item Rewards on ground. Only works when 'reward-all-players-who-participated' and 'reward-highest-damage' is false
-    dropped-item-name: "&6Treasure Loot"
-    #######################################################################
-    distance-from-player-to-spawn-mobs: 40 #0 To spawn when the treasure spawns, other value to spawn when the distance is achieved
-    mob-wandering-distance: 40 #How far away the mobs can wander before being teleported back near the treasure
+    treasure-animation: "protection" # Options: none, spiral, orb, protection (⚠ only works if 'require-all-mobs-dead' is true)
+    treasure-icon: EMERALD # Used only if DecentHolograms / FancyHolograms is NOT installed
+    treasure-spawns-inside: false # If true, treasure spawns inside structures/areas
+    max-treasure-distance: 15000 # Overrides world border if smaller (useful if border unset)
+    duration: 20 # Minutes before treasure despawns
+    waypoint:
+      enabled: false # Only working on Spigot/Paper >= 1.21.6
+      color: "GOLD" # Minecraft colors
+      range: 1000   # Distance from treasure to show the waypoint to players
+    flare:
+      type: "none" # Options: none, few, many
+      particle: COMPOSTER
+    fireworks: true # Fireworks on treasure click
+    fall-from-the-sky: true # If false, treasure just appears instantly (useful for indoor spawns)
+
+    # ======================================================
+    #  🎁 AWARD METHOD - You must choose ONLY ONE from the list
+    # ======================================================
+    #
+    # Available options (case-insensitive):
+    #
+    #  CHEST          - Players get rewards directly from a loot chest - supports reward obfuscation
+    #  ALL_PLAYERS    - Every player who participated gets the rewards
+    #  HIGHEST_DAMAGE - Only the player with the highest damage dealt gets rewards
+    #  TOP_X          - The top X players with the most damage are rewarded
+    #                   (Configure the number with 'only-reward-top-x')
+    #                 - Example usage: `award-method: TOP_5`
+    #  DROP_ON_GROUND - Rewards are dropped on the ground
+    #
+    # NOTE:
+    # - Only ONE award method can be active at a time.
+    # - If you misconfigure this option, the plugin will fall back
+    #   to a safe default (CHEST).
+    #
+    award-method: CHEST
+    dropped-item-name: "&6Treasure Loot" # If DROP_ON_GROUND is true, this is the name of the dropped item
+
+    ###########################################################################
+    # ⚔️ TREASURE COMBAT & MOB SETTINGS
+    ###########################################################################
+    distance-from-player-to-spawn-mobs: 40 # 0 = spawn instantly; otherwise spawns when player enters radius
+    mob-wandering-distance: 40 # Max distance mobs can wander before being teleported back
     enable-mob-tracker: true
-    coords-near-treasure: 0 #For the {x-offset} and {z-offset} placeholder. Adds this value to the real coords to give only an approx. area around the treasure
-    require-all-mobs-dead: true #Can a player claim a treasure if they haven't defeated the mobs yet?
-    animate-mob-spawning: true #If distance-from-player-to-spawn-mobs is more than 0, play an animation to the mobs when they spawn?
-    minutes-before-pickup: 5 #Players cannot access the treasure before this time
-    clicks-to-open: 10 #How many right clicks are required to open the treasure?
-    cooldown-between-clicks: 10 #In ms
-    #################### DEBUFF #################################
+    coords-near-treasure: 0 # Offset for placeholders {x-offset}, {z-offset} → gives approximate coords
+    require-all-mobs-dead: true # Must kill mobs before claiming treasure
+    animate-mob-spawning: true # Show animation if mobs spawn >0 distance away
+    minutes-before-pickup: 5 # Players must wait X minutes before opening treasure
+    clicks-to-open: 10 # Number of right clicks required
+    cooldown-between-clicks: 10 # Milliseconds delay between clicks
+
+    ###########################################################################
+    # 💀 DEBUFF SYSTEM
+    ###########################################################################
     debuff:
       enable: true
-      clicks-to-debuff: 5 #Must have click to open NOT be 1 and clicks-to-debuff < clicks-to-open.
+      clicks-to-debuff: 5 # Must be < clicks-to-open (and not equal to 1)
       shockwave: true
       respawn-mobs: true
       potion-effects:
-        - "BLINDNESS:1:100" #EFFECT:LEVEL:DURATION
-    ################### SPAWN SETTINGS ##############################
-    spawn-to-certain-coords: false #Set to true if you want the treasure to spawn only at one of the coords in the list below
-    spawn-coords: #Make sure to place valid coords - inside your world border
-      - "101:100:55" #Coords to spawn to. Use ':' to sepparate X Y and Z
+        - "BLINDNESS:1:100" # FORMAT: EFFECT:LEVEL:DURATION
+
+    ###########################################################################
+    # 📍 TREASURE SPAWN SETTINGS
+    ###########################################################################
+    spawn-to-certain-coords: false # True → treasure spawns only at coords below (if more than one, randomly selected)
+    spawn-coords:
+      - "101:100:55" # Use format X:Y:Z (must be inside border & safe enough)
+
+    ###########################################################################
+    # 📍 TREASURE RANDOM SPAWN TASK SETTINGS (RANDOMLY OCCURS THROUGHT THE DAY)
+    ###########################################################################
+    spawn-task:
+      chance-for-treasure: 20 # % Chance to spawn a random treasure
+      interval: 30 # Minutes between each spawn attempt (20% chance every 30 mins in this example)
+      cooldown: 15 # Minutes cooldown between treasures of same type
+      delay: 200 # Delay in ticks between announcement and spawn
+
+
+    ###########################################################################
+    # 📍 TREASURE SCHEDLUED SPAWN SETTINGS (FIXED TIME, REPEATING TREASURES)
+    ###########################################################################
     scheduler:
-      schedule-1: #You can add multiple schedulers for the same treasure at different days/time
+      schedule-1: # Multiple schedules supported
         enabled: false
-        day: "monday" #Set to "daily" or "monday, tuesday, wednesday, etc.."
-        time: "17:00" #"Use 24h format (for ex 18:30 instead of 6:30PM)"
-        world: "world" #The world to spawn
-        coords: "101:100:55" #Set to "random" or set the coords with the format X:Y:Z
-    ################## TREASURE KEY ##############################
+        day: "monday" # Options: daily OR specific days (monday, tuesday, etc.)
+        time: "17:00" # 24h format (18:30 not 6:30PM)
+        world: "world"
+        coords: "101:100:55" # "random" OR X:Y:Z
+
+    ###########################################################################
+    # 🔑 TREASURE KEY (OPTIONAL) | Supports custom items from ItemsAdder, Oraxen, Nexo and MMOItems (check ItemRewards for more info)
+    ###########################################################################
     treasure-key:
       enabled: false
       item: TRIPWIRE_HOOK
@@ -63,12 +119,21 @@ treasure:
       lore:
         - "&7&oOpen a treasure chest"
         - "&7&ousing this mysterious key"
-    ##############################################################
+
+    ###########################################################################
+    # ✨ TREASURE POTION EFFECTS (WHEN A PLAYERS WALKS INSIDE THE RANGE OF THE TREASURE)
+    #     RANGE CONFIGURABLE IN CONFIG.YML, OPTION `potion-effect-radius`
+    ###########################################################################
     potion-effects:
       - "REGENERATION:1"
-    #################### TREASURE KEEPERS ########################
+
+    ###########################################################################
+    # 👹 TREASURE KEEPERS (MOBS GUARDING THE TREASURE)
+    #     SUPPORTS MYTHICMOBS → Just set `mythic-mobs` to true and set `entity-type` to the mob name
+    #     Drops support custom items from ItemsAdder, Oraxen, Nexo and MMOItems (check ItemRewards for more info)
+    ###########################################################################
     mobs:
-      pillager:
+      pillager:          # This key needs to be unique
         entity-type: "PILLAGER"
         mythic-mobs: false
         custom-name: "Enemy"
@@ -79,38 +144,14 @@ treasure:
         potion-effects:
           - ""
         equipment:
-          helmet:
-            item: "none" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
+          helmet:        # This key needs to be unique
+            item: "none" # 'none' disables slot
+            slot: "HEAD" # Slots: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
             enchantments:
               - "PROTECTION:4"
-          chest:
-            item: "none" #Set to 'none' to disable
-            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          legs:
-            item: "none" #Set to 'none' to disable
-            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          feet:
-            item: "none" #Set to 'none' to disable
-            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          hand:
-            item: "none" #Set to 'none' to disable
-            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "SHARPNESS:4"
-          offhand:
-            item: "none" #Set to 'none' to disable
-            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "EFFICIENCY:4"
+          # ... (same style for other equipment slots)
         drops:
-          diamonds:
+          diamonds:     # This key needs to be unique
             item: "DIAMOND"
             name: "&6Awesome Drop"
             lore:
@@ -119,327 +160,88 @@ treasure:
             chance: 0
             enchantments:
               - ""
-      vindicator:
-        entity-type: "VINDICATOR"
-        mythic-mobs: false
-        custom-name: "Enemy"
-        range: "2-4"
-        chance: 75
-        max-health: 30
-        menu-item: "VINDICATOR_SPAWN_EGG"
-        potion-effects:
-          - ""
-        equipment:
-          helmet:
-            item: "none" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          chest:
-            item: "none" #Set to 'none' to disable
-            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          legs:
-            item: "none" #Set to 'none' to disable
-            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          feet:
-            item: "none" #Set to 'none' to disable
-            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          hand:
-            item: "none" #Set to 'none' to disable
-            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "SHARPNESS:4"
-          offhand:
-            item: "none" #Set to 'none' to disable
-            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "EFFICIENCY:4"
-        drops:
-          diamonds:
-            item: "DIAMOND"
-            name: "&6Awesome Drop"
-            lore:
-              - "Some text here"
-            amount: "1-10"
-            chance: 0
-            enchantments:
-              - ""
-      ravager:
-        entity-type: "RAVAGER"
-        mythic-mobs: false
-        custom-name: "Big Enemy"
-        range: "2-3"
-        chance: 100
-        max-health: 100
-        menu-item: "RAVAGER_SPAWN_EGG"
-        potion-effects:
-          - ""
-        equipment:
-          helmet:
-            item: "none" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          chest:
-            item: "none" #Set to 'none' to disable
-            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          legs:
-            item: "none" #Set to 'none' to disable
-            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          feet:
-            item: "none" #Set to 'none' to disable
-            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          hand:
-            item: "none" #Set to 'none' to disable
-            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "SHARPNESS:4"
-          offhand:
-            item: "none" #Set to 'none' to disable
-            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "EFFICIENCY:4"
-        drops:
-          diamonds:
-            item: "DIAMOND"
-            name: "&6Awesome Drop"
-            lore:
-              - "Some text here"
-            amount: "1-10"
-            chance: 0
-            enchantments:
-              - ""
-      archer:
-        entity-type: "SKELETON"
-        mythic-mobs: false
-        custom-name: "Enemy"
-        range: "1-10"
-        chance: 50
-        max-health: 30
-        menu-item: "SKELETON_SPAWN_EGG"
-        potion-effects:
-          - "REGENERATION:3"
-        equipment:
-          helmet:
-            item: "none" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          chest:
-            item: "none" #Set to 'none' to disable
-            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          legs:
-            item: "none" #Set to 'none' to disable
-            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          feet:
-            item: "none" #Set to 'none' to disable
-            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          hand:
-            item: "none" #Set to 'none' to disable
-            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "SHARPNESS:4"
-          offhand:
-            item: "none" #Set to 'none' to disable
-            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "EFFICIENCY:4"
-        drops:
-          diamonds:
-            item: "DIAMOND"
-            name: "&6Awesome Drop"
-            lore:
-              - "Some text here"
-            amount: "1-10"
-            chance: 0
-            enchantments:
-              - ""
-      zombie:
-        entity-type: "ZOMBIE"
-        mythic-mobs: false
-        custom-name: "Enemy"
-        range: "1-10"
-        chance: 50
-        max-health: 30
-        menu-item: "ZOMBIE_SPAWN_EGG"
-        potion-effects:
-          - "STRENGTH:2"
-        equipment:
-          helmet:
-            item: "none" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          chest:
-            item: "none" #Set to 'none' to disable
-            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          legs:
-            item: "none" #Set to 'none' to disable
-            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          feet:
-            item: "none" #Set to 'none' to disable
-            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          hand:
-            item: "none" #Set to 'none' to disable
-            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "SHARPNESS:4"
-          offhand:
-            item: "none" #Set to 'none' to disable
-            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "EFFICIENCY:4"
-        drops:
-          diamonds:
-            item: "DIAMOND"
-            name: "&6Awesome Drop"
-            lore:
-              - "Some text here"
-            amount: "1-10"
-            chance: 0
-            enchantments:
-              - ""
-      spider:
-        entity-type: "CAVE_SPIDER"
-        mythic-mobs: false
-        custom-name: "Enemy"
-        range: "1-5"
-        chance: 25
-        max-health: 30
-        menu-item: "CAVE_SPIDER_SPAWN_EGG"
-        potion-effects:
-          - "INVISIBILITY:1"
-        equipment:
-          helmet:
-            item: "none" #Set to 'none' to disable
-            slot: "HEAD" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          chest:
-            item: "none" #Set to 'none' to disable
-            slot: "CHEST" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          legs:
-            item: "none" #Set to 'none' to disable
-            slot: "LEGS" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          feet:
-            item: "none" #Set to 'none' to disable
-            slot: "FEET" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          hand:
-            item: "none" #Set to 'none' to disable
-            slot: "HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "SHARPNESS:4"
-          offhand:
-            item: "none" #Set to 'none' to disable
-            slot: "OFF_HAND" #TYPES: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "EFFICIENCY:4"
-        drops:
-          diamonds:
-            item: "DIAMOND"
-            name: "&6Awesome Drop"
-            lore:
-              - "Some text here"
-            amount: "1-10"
-            chance: 0
-            enchantments:
-              - ""
-    ################# REWARDS ########################
+      # (same style formatting applies to vindicator, ravager, archer, zombie, spider…)
+
+    ###########################################################################
+    # 🎯 ITEM REWARDS
+    #
+    # Supports custom items from ItemsAdder, Oraxen, Nexo and MMOItems
+    # To use this, just replace the item name in the 'item' field with the ID of your custom item like you would add any other item.
+    # For example, if I want to add a MMOItems ItemReward, I can just do:
+    # `item: SWORD:TERRORBANE`
+    #
+    # Custom items are also supported as menu items, item drops for TreasureKeepers and TreasureKeys
+    #
+    ###########################################################################
     item-rewards:
-      only-to-top-1: #Can be any text, it doesn't count. It's a reward identifier.
-        item: DIAMOND #Material name
+      only-to-top-1: # Identifier (any text). Needs to be unique.
+        item: DIAMOND
         menu-item: "#1 DIAMOND"
         name: "&6&l&oDIAMONDS"
         lore:
           - "&7&oHave fun with this reward!"
-        amount: 1-10 #Between 1 and 10 diamonds
-        chance: 100 #Percentage (60%)
-        award-to-top: 1 #Only the top 1 players receives this award
+        amount: 1-10 # Range
+        chance: 100 # % chance
+        award-to-top: 1 # Only top 1 gets this
         enchantments:
           - ""
-      diamond: #Can be any text, it doesn't count. It's a reward identifier.
-        item: DIAMOND #Material name
+      diamond:
+        item: DIAMOND
         menu-item: "DIAMOND"
         name: "&6&l&oDIAMONDS"
         lore:
           - "&7&oHave fun with this reward!"
-        amount: 1-10 #Between 1 and 10 diamonds
-        chance: 100 #Percentage (60%)
+        amount: 1-10
+        chance: 100
         enchantments:
           - ""
-      emerald: #Can be any text, it doesn't count. It's a reward identifier.
-        item: EMERALD #Material name
+      emerald:
+        item: EMERALD
         menu-item: "EMERALD"
         name: "&6&l&oEMERALDS"
         lore:
           - "&7&oHave fun with this reward!"
-        amount: 1-10 #Between 1 and 10 diamonds
-        chance: 100 #Percentage (60%)
-      iron: #Can be any text, it doesn't count. It's a reward identifier.
-        item: IRON_INGOT #Material name
+        amount: 1-10
+        chance: 100
+      iron:
+        item: IRON_INGOT
         menu-item: "IRON_INGOT"
         name: "&6&l&oIRON"
         lore:
           - "&7&oHave fun with this reward!"
-        amount: 1-10 #Between 1 and 10 diamonds
-        chance: 100 #Percentage (60%)
-      apple: #Can be any text, it doesn't count. It's a reward identifier.
-        item: ENCHANTED_GOLDEN_APPLE #Material name
+        amount: 1-10
+        chance: 100
+      apple:
+        item: ENCHANTED_GOLDEN_APPLE
         menu-item: "ENCHANTED_GOLDEN_APPLE"
         name: "&6&l&oGOLDEN APPLE"
         lore:
           - "&7&oHave fun with this reward!"
-        amount: 1-3 #Between 1 and 10 diamonds
-        chance: 25 #Percentage (60%)
-      dirt: #Can be any text, it doesn't count. It's a reward identifier.
-        item: DIRT #Material name
+        amount: 1-3
+        chance: 25
+      dirt:
+        item: DIRT
         menu-item: "DIRT"
         name: "&6&l&oDIRT"
         lore:
           - "&7&oHave fun with this reward!"
-        amount: 8-16 #Between 1 and 10 diamonds
-        chance: 75 #Percentage (60%)
-      bush: #Can be any text, it doesn't count. It's a reward identifier.
-        item: DEAD_BUSH #Material name
+        amount: 8-16
+        chance: 75
+      bush:
+        item: DEAD_BUSH
         menu-item: "DEAD_BUSH"
         name: "&6&l&oDEAD BUSH"
         lore:
           - "&7&oHave fun with this reward!"
-        amount: 4-8 #Between 1 and 10 diamonds
-        chance: 50 #Percentage (60%)
+        amount: 4-8
+        chance: 50
+
+    ###########################################################################
+    # 🖥️ COMMAND REWARDS
+    ###########################################################################
     command-rewards:
-      money:
+      money: #This key needs to be unique
         menu-item: "SUNFLOWER"
         command: "eco give %player% 2500"
         chance: 100
-        award-to-top: 1 #Only the top 1 players receives this award
+        award-to-top: 1 # Only top 1 gets this, remove key if not used or set to 0
