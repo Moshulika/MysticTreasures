@@ -62,7 +62,7 @@ public class TreasureTask {
                         {
                             if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - timestamps.get(s.getId())) < 5)
                             {
-                                plugin.getLogger().log(Level.WARNING, "Skipping scheduled treasure for being to close to previous treasure!");
+                                //plugin.getLogger().log(Level.WARNING, "Skipping scheduled treasure for being to close to previous treasure!");
                                 continue;
                             }
                         }

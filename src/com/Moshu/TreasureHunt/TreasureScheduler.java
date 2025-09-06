@@ -272,8 +272,8 @@ public class TreasureScheduler {
         int configMinute = Integer.parseInt(time.split(":")[1]);
 
         //Debug line
-        plugin.getLogger().info("Scheduler '" + id + "' real time - day: " + day + ", hour: " + hour + ", minute: " + minute);
-        plugin.getLogger().info("Scheduler '" + id + "' config time - day: " + getDayNumber() + ", hour: " + configHour + ", minute: " + configMinute);
+        //plugin.getLogger().info("Scheduler '" + id + "' real time - day: " + day + ", hour: " + hour + ", minute: " + minute);
+        //plugin.getLogger().info("Scheduler '" + id + "' config time - day: " + getDayNumber() + ", hour: " + configHour + ", minute: " + configMinute);
 
         boolean condition = (day == getDayNumber() || getDayNumber() == -1) && hour == configHour && minute == configMinute;
         return condition;
