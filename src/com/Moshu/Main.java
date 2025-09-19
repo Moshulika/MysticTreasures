@@ -10,6 +10,9 @@ import com.Moshu.Misc.Storage.Messages;
 import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.TreasureHunt.Components.Rewards.RewardObfuscator;
 import com.Moshu.TreasureHunt.Components.TreasureData;
+import com.Moshu.TreasureHunt.Core.Interaction.External.TreasureItemsAdderInteractionEvent;
+import com.Moshu.TreasureHunt.Core.Interaction.External.TreasureNexoInteractionEvent;
+import com.Moshu.TreasureHunt.Core.Interaction.External.TreasureOraxenInteractionEvent;
 import com.Moshu.TreasureHunt.Core.Interaction.TreasureCommands;
 import com.Moshu.TreasureHunt.Core.Interaction.TreasureEvents;
 import com.Moshu.TreasureHunt.Core.Interaction.TreasureMenu;
@@ -90,11 +93,12 @@ public class Main extends JavaPlugin {
         getCommand("hunt").setExecutor(treasureCommands);
         getCommand("hunt").setTabCompleter(tabc);
 
-        Bukkit.getServer().getPluginManager().registerEvents(new TreasureEvents(), this);
+        Bukkit.getServer().getPluginManager().registerEvents(TreasureEvents.getInstance(), this);
         Bukkit.getServer().getPluginManager().registerEvents(updater, this);
         Bukkit.getServer().getPluginManager().registerEvents(new TreasureMenu(), this);
-
         Bukkit.getServer().getPluginManager().registerEvents(new RewardObfuscator(), this);
+
+        registerExternalEvents();
 
         s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fHooking into WorldGuard"));
         getWorldGuard();
@@ -154,10 +158,33 @@ public class Main extends JavaPlugin {
     }
 
     /**
+     * Register external events to avoid missing dependency errors
+     */
+    private void registerExternalEvents()
+    {
+
+        if(Utils.isEnabled("Oraxen"))
+        {
+            Bukkit.getServer().getPluginManager().registerEvents(new TreasureOraxenInteractionEvent(), this);
+        }
+
+        if(Utils.isEnabled("Nexo"))
+        {
+            Bukkit.getServer().getPluginManager().registerEvents(new TreasureNexoInteractionEvent(), this);
+        }
+
+        if(Utils.isEnabled("ItemsAdder"))
+        {
+            Bukkit.getServer().getPluginManager().registerEvents(new TreasureItemsAdderInteractionEvent(), this);
+        }
+
+    }
+
+    /**
      * Sets up delayed hooks and initialization tasks that need to run after the server has fully started.
      * This includes loading treasure data, starting tasks, and initializing various components.
      */
-    public void delayedHooks()
+    private void delayedHooks()
     {
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
@@ -264,14 +291,14 @@ public class Main extends JavaPlugin {
     /** @hidden */
     public static void consoleMessage(String s)
     {
-        Bukkit.getConsoleSender().sendMessage(Utils.format( s));
+        Bukkit.getConsoleSender().sendMessage(Utils.format(s));
     }
 
     /**
      * Initializes bStats metrics collection if enabled in configuration.
      * Sends plugin usage statistics to bStats for analytics.
      */
-    public void metrics()
+    private void metrics()
     {
 
         if(getConfigFile().getBoolean("settings.bstats", true))
@@ -287,7 +314,7 @@ public class Main extends JavaPlugin {
      * Gets world guard instance
      * @return WorldGuard instance or null
      */
-    public WorldGuardPlugin getWorldGuard()
+    private WorldGuardPlugin getWorldGuard()
     {
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
 
@@ -303,7 +330,7 @@ public class Main extends JavaPlugin {
      * Creates and loads all necessary configuration files.
      * Creates config.yml, messages.yml, and cooldowns.yml if they don't exist.
      */
-    public void createDataFiles() {
+    private void createDataFiles() {
 
         configf = new File(getDataFolder(), "config.yml");
         messagesf = new File(getDataFolder(), "messages.yml");

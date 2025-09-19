@@ -49,9 +49,9 @@ public class TreasureData {
     {
 
         VANILLA,
-        ENTITY,
-        BLOCK,
-        FURNITURE,
+        ITEMSADDER_ENTITY,
+        ITEMSADDER_BLOCK,
+        ITEMSADDER_FURNITURE,
         ORAXEN_FURNITURE,
         NEXO_FURNITURE,
         NEXO_BLOCK,
@@ -274,11 +274,11 @@ public class TreasureData {
             try {
 
                 if (CustomEntity.isInRegistry(name)) {
-                    return TreasureType.ENTITY;
+                    return TreasureType.ITEMSADDER_ENTITY;
                 } else if (CustomBlock.isInRegistry(name)) {
-                    return TreasureType.BLOCK;
+                    return TreasureType.ITEMSADDER_BLOCK;
                 } else if (CustomFurniture.isInRegistry(name)) {
-                    return TreasureType.FURNITURE;
+                    return TreasureType.ITEMSADDER_FURNITURE;
                 } else {
                     return TreasureType.VANILLA;
                 }

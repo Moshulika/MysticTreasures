@@ -9,6 +9,8 @@ import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
+import me.angeschossen.lands.api.LandsIntegration;
+import me.angeschossen.lands.api.land.Land;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -195,6 +197,20 @@ public class Locations {
 
     }
 
+    public static boolean isInLands(Location loc)
+    {
+
+        if(Utils.isEnabled("Lands")) {
+
+            LandsIntegration api = LandsIntegration.of(plugin);
+            return api.getLandByChunk(loc.getWorld(), loc.getBlockX(), loc.getBlockZ()) != null;
+
+        }
+
+        return false;
+
+    }
+
     /**
      * Checks if a location is considered unsafe based on check()
      * @param loc the location
@@ -224,6 +240,7 @@ public class Locations {
 
 
         return  isInBorder(loc, maxTreasureDistance) &&
+                !isInLands(loc) &&
                 !isInRegion(loc) &&
                 !blacklistedBiome(loc) &&
                 !isLeaves(loc) &&

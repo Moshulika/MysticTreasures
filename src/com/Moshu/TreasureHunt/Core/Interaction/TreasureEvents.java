@@ -7,10 +7,9 @@ import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeper;
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeperDrops;
 import com.Moshu.TreasureHunt.Components.TreasureKey;
-import com.Moshu.TreasureHunt.Components.TreasureWaypoint;
 import com.Moshu.TreasureHunt.Core.Hunt;
 import com.Moshu.TreasureHunt.Core.Treasure;
-import com.Moshu.TreasureHunt.Core.API.Events.TreasureClaimEvent;
+import com.Moshu.TreasureHunt.Core.API.Events.TreasureInteractEvent;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import org.bukkit.Bukkit;
@@ -42,6 +41,22 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 public class TreasureEvents implements Listener {
+
+    private TreasureEvents()
+    {}
+
+    private static TreasureEvents instance;
+
+    public static TreasureEvents getInstance()
+    {
+        if(instance == null)
+        {
+            instance = new TreasureEvents();
+            return instance;
+        }
+
+        return instance;
+    }
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
@@ -800,6 +815,42 @@ public class TreasureEvents implements Listener {
         }
     }
 
+    /**
+     * Handler for interaction with the treasure in oreder to generalize this interaction
+     * with external plugins too.
+     * @param o the location of the block or entity that the player interacts with
+     * @return true or false depending if the interaction was actually with a treasure or not
+     */
+    public boolean handleInteraction(Player p, Location o)
+    {
+        Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
+
+        if (Treasure.isTreasure(o)) {
+
+            Treasure t = Treasure.getTreasure(l);
+
+            TreasureInteractEvent claimEvent = new TreasureInteractEvent(t, p);
+            Bukkit.getPluginManager().callEvent(claimEvent);
+
+            if (claimEvent.isCancelled()) return true;
+
+            if (hasCooldown(p)) return true;
+            if (!canTreasureBeOpened(p, t)) return true;
+            if (!hasKey(p, t)) return true;
+
+            t.getTreasureData().getDebuff().debuff(t);
+
+            if (!hasRequiredClicks(p, t)) return true;
+
+            openTreasure(p, t);
+            return true;
+
+        }
+
+        return false;
+
+    }
+
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
 
@@ -810,34 +861,10 @@ public class TreasureEvents implements Listener {
         if (Hunt.huntActiveInWorld(e.getPlayer().getWorld())) {
 
             Location o = e.getClickedBlock().getLocation();
-            Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
+            boolean isTreasure = handleInteraction(e.getPlayer(), o);
 
-            Player p = e.getPlayer();
+            e.setCancelled(isTreasure);
 
-            if (Treasure.isTreasure(l)) {
-
-                e.setCancelled(true);
-
-                Treasure t = Treasure.getTreasure(l);
-
-                TreasureClaimEvent claimEvent = new TreasureClaimEvent(t, p);
-                Bukkit.getPluginManager().callEvent(claimEvent);
-
-                if (claimEvent.isCancelled()) return;
-
-                if (hasCooldown(p)) return;
-                if (!canTreasureBeOpened(p, t)) return;
-                if (!hasKey(p, t)) return;
-
-                t.getTreasureData().getDebuff().debuff(t);
-
-                if (!hasRequiredClicks(p, t)) return;
-
-                openTreasure(p, t);
-                return;
-
-
-            }
         }
 
         if(TreasureKey.isKey(e.getPlayer().getInventory().getItemInMainHand()))
@@ -861,7 +888,7 @@ public class TreasureEvents implements Listener {
 
             Treasure t = Treasure.getTreasure(l);
 
-            TreasureClaimEvent claimEvent = new TreasureClaimEvent(t, p);
+            TreasureInteractEvent claimEvent = new TreasureInteractEvent(t, p);
             Bukkit.getPluginManager().callEvent(claimEvent);
 
             if (claimEvent.isCancelled()) return;

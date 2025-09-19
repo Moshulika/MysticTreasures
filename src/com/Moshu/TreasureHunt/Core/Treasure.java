@@ -18,8 +18,8 @@ import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import eu.decentsoftware.holograms.api.DHAPI;
-import eu.decentsoftware.holograms.api.DecentHologramsAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
+import io.th0rgal.oraxen.api.OraxenBlocks;
 import io.th0rgal.oraxen.api.OraxenFurniture;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -490,6 +490,34 @@ public class Treasure {
     public void clearParticipants()
     {
         participants.clear();
+    }
+
+    private static boolean hasCustomModels(Hunt h, Location loc)
+    {
+
+        TreasureData.TreasureType type = h.getTreasure().getTreasureData().getTreasureType();
+        if(type == TreasureData.TreasureType.VANILLA) return false;
+
+        if(Utils.isEnabled("ItemsAdder"))
+        {
+            if(type == TreasureData.TreasureType.ITEMSADDER_FURNITURE || type == TreasureData.TreasureType.ITEMSADDER_BLOCK || type == TreasureData.TreasureType.ITEMSADDER_ENTITY)
+                return CustomBlock.byAlreadyPlaced(loc.getBlock()) != null || CustomFurniture.byAlreadySpawned(loc.getBlock()) != null;
+        }
+
+        if(Utils.isEnabled("Nexo"))
+        {
+            if(type == TreasureData.TreasureType.NEXO_BLOCK || type == TreasureData.TreasureType.NEXO_FURNITURE)
+                return NexoFurniture.isFurniture(loc) || NexoBlocks.isCustomBlock(loc.getBlock());
+        }
+
+        if(Utils.isEnabled("Oraxen"))
+        {
+            if(type == TreasureData.TreasureType.ORAXEN_FURNITURE)
+                return OraxenFurniture.isFurniture(loc.getBlock()) || OraxenBlocks.isOraxenBlock(loc.getBlock());
+        }
+
+        return false;
+
     }
 
     /**
@@ -1260,21 +1288,21 @@ public class Treasure {
         if(itemsAdder)
         {
 
-            if(type == TreasureData.TreasureType.ENTITY)
+            if(type == TreasureData.TreasureType.ITEMSADDER_ENTITY)
             {
 
                 CustomEntity entity = CustomEntity.spawn(name, location);
                 furnitureEntity = entity.getEntity();
 
             }
-            else if(type == TreasureData.TreasureType.BLOCK)
+            else if(type == TreasureData.TreasureType.ITEMSADDER_BLOCK)
             {
 
                 CustomBlock block = CustomBlock.place(name, location);
                 furnitureEntity = null;
 
             }
-            else if(type == TreasureData.TreasureType.FURNITURE)
+            else if(type == TreasureData.TreasureType.ITEMSADDER_FURNITURE)
             {
 
                 CustomFurniture furniture = CustomFurniture.spawn(name, location.getBlock());
@@ -1827,15 +1855,15 @@ public class Treasure {
 
         }
 
-        if(type == TreasureData.TreasureType.BLOCK)
+        if(type == TreasureData.TreasureType.ITEMSADDER_BLOCK)
         {
             CustomBlock.remove(getLocation());
         }
-        else if(type == TreasureData.TreasureType.ENTITY)
+        else if(type == TreasureData.TreasureType.ITEMSADDER_ENTITY)
         {
             if(furnitureEntity != null) CustomEntity.byAlreadySpawned(furnitureEntity).destroy();
         }
-        else if(type == TreasureData.TreasureType.FURNITURE)
+        else if(type == TreasureData.TreasureType.ITEMSADDER_FURNITURE)
         {
             if(furnitureEntity != null) CustomFurniture.remove(furnitureEntity, false);
         }
@@ -2014,6 +2042,7 @@ public class Treasure {
             i.setPickupDelay(32767);
             i.setCustomName(Messages.get("treasure-icon-text"));
             i.setCustomNameVisible(true);
+            i.setGravity(false);
 
             i.addScoreboardTag("defaultTreasureHologram");
 

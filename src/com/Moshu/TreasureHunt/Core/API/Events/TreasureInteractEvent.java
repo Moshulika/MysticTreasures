@@ -6,14 +6,14 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-public class TreasureClaimEvent extends Event implements Cancellable {
+public class TreasureInteractEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private final Treasure treasure;
     private final Player player;
     private boolean cancelled;
 
-    public TreasureClaimEvent(Treasure treasure, Player player) {
+    public TreasureInteractEvent(Treasure treasure, Player player) {
         this.treasure = treasure;
         this.player = player;
     }

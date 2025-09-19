@@ -10,7 +10,7 @@ version: 2.9
 description: The world is full of treasures!
 author: Moshu
 website: mc.b-zone.ro
-softdepend: [Vault, WorldGuard, ChunkyBorder, EssentialsX, Citizens, LuckPerms, MythicMobs, ItemsAdder, Oraxen, DecentHolograms, FancyHolograms, Nexo, ProtocolLib, MMOItems, packetevents]
+softdepend: [Vault, WorldGuard, ChunkyBorder, EssentialsX, Citizens, LuckPerms, MythicMobs, ItemsAdder, Oraxen, DecentHolograms, FancyHolograms, Nexo, ProtocolLib, MMOItems, packetevents, Lands]
 api-version: "1.13"
 
 commands:

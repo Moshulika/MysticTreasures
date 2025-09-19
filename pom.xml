@@ -126,20 +126,15 @@
         </repository>
 
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
-        </repository>
-
-        <repository>
             <id>nexus</id>
             <name>Lumine Releases</name>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
 
         <repository>
-            <id>oraxen</id>
+            <id>oraxen-releases</id>
             <name>Oraxen Repository</name>
-            <url>https://repo.nexomc.com/releases</url>
+            <url>https://repo.oraxen.com/releases</url>
         </repository>
 
         <repository>
@@ -185,6 +180,10 @@
             <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
         </repository>
 
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
 
     </repositories>
 
@@ -193,7 +192,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.7-R0.1-SNAPSHOT</version>
+            <version>1.21.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -255,9 +254,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.comphenix.protocol</groupId>
+            <groupId>net.dmulloy2</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>5.1.0</version>
+            <version>5.4.0</version>
             <scope>provided</scope>
         </dependency>
 
@@ -298,9 +297,17 @@
 
 
         <dependency>
+            <groupId>com.github.angeschossen</groupId>
+            <artifactId>LandsAPI</artifactId>
+            <version>7.15.20</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
             <groupId>io.th0rgal</groupId>
             <artifactId>oraxen</artifactId>
-            <version>1.189.0</version>
+            <version>1.193.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>me.gabytm.util</groupId>
