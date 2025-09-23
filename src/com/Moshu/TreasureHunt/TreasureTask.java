@@ -1,5 +1,6 @@
 package com.Moshu.TreasureHunt;
 
+import com.Moshu.Misc.Storage.Messages;
 import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.TreasureData;
@@ -10,6 +11,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -53,6 +55,8 @@ public class TreasureTask {
 
             @Override
             public void run() {
+
+                if(Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
 
                 for (TreasureScheduler s : TreasureData.getAllTreasureSchedulers()) {
 
@@ -145,23 +149,7 @@ public class TreasureTask {
                         if(Hunt.isHuntActive(identifier)) return;
 
                         Hunt h = new Hunt(identifier, d.getDuration());
-
-                        BukkitRunnable run = new BukkitRunnable()
-                        {
-
-                            @Override
-                            public void run() {
-
-                                if(h.getLocation() == null) return;
-
-                                h.start();
-                                this.cancel();
-
-                            }
-                        };
-
-                        run.runTaskTimerAsynchronously(plugin, 0, 1);
-
+                        h.startOnLocationFound();
 
                     }
 

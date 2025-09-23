@@ -189,6 +189,34 @@ public class Hunt {
      * (particles, keepers, effects), broadcasts messages to players, and starts
      * the hunt timer. The hunt must have a valid location before calling this method.
      */
+    public void startOnLocationFound() {
+
+        CompletableFuture<Hunt> started = new CompletableFuture<>();
+        getLocationReadyFuture().thenRun(() -> {
+
+                    Bukkit.getScheduler().runTask(plugin, () -> {
+                        try {
+                            start();
+                            started.complete(this);
+                        } catch (Throwable t) {
+                            started.completeExceptionally(t);
+                        }
+                    });
+                })
+                .exceptionally(ex -> {
+                    plugin.getLogger().severe("Failed to start treasure hunt with id '" + getTreasureData().getIdentifier() + "': " + ex.getMessage());
+                    started.completeExceptionally(ex);
+                    return null;
+                });
+
+    }
+
+    /**
+     * Starts the hunt by spawning the treasure at the designated location.
+     * This method activates the hunt, spawns the treasure with all its components
+     * (particles, keepers, effects), broadcasts messages to players, and starts
+     * the hunt timer. The hunt must have a valid location before calling this method.
+     */
     public void start() {
 
         if (this.l == null) {

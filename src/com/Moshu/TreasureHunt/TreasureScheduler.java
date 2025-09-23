@@ -124,13 +124,13 @@ public class TreasureScheduler {
     {
         switch (this.day.toLowerCase())
         {
-            case "monday": return 1;
-            case "tuesday": return 2;
-            case "wednesday": return 3;
-            case "thursday": return 4;
-            case "friday": return 5;
-            case "saturday": return 6;
-            case "sunday": return 7;
+            case "sunday": return 1;
+            case "monday": return 2;
+            case "tuesday": return 3;
+            case "wednesday": return 4;
+            case "thursday": return 5;
+            case "friday": return 6;
+            case "saturday": return 7;
             case "daily": return -1;
 
             default: return 0;
@@ -271,10 +271,6 @@ public class TreasureScheduler {
         int configHour = Integer.parseInt(time.split(":")[0]);
         int configMinute = Integer.parseInt(time.split(":")[1]);
 
-        //Debug line
-        //plugin.getLogger().info("Scheduler '" + id + "' real time - day: " + day + ", hour: " + hour + ", minute: " + minute);
-        //plugin.getLogger().info("Scheduler '" + id + "' config time - day: " + getDayNumber() + ", hour: " + configHour + ", minute: " + configMinute);
-
         boolean condition = (day == getDayNumber() || getDayNumber() == -1) && hour == configHour && minute == configMinute;
         return condition;
 
@@ -304,21 +300,7 @@ public class TreasureScheduler {
 
                 Hunt h = new Hunt(data.getIdentifier(), data.getDuration());
                 sender.sendMessage(Messages.get("generating-treasure"));
-
-                BukkitRunnable run = new BukkitRunnable() {
-
-                    @Override
-                    public void run() {
-
-                        if (h.getLocation() == null) return;
-
-                        h.start();
-                        this.cancel();
-
-                    }
-                };
-
-                run.runTaskTimerAsynchronously(plugin, 0, 1);
+                h.startOnLocationFound();
 
                 return true;
             }

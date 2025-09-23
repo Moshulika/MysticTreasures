@@ -192,30 +192,9 @@ public class TreasureCommands implements CommandExecutor {
 
                         Hunt h = new Hunt(id, TreasureData.getByIdentifier(id).getDuration());
                         sender.sendMessage(Messages.get("generating-treasure"));
+                        h.startOnLocationFound();
+                        sender.sendMessage(Messages.get("treasure-generated"));
 
-                        CompletableFuture<Hunt> started = new CompletableFuture<>();
-
-                        h.getLocationReadyFuture()
-                                .thenRun(() -> {
-
-                                    // Ensure start() runs on the main server thread
-                                    org.bukkit.Bukkit.getScheduler().runTask(plugin, () -> {
-                                        try {
-
-                                            sender.sendMessage(Messages.get("treasure-generated"));
-
-                                            h.start();
-                                            started.complete(h);
-                                        } catch (Throwable t) {
-                                            started.completeExceptionally(t);
-                                        }
-                                    });
-                                })
-                                .exceptionally(ex -> {
-                                    plugin.getLogger().severe("Failed to start treasure hunt with id '" + id + "': " + ex.getMessage());
-                                    started.completeExceptionally(ex);
-                                    return null;
-                                });
 
                     } else {
                         sender.sendMessage(Messages.get("inexistent-treasure"));
