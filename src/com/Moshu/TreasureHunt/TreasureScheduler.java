@@ -271,8 +271,7 @@ public class TreasureScheduler {
         int configHour = Integer.parseInt(time.split(":")[0]);
         int configMinute = Integer.parseInt(time.split(":")[1]);
 
-        boolean condition = (day == getDayNumber() || getDayNumber() == -1) && hour == configHour && minute == configMinute;
-        return condition;
+        return (day == getDayNumber() || getDayNumber() == -1) && hour == configHour && minute == configMinute;
 
     }
 
