@@ -117,6 +117,8 @@ public class TreasureData {
     private static ArrayList<TreasureData> treasureData;
     private final static ArrayList<String> treasureIdentifiers = new ArrayList<>();
 
+    private final TreasureRoundRegistry roundRegistry;
+
     public static void load()
     {
         FileHandler h = FileHandler.getInstance();
@@ -140,6 +142,8 @@ public class TreasureData {
             treasureIdentifiers.add(d.getIdentifier());
         }
     }
+
+    public TreasureRoundRegistry getRoundRegistry() { return roundRegistry; }
 
     public ConfigurationSection getDefaultSection() {
         return defaultSection;
@@ -752,6 +756,7 @@ public class TreasureData {
                     mob.setChance(mobSection.getInt("chance", 100));
                     mob.setMenuItem(mobSection.getString("menu-item", "STONE"));
                     mob.setMaxHealth(mobSection.getInt("max-health", 20));
+                    mob.setRounds(mobSection.getStringList("rounds"));
                     mob.setPotionEffects(deserializeEffects(mobSection.getStringList("potion-effects")));
                     mob.setAnimatedSpawn(animateMobSpawning());
 
@@ -894,6 +899,12 @@ public class TreasureData {
             plugin.getLogger().warning("Configuration section 'scheduler' does not exist!");
         }
 
+
+        roundRegistry = new TreasureRoundRegistry(this);
+
+        int rounds = defaultSection.getInt("rounds", 1);
+        roundRegistry.setRounds(rounds);
+        roundRegistry.load();
 
     }
 

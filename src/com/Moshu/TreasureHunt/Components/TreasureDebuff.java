@@ -97,35 +97,30 @@ public class TreasureDebuff {
      * 
      * @param t The treasure instance to apply debuffs for
      */
-    public void debuff(Treasure t)
-    {
+    public void debuff(Treasure t) {
 
-        if(!isEnabled()) return;
-        if(t.alreadyDebuffed()) return;
-        if(clicksToDebuff >= getTreasureData().getClicksToOpen())
-        {
+        if (!isEnabled()) return;
+        if (t.alreadyDebuffed()) return;
+        if (clicksToDebuff >= getTreasureData().getClicksToOpen()) {
             plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
             return;
         }
 
-        if(t.getCurrentClicks() == getClicksToDebuff())
-        {
+        if (t.getCurrentClicks() == getClicksToDebuff()) {
 
             TreasureDebuffEvent debuffEvent = new TreasureDebuffEvent(t);
             Bukkit.getPluginManager().callEvent(debuffEvent);
 
-            if(debuffEvent.isCancelled()) return;
+            if (debuffEvent.isCancelled()) return;
 
             Location treasureLoc = t.getLocation();
             Location playerLoc;
 
-            for(Player k : Utils.getNearbyPlayers(treasureLoc, Settings.getProtectionRadius()))
-            {
+            for (Player k : Utils.getNearbyPlayers(treasureLoc, Settings.getProtectionRadius())) {
 
                 playerLoc = k.getLocation();
 
-                if(isShockwave())
-                {
+                if (isShockwave()) {
                     playerLoc.getWorld().spawnParticle(Particle.SWEEP_ATTACK, playerLoc, 1);
                     k.setVelocity(playerLoc.getDirection().setY(0).multiply(-2).setY(0.5));
                 }
@@ -138,8 +133,7 @@ public class TreasureDebuff {
 
             }
 
-            if(isRespawnMobs())
-            {
+            if (isRespawnMobs()) {
                 t.spawnTreasureKeepers();
             }
 

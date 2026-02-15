@@ -25,6 +25,7 @@ treasure:
     treasure-spawns-inside: false # If true, treasure spawns inside structures/areas
     max-treasure-distance: 15000 # Overrides world border if smaller (useful if border unset)
     duration: 20 # Minutes before treasure despawns
+    rounds: 1 # How many rounds the treasure has (1 = no debuff)
     waypoint:
       enabled: false # Only working on Spigot/Paper >= 1.21.6
       color: "GOLD" # Minecraft colors
@@ -77,7 +78,7 @@ treasure:
       enable: true
       clicks-to-debuff: 5 # Must be < clicks-to-open (and not equal to 1)
       shockwave: true
-      respawn-mobs: true
+      respawn-mobs: true  # Must be true if you want to have multiple rounds with mobs
       potion-effects:
         - "BLINDNESS:1:100" # FORMAT: EFFECT:LEVEL:DURATION
 
@@ -138,6 +139,20 @@ treasure:
         mythic-mobs: false
         custom-name: "Enemy"
         range: "5-10"
+        ################
+        #
+        # 👹 ROUNDS SYSTEM
+        #    Set the rounds you wish this mob to spawn in.
+        #    If unset, the mob will spawn every time
+        #    Round 0 is the initial round (no debuff)
+        #    From round 1 onwards, the mob spawns on debuff rounds
+        #
+        #    Works only if debuff.respawn-mobs is set to true
+        #
+        ################
+        rounds:
+          - 0
+          - 1
         chance: 100
         max-health: 30
         menu-item: "PILLAGER_SPAWN_EGG"

@@ -1,6 +1,8 @@
 package com.Moshu.TreasureHunt.Handlers;
 
 import com.Moshu.Misc.Utils;
+import com.Moshu.TreasureHunt.Components.TreasureData;
+import com.Moshu.TreasureHunt.Core.Treasure;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.HologramManager;
 import de.oliver.fancyholograms.api.data.TextHologramData;
@@ -40,21 +42,25 @@ public class HologramHandler {
         for(World world : Bukkit.getWorlds())
         {
 
-            if(decent)
-            {
-                Hologram h = DHAPI.getHologram("treasurehunt_" + world.getName());
-                if(h != null) h.delete();
-            }
+            for(String id : TreasureData.getTreasureIdentifiers()) {
 
-            if(fancy)
-            {
+                String hologramName = Treasure.getHologramName(world, id);
 
-                HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
+                if (decent) {
+                    Hologram h = DHAPI.getHologram(hologramName);
+                    if (h != null) h.delete();
+                }
 
-                if (hologramManager.getHologram("treasurehunt_" + world.getName()).isPresent()) {
-                    de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + world.getName()).get();
-                    hologramManager.removeHologram(h);
-                    FancyHologramsPlugin.get().getHologramStorage().delete(h);
+                if (fancy) {
+
+                    HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
+
+                    if (hologramManager.getHologram(hologramName).isPresent()) {
+                        de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram(hologramName).get();
+                        hologramManager.removeHologram(h);
+                        FancyHologramsPlugin.get().getHologramStorage().delete(h);
+                    }
+
                 }
 
             }
@@ -64,14 +70,14 @@ public class HologramHandler {
     }
 
 
-    public void createFancyHologram(Location loc)
+    public void createFancyHologram(Location loc, String hologramName)
     {
 
         if(Utils.isEnabled("FancyHolograms"))
         {
             HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
-            TextHologramData data = new TextHologramData("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5,1.5,0.5));
+            TextHologramData data = new TextHologramData(hologramName, loc.clone().add(0.5,1.5,0.5));
             data.setBackground(Color.fromARGB(0, 0,0,0));
             data.setVisibilityDistance(50);
             de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.create(data);
@@ -80,15 +86,15 @@ public class HologramHandler {
 
     }
 
-    public void update(World w, ArrayList<String> lines) {
+    public void update(String hologramName, ArrayList<String> lines) {
 
         if (Utils.isEnabled("FancyHolograms")) {
 
             HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
-            if (hologramManager.getHologram("treasurehunt_" + w.getName()).isPresent()) {
+            if (hologramManager.getHologram(hologramName).isPresent()) {
 
-                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + w.getName()).get();
+                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram(hologramName).get();
 
                 Bukkit.getScheduler().runTask(plugin, () ->
                 {
@@ -104,14 +110,14 @@ public class HologramHandler {
         }
     }
 
-    public void delete(Location loc) {
+    public void delete(String hologramName) {
         if (Utils.isEnabled("FancyHolograms")) {
 
             HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
-            if (hologramManager.getHologram("treasurehunt_" + loc.getWorld().getName()).isPresent()) {
+            if (hologramManager.getHologram(hologramName).isPresent()) {
 
-                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram("treasurehunt_" + loc.getWorld().getName()).get();
+                de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.getHologram(hologramName).get();
                 hologramManager.removeHologram(h);
                 FancyHologramsPlugin.get().getHologramStorage().delete(h);
 

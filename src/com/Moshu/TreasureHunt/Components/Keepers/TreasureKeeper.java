@@ -44,6 +44,7 @@ public class TreasureKeeper {
     private boolean isSpawned;
     private final TreasureData t;
     private final ArrayList<UUID> uuids = new ArrayList<>();
+    private List<Integer> rounds;
     private String menuItem;
     private String range;
 
@@ -69,6 +70,22 @@ public class TreasureKeeper {
 
     public void setDrops(TreasureKeeperDrops drops) {
         this.drops = drops;
+    }
+
+    public List<Integer> getRounds() {
+        return rounds;
+    }
+
+    public void setRounds(List<String> rounds) {
+
+        ArrayList<Integer> roundsList = new ArrayList<>();
+
+        for(String s : rounds)
+        {
+            if(Utils.isInt(s)) roundsList.add(Integer.parseInt(s));
+        }
+
+        this.rounds = roundsList;
     }
 
     public void setEquipment(TreasureKeeperEquipment equipment) {
@@ -428,6 +445,8 @@ public class TreasureKeeper {
         spawningEntities.add(ent);
         ent.teleport(entLoc);
 
+        ent.setInvulnerable(true);
+
         Block blockUnderEntity = particleLocation.clone().add(0.0, -1.0, 0.0).getBlock();
         final Material particleMaterial = blockUnderEntity.getType();
         final float step = 1.0f / 85f * 2.0f;
@@ -458,6 +477,7 @@ public class TreasureKeeper {
                         ent.setPassenger(passenger);
                     }
 
+                    ent.setInvulnerable(false);
                     spawningEntities.remove(ent);
                     this.cancel();
                     return;

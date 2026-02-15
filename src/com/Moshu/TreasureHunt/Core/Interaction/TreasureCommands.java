@@ -150,7 +150,7 @@ public class TreasureCommands implements CommandExecutor {
                     sender.sendMessage(Utils.format("&6&lTreasure&e&lHunt &fHelp page"));
                     sender.sendMessage(" ");
                     sender.sendMessage(Utils.format("  &6/hunt start (Identifier) &8(&fStarts a hunt at a random location&8)"));
-                    sender.sendMessage(Utils.format("  &6/hunt stop (Identifier) &8(&fStops the hunt&8)"));
+                    sender.sendMessage(Utils.format("  &6/hunt stop (Identifier / all) &8(&fStops the hunt&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt start &ehere (Identifier) &8(&fStarts a hunt at the player's location&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt reload &8(&fReloads the config & messages - not all config values can be reloaded&8)"));
                     sender.sendMessage(Utils.format("  &6/hunt clear (Player) &8(&fClears a player's winner cooldown&8)"));
@@ -212,14 +212,24 @@ public class TreasureCommands implements CommandExecutor {
                         }
 
                         //Treasure is not yet spawned, so block stopping the treasure because it will cause bugs.
-                        if(!Hunt.getHuntByIdentifier(id).getTreasure().isActive())
-                        {
+                        if (!Hunt.getHuntByIdentifier(id).getTreasure().isActive()) {
                             sender.sendMessage(Messages.get("hunt-not-active"));
                             return true;
                         }
 
                         Hunt.getHuntByIdentifier(id).stop();
                         sender.sendMessage(Messages.get("hunt-stopped"));
+
+                    }
+                    else if(args[1].equalsIgnoreCase("all"))
+                    {
+
+                        for(Hunt h : Hunt.getActiveTreasures())
+                        {
+                            h.stop();
+                        }
+
+                        sender.sendMessage(Messages.get("all-hunts-stopped"));
 
                     } else {
                         sender.sendMessage(Messages.get("inexistent-treasure"));

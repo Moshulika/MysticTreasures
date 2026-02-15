@@ -64,6 +64,8 @@ public class Treasure {
     private int currentClicks = 0;
     private final boolean secondWaveActivated = false;
 
+    private int currentRound = 0;
+
     private final TreasureData treasureData;
 
     private boolean spawned = false;
@@ -146,8 +148,7 @@ public class Treasure {
 
             for(ItemReward i : getTreasureData().getItemRewards())
             {
-
-                if (i.getChance() <= Utils.chance()) continue;
+                if (Utils.chance() <= i.getChance()) continue;
 
                 ItemStack is = i.getItemStack();
 
@@ -169,6 +170,31 @@ public class Treasure {
             }
 
         }
+
+    }
+
+    public int getCurrentRound()
+    {
+        return this.currentRound;
+    }
+
+    public void increaseCurrentRound()
+    {
+        this.currentRound++;
+    }
+
+    public void setCurrentRound(int round)
+    {
+        this.currentRound = round;
+    }
+
+    public boolean isFinalRound()
+    {
+        return false;
+    }
+
+    public void startRound()
+    {
 
     }
 
@@ -667,6 +693,18 @@ public class Treasure {
         return spawnedTreasureKeepers.contains(e) || e.hasMetadata("treasure-mob-" + l.getWorld().getName());
     }
 
+    public static String renameWorld(World w)
+    {
+        String worldName = w.getName();
+        return worldName.replaceAll("[^-_A-Za-z]","_").trim();
+    }
+
+    public static String getHologramName(World w, String id)
+    {
+        String worldName = renameWorld(w).toLowerCase();
+        return "treasure_" + worldName + "_" + id.toLowerCase();
+    }
+
     /**
      * Creates and displays holographic text above the treasure.
      * This method generates floating text displays that provide information
@@ -676,17 +714,17 @@ public class Treasure {
     {
         
         Location loc = getLocation().clone();
+        String hologramName = getHologramName(getLocation().getWorld(), getTreasureData().getIdentifier());
 
         if(Utils.isEnabled("DecentHolograms")) {
 
-
-            if(DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName()) != null)
+            if(DHAPI.getHologram(hologramName) != null)
             {
-                DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName()).delete();
+                DHAPI.getHologram(hologramName).delete();
             }
 
-            DHAPI.createHologram("treasurehunt_" + loc.getWorld().getName(), loc.clone().add(0.5, 1.5, 0.5), false).setDownOrigin(true);
-            Hologram h = DHAPI.getHologram("treasurehunt_" + loc.getWorld().getName());
+            DHAPI.createHologram(hologramName, loc.clone().add(0.5, 1.5, 0.5), false).setDownOrigin(true);
+            Hologram h = DHAPI.getHologram(hologramName);
 
             ArrayList<String> lines = new ArrayList<>();
 
@@ -703,14 +741,13 @@ public class Treasure {
         else if(Utils.isEnabled("FancyHolograms"))
         {
 
-            if(FancyHologramsPlugin.get().getHologramManager().getHologram("treasurehunt_" + loc.getWorld().getName()).isPresent())
+            if(FancyHologramsPlugin.get().getHologramManager().getHologram(hologramName).isPresent())
             {
-                HologramHandler.getInstance().delete(getLocation());
+                HologramHandler.getInstance().delete(hologramName);
             }
 
             HologramHandler handler = HologramHandler.getInstance();
-
-            handler.createFancyHologram(loc);
+            handler.createFancyHologram(loc, hologramName);
         }
         else
         {
@@ -990,6 +1027,8 @@ public class Treasure {
         String yes = Messages.get("menu-yes");
         String no = Messages.get("menu-no");
 
+        String hologramName = getHologramName(w, getTreasureData().getIdentifier());
+
         for (String s : Messages.getAndFormatList("messages.treasure-hologram")) {
             lines.add(s
                     .replace("{time}", Utils.getCountDown(getHunt().getRemainingTime()))
@@ -1007,9 +1046,9 @@ public class Treasure {
 
         if (Utils.isEnabled("DecentHolograms")) {
 
-            if (DHAPI.getHologram("treasurehunt_" + w.getName()) != null) {
+            if (DHAPI.getHologram(hologramName) != null) {
 
-                Hologram h = DHAPI.getHologram("treasurehunt_" + w.getName());
+                Hologram h = DHAPI.getHologram(hologramName);
 
                 Bukkit.getScheduler().runTask(plugin, ()->
                 {
@@ -1022,7 +1061,7 @@ public class Treasure {
         }
         else if(Utils.isEnabled("FancyHolograms"))
         {
-            HologramHandler.getInstance().update(w, lines);
+            HologramHandler.getInstance().update(hologramName, lines);
         }
     }
 
@@ -1103,6 +1142,27 @@ public class Treasure {
         run.runTaskTimerAsynchronously(plugin, 0, 5);
     }
 
+    private boolean isInLava(Entity e)
+    {
+
+        Location loc = e.getLocation();
+        Location under = loc.clone().add(0, -1, 0);
+
+        return loc.getBlock().getType() == Material.LAVA || under.getBlock().getType() == Material.LAVA;
+    }
+
+    private boolean isTouchdownLocation(Entity e)
+    {
+
+        if(Utils.isPaper())
+        {
+            return e.isOnGround() || e.isInLava() || e.isInWater();
+        }
+
+        return e.isOnGround() || e.isInWater() || isInLava(e);
+
+    }
+
     /**
      * Performs animation effects on treasure entities and items.
      * This private method handles visual animations like rotation, floating,
@@ -1149,7 +1209,7 @@ public class Treasure {
                     return;
                 }
 
-                if (e.isOnGround() || e.isInLava() || e.isInWater()) {
+                if (isTouchdownLocation(e)) {
 
                     Bukkit.getScheduler().runTask(plugin, e::remove);
                     location.getWorld().spawnParticle(EXPLOSION, e.getLocation(), 1);
@@ -1606,7 +1666,7 @@ public class Treasure {
             {
 
                 if(i.shouldGiveOnlyToTopX() && !i.isTopX(topCounter)) continue;
-                if (i.getChance() <= Utils.chance()) continue;
+                if (Utils.chance() <= i.getChance()) continue;
 
                 ItemStack item = i.getItemStack();
 
@@ -1663,7 +1723,7 @@ public class Treasure {
             {
 
                 if(i.shouldGiveOnlyToTopX() && !i.isTopX(topCounter)) continue;
-                if (i.getChance() <= Utils.chance()) continue;
+                if (Utils.chance() <= i.getChance()) continue;
 
                 ItemStack item = i.getItemStack();
 
@@ -1721,7 +1781,7 @@ public class Treasure {
 
         for(ItemReward r : getTreasureData().getItemRewards())
         {
-            if (r.getChance() <= Utils.chance()) continue;
+            if (Utils.chance() <= r.getChance()) continue;
 
             if(dropOnGround)
             {
@@ -1842,6 +1902,7 @@ public class Treasure {
     {
 
         TreasureData.TreasureType type = getTreasureData().getTreasureType();
+        String hologramName = getHologramName(getLocation().getWorld(), getTreasureData().getIdentifier());
 
         if(getTreasureData().canOpenChest()) {
 
@@ -1891,14 +1952,14 @@ public class Treasure {
 
         if(Utils.isEnabled("DecentHolograms"))
         {
-            Hologram h = DHAPI.getHologram("treasurehunt_" + getLocation().getWorld().getName());
+            Hologram h = DHAPI.getHologram(hologramName);
             if(h != null) h.delete();
         }
 
         else if(Utils.isEnabled("FancyHolograms"))
         {
 
-            HologramHandler.getInstance().delete(getLocation());
+            HologramHandler.getInstance().delete(hologramName);
 
         }
 

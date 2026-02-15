@@ -10,6 +10,7 @@ messages:
   treasure-generated-confirmation: "&6&lTreasure&e&lHunt &fwas generated @ {world}, X: {x}, Z: {z}"
   treasure-stopped-confirmation: "&6&lTreasure&e&lHunt &fwas stopped @ {world}, X: {x}, Z: {z}"
   hunt-stopped: "&6&lTreasure&e&lHunt &fYou stopped the treasure hunt"
+  all-hunts-stopped: "&6&lTreasure&e&lHunt &fYou stopped all treasure hunts"
   cannot-place-near-treasure: "&6&lTreasure&e&lHunt &fCan't place blocks near a treasure!"
   cannot-break-near-treasure: "&6&lTreasure&e&lHunt &fCan't break blocks near a treasure!"
   cannot-attack-near-treasure: "&6&lTreasure&e&lHunt &fCan't attack players near a treasure!"
