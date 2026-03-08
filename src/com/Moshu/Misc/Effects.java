@@ -97,7 +97,7 @@ public class Effects {
 
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, 1);
+        run.runTaskTimerAsynchronously(plugin, 0, 2);
 
 
 
@@ -168,7 +168,7 @@ public class Effects {
             }
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, 1);
+        run.runTaskTimerAsynchronously(plugin, 0, 2);
 
     }
 
@@ -234,7 +234,7 @@ public class Effects {
 
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, 1);
+        run.runTaskTimerAsynchronously(plugin, 0, 2);
 
     }
 

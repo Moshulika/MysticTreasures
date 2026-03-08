@@ -1072,6 +1072,7 @@ public class Utils
     public static ArrayList<Entity> getNearbyEntities(Location l, int radius)
     {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
         if(l.getWorld().getEntities().size() != 0) {
 
@@ -1079,7 +1080,7 @@ public class Utils
             for (Entity e : l.getWorld().getEntities()) {
 
 
-                    if (l.distance(e.getLocation()) <= radius) {
+                    if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                         en.add(e);
 
@@ -1099,6 +1100,7 @@ public class Utils
     public static ArrayList<Entity> getNearbyEntities(Location l, EntityType et, int radius)
     {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
         if(l.getWorld().getEntities().size() != 0) {
 
@@ -1106,7 +1108,7 @@ public class Utils
 
                 if(e.getType() != et) continue;
 
-                if (l.distance(e.getLocation()) <= radius) {
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                     en.add(e);
 
@@ -1126,6 +1128,7 @@ public class Utils
     public static ArrayList<Entity> getNearbyItemsOfType(Location l, Material mat, int radius)
     {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
         Bukkit.getScheduler().runTask(plugin, () ->
         {
@@ -1143,7 +1146,7 @@ public class Utils
 
                         if(i.getItemStack().getType() == mat) {
 
-                            if (l.distance(e.getLocation()) <= radius) {
+                            if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                                 en.add(e);
 
@@ -1170,13 +1173,14 @@ public class Utils
     public static ArrayList<Entity> getNearbyItems(Location l, int radius)
     {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
         l.getChunk().getEntities();
         for (Entity e : l.getChunk().getEntities()) {
 
             if (e instanceof Item) {
 
-                if (l.distance(e.getLocation()) <= radius) {
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                     en.add(e);
 
@@ -1198,13 +1202,14 @@ public class Utils
     public static ArrayList<Entity> getAllNearbyEntities(Location l, int radius)
     {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
         if(l.getWorld().getEntities().size() != 0) {
 
 
             for (Entity e : l.getWorld().getLivingEntities()) {
 
-                if (l.distance(e.getLocation()) <= radius) {
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                     en.add(e);
 
@@ -1234,10 +1239,11 @@ public class Utils
     public static ArrayList<Player> getNearbyPlayers(Location l, int radius)
     {
         ArrayList<Player> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
             for (Player p : l.getWorld().getPlayers()) {
 
-                    if (l.distance(p.getLocation()) <= radius) {
+                    if (l.distanceSquared(p.getLocation()) <= radiusSquared) {
                         en.add(p);
                     }
 

@@ -2,6 +2,7 @@ package com.Moshu.TreasureHunt.Components.Keepers;
 
 import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
+import com.Moshu.TreasureHunt.Core.Treasure;
 import com.Moshu.TreasureHunt.Components.TreasureData;
 import com.Moshu.TreasureHunt.Core.Hunt;
 import io.lumine.mythic.api.mobs.MythicMob;
@@ -303,6 +304,14 @@ public class TreasureKeeper {
 
     public static Hunt getHunt(LivingEntity e)
     {
+        if (e.hasMetadata("treasure-hunt-id")) {
+            String uuidStr = e.getMetadata("treasure-hunt-id").get(0).asString();
+            try {
+                return Hunt.getHuntById(UUID.fromString(uuidStr));
+            } catch (IllegalArgumentException ex) {
+                return Hunt.getHuntByIdentifier(getTreasureIdentifier(e));
+            }
+        }
         return Hunt.getHuntByIdentifier(getTreasureIdentifier(e));
     }
 
@@ -320,10 +329,12 @@ public class TreasureKeeper {
 
     }
 
-    public void spawn(ArrayList<Entity> spawnedEntityRegister, Location loc)
+    public void spawn(ArrayList<Entity> spawnedEntityRegister, Treasure t)
     {
 
         boolean spawnsInside = getTreasureData().isSpawnsInside() || getTreasureData().spawnToCertainCoords();
+        Location loc = t.getLocation();
+        Hunt h = t.getHunt();
 
         if(Utils.chance() < chance)
         {
@@ -341,6 +352,7 @@ public class TreasureKeeper {
                         Entity entity = knight.getEntity().getBukkitEntity();
                         entity.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
                         entity.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
+                        entity.setMetadata("treasure-hunt-id", new FixedMetadataValue(plugin, h.getHuntId().toString()));
 
                         if (isAnimatedSpawn()) smoothEntitySpawnFromGrave(entity);
 
@@ -368,6 +380,7 @@ public class TreasureKeeper {
                     e.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
                     e.setMetadata("treasure-keeper-" + getMobId(), new FixedMetadataValue(plugin, "treasure-keeper-" + getMobId()));
                     e.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
+                    e.setMetadata("treasure-hunt-id", new FixedMetadataValue(plugin, h.getHuntId().toString()));
 
                     e.addScoreboardTag("treasureKeeper");
 

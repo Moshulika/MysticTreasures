@@ -649,6 +649,10 @@ public class TreasureData {
 
         parseAwardMethod();
 
+        this.roundRegistry = new TreasureRoundRegistry(this);
+        this.roundRegistry.setRounds(defaultSection.getInt("rounds", 1));
+        this.roundRegistry.load();
+
         try
         {
             String particleStr = defaultSection.getString("treasure-particles", "COMPOSTER");
@@ -682,7 +686,7 @@ public class TreasureData {
         }
         else
         {
-            plugin.getLogger().warning("Configuration section 'waypoint' does not exist!");
+            plugin.getLogger().warning("Configuration section 'waypoint' does not exist for treasure " + treasureName);
             this.waypoint = new TreasureWaypoint(false, "GOLD", 1000);
         }
 
@@ -707,7 +711,7 @@ public class TreasureData {
         }
         else
         {
-            plugin.getLogger().warning("Configuration section 'treasure-key' does not exist!");
+            plugin.getLogger().warning("Configuration section 'treasure-key' does not exist for treasure " + treasureName);
         }
 
         // Load Debuff section
@@ -728,7 +732,7 @@ public class TreasureData {
         }
         else
         {
-            plugin.getLogger().warning("Configuration section 'debuff' does not exist!");
+            plugin.getLogger().warning("Configuration section 'debuff' does not exist for treasure " + treasureName);
         }
 
 
@@ -770,7 +774,7 @@ public class TreasureData {
                 }
                 else
                 {
-                    plugin.getLogger().warning("Configuration section '" + mobId + "' does not exist!");
+                    plugin.getLogger().warning("Configuration section for mob '" + mobId + "' does not exist!");
                 }
             }
 
@@ -811,7 +815,7 @@ public class TreasureData {
                 }
                 else
                 {
-                    plugin.getLogger().warning("Configuration section '" + rewardSection + "' does not exist!");
+                    plugin.getLogger().warning("Configuration section for reward '" + rewardId + "' does not exist!");
                 }
             }
 
@@ -820,7 +824,7 @@ public class TreasureData {
         }
         else
         {
-            plugin.getLogger().warning("Configuration section '" + itemRewardsSection + "' does not exist!");
+            plugin.getLogger().warning("Configuration section 'item-rewards' does not exist for treasure " + treasureName);
         }
 
         // Load CommandRewards
@@ -846,7 +850,7 @@ public class TreasureData {
                 }
                 else
                 {
-                    plugin.getLogger().warning("Configuration section '" + commandId + "' does not exist!");
+                    plugin.getLogger().warning("Configuration section for command reward '" + commandId + "' does not exist!");
                 }
             }
 

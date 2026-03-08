@@ -370,6 +370,12 @@ public class Locations {
         return Double.MAX_VALUE;
     }
 
+    public static double distanceSquaredTo(Location loc1, Location loc2)
+    {
+        if(loc1.getWorld().getName().equals(loc2.getWorld().getName())) return loc1.distanceSquared(loc2);
+        return Double.MAX_VALUE;
+    }
+
 
     public static double getBorder(org.bukkit.World w) {
 

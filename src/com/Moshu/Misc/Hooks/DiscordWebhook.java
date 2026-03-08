@@ -2,11 +2,14 @@ package com.Moshu.Misc.Hooks;
 
 import com.Moshu.Misc.Storage.Messages;
 import com.Moshu.Misc.Storage.Settings;
+import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Core.Treasure;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 
 import java.io.*;
@@ -15,6 +18,8 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 public class DiscordWebhook {
 
@@ -110,35 +115,67 @@ public class DiscordWebhook {
     private String getPayloadWithAppliedPlaceholders(Treasure t, DiscordTreasureEventType type)
     {
 
-        String itemRewards = t.getTreasureData().getSanitizedRewards(5);
-        String commandRewards = t.getTreasureData().getSanitizedCommandRewards(5);
-        String treasureKeepers = t.getTreasureData().getSanitizedTreasureKeepers(5);
+        String itemRewards = sanitizeForJson(ChatColor.stripColor(t.getTreasureData().getSanitizedRewards(5)));
+        String commandRewards = sanitizeForJson(ChatColor.stripColor(t.getTreasureData().getSanitizedCommandRewards(5)));
+        String treasureKeepers = sanitizeForJson(ChatColor.stripColor(t.getTreasureData().getSanitizedTreasureKeepers(5)));
 
         Location loc = t.getLocation();
-        String treasureName = t.getTreasureData().getTreasureName();
+        String treasureName = sanitizeForJson(ChatColor.stripColor(t.getTreasureData().getTreasureName()));
         int duration = t.getTreasureData().getDuration();
         boolean requiresKey = t.getTreasureData().getTreasureKey().requiresKey();
 
-//        int x = h.getLocation().getBlockX();
-//        int z = h.getLocation().getBlockZ();
-//        int offset = h.getTreasure().getTreasureData().getCoordsNearTreasure();
-//        int x_offset = x + Utils.randInt(-offset, offset);
-//        int z_offset = z + Utils.randInt(-offset, offset);
+        String participants = sanitizeForJson(ChatColor.stripColor(String.join(", ", t.getParticipantsNames())));
+
+        List<UUID> sorted = t.getSortedPlayersByDamage();
+        StringBuilder top3Builder = new StringBuilder();
+        for(int i = 0; i < Math.min(3, sorted.size()); i++) {
+            OfflinePlayer op = Bukkit.getOfflinePlayer(sorted.get(i));
+            String name = op.getName() != null ? op.getName() : "Unknown";
+            top3Builder.append(name);
+            if (i < Math.min(3, sorted.size()) - 1) {
+                top3Builder.append(", ");
+            }
+        }
+        String top3 = sanitizeForJson(top3Builder.toString());
+
+        int x = loc.getBlockX();
+        int y = loc.getBlockY();
+        int z = loc.getBlockZ();
+        int offset = t.getTreasureData().getCoordsNearTreasure();
+        int x_offset = x + Utils.randInt(-offset, offset);
+        int z_offset = z + Utils.randInt(-offset, offset);
 
         String payload = getPayload(type);
         payload = payload.replace("{item-rewards}", itemRewards)
                 .replace("{now}", Instant.now().toString())
-                .replace("{treasure-winner}", "winner")
-                .replace("{treasure-top-3}", "winner")
+                .replace("{treasure-winner}", participants.isEmpty() ? "None" : participants)
+                .replace("{treasure-top-3}", top3.isEmpty() ? "None" : top3)
                 .replace("{command-rewards}", commandRewards)
                 .replace("{treasure-keepers}", treasureKeepers)
                 .replace("{treasure-name}", treasureName)
                 .replace("{treasure-duration}", duration + "")
                 .replace("{treasure-world}", loc.getWorld().getName())
-                .replace("{treasure-requires-key}", requiresKey ? Messages.get("menu-yes") : Messages.get("menu-no"))
-                .replace("{treasure-coords}", loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ());
+                .replace("{treasure-requires-key}", requiresKey ? ChatColor.stripColor(Messages.get("menu-yes")) : ChatColor.stripColor(Messages.get("menu-no")))
+                .replace("{treasure-coords}", x + ", " + y + ", " + z)
+                .replace("{x}", x + "")
+                .replace("{y}", y + "")
+                .replace("{z}", z + "")
+                .replace("{x-offset}", x_offset + "")
+                .replace("{z-offset}", z_offset + "");
 
         return payload;
+    }
+
+    private String sanitizeForJson(String s)
+    {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\b", "\\b")
+                .replace("\f", "\\f")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t");
     }
 
     /**
@@ -164,7 +201,6 @@ public class DiscordWebhook {
             }
 
             int responseCode = connection.getResponseCode();
-            System.out.println("Discord response: " + responseCode);
 
         } catch (Exception e) {
             plugin.getLogger().warning("Could not send Discord Webhook Message - invalid URL or the connection has failed");

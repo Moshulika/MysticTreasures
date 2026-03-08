@@ -15,10 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -42,7 +39,10 @@ public class Hunt {
     private final String treasureTypeString;
     private TreasureData treasureData;
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
-    private static final HashMap<String, Hunt> activeHunts = new HashMap<>();
+    private static final HashMap<UUID, Hunt> activeHunts = new HashMap<>();
+    private static final List<Hunt> activeTreasuresCache = Collections.synchronizedList(new ArrayList<>());
+    private final UUID huntId;
+
     // Future that completes when the location is ready (non-blocking)
     private final CompletableFuture<Location> locationReady = new CompletableFuture<>();
 
@@ -50,15 +50,25 @@ public class Hunt {
      * Gets called on removal of treasure
      */
     public void setInactive() {
-        activeHunts.remove(treasureTypeString);
+        activeHunts.remove(huntId);
+        activeTreasuresCache.remove(this);
     }
 
     /**
      * The hunt is active but the treasure is not yet generated and active
-     * @param id the treasureId from treasure.yml
      */
-    private void setActive(String id) {
-        activeHunts.put(id, this);
+    private void setActive() {
+        activeHunts.put(huntId, this);
+    }
+
+    public void setTreasureActive() {
+        if (!activeTreasuresCache.contains(this)) {
+            activeTreasuresCache.add(this);
+        }
+    }
+
+    public UUID getHuntId() {
+        return huntId;
     }
 
     /**
@@ -70,8 +80,23 @@ public class Hunt {
      * @return the Hunt instance with the matching identifier, or null if no active hunt is found
      */
 
-    public static Hunt getHuntByIdentifier(String id) {
+    public static Hunt getHuntById(UUID id) {
         return activeHunts.get(id);
+    }
+
+    /**
+     * Retrieves an active hunt by its treasure identifier.
+     * If multiple hunts of the same type are active, returns the first one found.
+     *
+     * @param id the treasure identifier
+     * @return the Hunt instance, or null if not found
+     */
+    public static Hunt getHuntByIdentifier(String id) {
+        for(Hunt h : activeHunts.values())
+        {
+            if(h.getTreasureData().getIdentifier().equals(id)) return h;
+        }
+        return null;
     }
 
     /**
@@ -121,6 +146,7 @@ public class Hunt {
 
     public Hunt(String treasureTypeString, int duration) {
 
+        this.huntId = UUID.randomUUID();
         this.treasureTypeString = treasureTypeString;
         this.duration = duration;
 
@@ -173,6 +199,7 @@ public class Hunt {
      */
 
     public Hunt(Location location, String treasureTypeString, int duration) {
+        this.huntId = UUID.randomUUID();
         this.treasureTypeString = treasureTypeString;
         this.duration = duration;
         this.l = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -232,7 +259,7 @@ public class Hunt {
         }
 
         this.startTime = System.currentTimeMillis();
-        setActive(getTreasureData().getIdentifier());
+        setActive();
         treasure.create();
 
         Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
@@ -269,25 +296,13 @@ public class Hunt {
 
     /**
      * Retrieves all hunts that have active treasures spawned in the world.
-     * This method filters hunts to return only those where the treasure has been
-     * successfully generated and is currently active (not just the hunt being active).
+     * This method returns a cached list of active treasures to optimize performance.
      *
      * @return a List of Hunt instances that have active treasures
      */
 
     public static List<Hunt> getActiveTreasures() {
-
-        List<Hunt> h = Collections.synchronizedList(new ArrayList<Hunt>());
-
-        for (Hunt x : activeHunts.values()) {
-
-            if (x.getTreasure().isActive()) {
-                h.add(x);
-            }
-
-        }
-
-        return h;
+        return activeTreasuresCache;
     }
 
     /**
@@ -306,8 +321,8 @@ public class Hunt {
      *
      * @return a list of all the hunts active
      */
-    public static List<String> getHuntsIdentifiers() {
-        List<String> h = Collections.synchronizedList(new ArrayList<>());
+    public static List<UUID> getHuntsIds() {
+        List<UUID> h = Collections.synchronizedList(new ArrayList<>());
         h.addAll(activeHunts.keySet());
         return h;
     }
@@ -326,12 +341,8 @@ public class Hunt {
 
         List<String> h = Collections.synchronizedList(new ArrayList<>());
 
-        for (String x : activeHunts.keySet()) {
-
-            if (activeHunts.get(x).getTreasure().isActive()) {
-                h.add(x);
-            }
-
+        for (Hunt x : activeTreasuresCache) {
+            h.add(x.getTreasureData().getIdentifier());
         }
 
         return h;
@@ -350,19 +361,23 @@ public class Hunt {
 
         Location huntLoc;
 
-        int minDistance = Integer.MAX_VALUE;
+        double minDistanceSquared = Double.MAX_VALUE;
         Hunt closestHunt = null;
         Hunt backupHunt = null;
 
-        for (Hunt h : getActiveTreasures()) {
+        for (Hunt h : activeTreasuresCache) {
             huntLoc = h.getLocation();
+
+            if (huntLoc == null || huntLoc.getWorld() == null) continue;
 
             if (!huntLoc.getWorld().getName().equals(loc.getWorld().getName())) {
                 backupHunt = h;
                 continue;
             }
 
-            if (huntLoc.distance(loc) < minDistance) {
+            double distSquared = huntLoc.distanceSquared(loc);
+            if (distSquared < minDistanceSquared) {
+                minDistanceSquared = distSquared;
                 closestHunt = h;
             }
 
@@ -422,7 +437,7 @@ public class Hunt {
 
         Location treasureLoc;
 
-        for (Hunt h : getActiveTreasures()) {
+        for (Hunt h : activeTreasuresCache) {
 
             treasureLoc = h.getLocation();
 
@@ -445,7 +460,7 @@ public class Hunt {
      */
 
     public boolean isHuntActive() {
-        return treasure.isActive();
+        return treasure != null && treasure.isActive();
     }
 
     /**
@@ -458,7 +473,11 @@ public class Hunt {
      */
 
     public static boolean isHuntActive(String id) {
-        return getHuntsIdentifiers().contains(id);
+        for(Hunt h : activeHunts.values())
+        {
+            if(h.getTreasureData().getIdentifier().equals(id)) return true;
+        }
+        return false;
     }
 
     /**
@@ -601,7 +620,7 @@ public class Hunt {
         String name = Utils.format(Messages.get("active-hunts-menu.name"));
 
         int i = 0;
-        for(Hunt h : getActiveTreasures())
+        for(Hunt h : activeTreasuresCache)
         {
 
             ItemStack item = new ItemStack(Utils.checkMaterial(h.getTreasureData().getMenuItem()));

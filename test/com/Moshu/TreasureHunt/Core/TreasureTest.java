@@ -1,0 +1,42 @@
+package com.Moshu.TreasureHunt.Core;
+
+import com.Moshu.Misc.Storage.Settings;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
+
+public class TreasureTest {
+
+    @Test
+    public void testIsTreasureLogic() {
+        // Since isTreasure is static and relies on Hunt.getActiveTreasures(),
+        // and we can't easily mock static methods without specialized libraries,
+        // we'll focus on testing logic that can be isolated or mocked via instances.
+    }
+
+    @Test
+    public void testRenameWorld() {
+        World world = Mockito.mock(World.class);
+        when(world.getName()).thenReturn("World-123! Test");
+        
+        String renamed = Treasure.renameWorld(world);
+        // Pattern: [^-_A-Za-z] -> _
+        assertEquals("World-123__Test", renamed);
+    }
+
+    @Test
+    public void testGetHologramName() {
+        World world = Mockito.mock(World.class);
+        when(world.getName()).thenReturn("MyWorld");
+        
+        String name = Treasure.getHologramName(world, "GoldenChest");
+        assertEquals("treasure_myworld_goldenchest", name);
+    }
+}

@@ -31,15 +31,24 @@ import java.util.logging.Level;
 public class TreasureTask {
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
-    private static long lastHunt;
+    private static final HashMap<String, Long> lastClaimTimestamps = new HashMap<>();
 
     /**
-     * Updates the timestamp of the last treasure hunt.
-     * Used to track cooldown periods between hunts.
+     * Updates the timestamp of the last treasure hunt for a specific identifier.
+     * Used to track cooldown periods between hunts of the same type.
      */
-    public static void updateLastHunt()
+    public static void updateLastHunt(String identifier)
     {
-        lastHunt = System.currentTimeMillis();
+        lastClaimTimestamps.put(identifier, System.currentTimeMillis());
+    }
+
+    /**
+     * Gets the last claim timestamp for a specific treasure identifier.
+     * @return The timestamp in milliseconds, or 0 if never claimed.
+     */
+    public static long getLastClaim(String identifier)
+    {
+        return lastClaimTimestamps.getOrDefault(identifier, 0L);
     }
 
     /**
@@ -145,7 +154,7 @@ public class TreasureTask {
                     if(Utils.chance() < d.getChanceForTreasure())
                     {
 
-                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < d.getCooldown()) return;
+                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - getLastClaim(identifier)) < d.getCooldown()) return;
                         if(Hunt.isHuntActive(identifier)) return;
 
                         Hunt h = new Hunt(identifier, d.getDuration());

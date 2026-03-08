@@ -63,13 +63,6 @@ public class TreasureEvents implements Listener {
     private static final HashMap<Player, Long> click_cooldowns = new HashMap<>();
     HashMap<Player, Long> inventoryClickCooldown = new HashMap<>();
 
-    private boolean FIRST_OPEN = true;
-
-    private boolean isFirstOpened()
-    {
-        return FIRST_OPEN;
-    }
-
     private boolean disableBreakToAward(Player p, Treasure t)
     {
         if(t.getTreasureData().getClicksToOpen() > 1)
@@ -244,10 +237,10 @@ public class TreasureEvents implements Listener {
                 return;
             }
 
-            if(isFirstOpened())
+            if(t.isFirstOpen())
             {
                 t.announceWinner(p);
-                FIRST_OPEN = false;
+                t.setFirstOpen(false);
             }
 
             if(!t.receivedCommandRewards(p))
@@ -681,14 +674,6 @@ public class TreasureEvents implements Listener {
 
     }
 
-    private static final HashMap<Treasure, HashMap<Player, Integer>> clicks = new HashMap<>();
-
-    private HashMap<Player, Integer> getHuntClicks(Treasure t)
-    {
-        clicks.putIfAbsent(t, new HashMap<>());
-        return clicks.get(t);
-    }
-
     @EventHandler
     public void onDeath(EntityDeathEvent e)
     {
@@ -838,10 +823,23 @@ public class TreasureEvents implements Listener {
             if (!canTreasureBeOpened(p, t)) return true;
             if (!hasKey(p, t)) return true;
 
-            t.getTreasureData().getDebuff().debuff(t);
+            // Rounds logic
+            if (t.getRoundController().hasMoreRounds()) {
+                if (t.getRoundController().startRound()) {
+                    // New round started successfully
+                    return true;
+                } else {
+                    // Could not start new round, likely because mobs aren't cleared
+                    if (t.remainingMobs() > 0) {
+                        sendMobsNotCleared(p);
+                        return true;
+                    }
+                }
+            }
 
             if (!hasRequiredClicks(p, t)) return true;
 
+            // If all rounds are finished and all conditions are met, open the treasure
             openTreasure(p, t);
             return true;
 

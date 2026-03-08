@@ -42,7 +42,7 @@ public class TreasureEffects {
 
                     distance = Settings.getInt("potion-effect-radius");
 
-                    if(Locations.distanceTo(p.getLocation(), h.getLocation()) <= distance) {
+                    if(Locations.distanceSquaredTo(p.getLocation(), h.getLocation()) <= (double) distance * distance) {
 
                         Bukkit.getScheduler().runTask(plugin, ()->
                         {

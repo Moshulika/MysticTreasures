@@ -75,6 +75,44 @@ public class FileHandler {
         }
     }
 
+    /**
+     * Merges a local YAML file with its default version from the JAR.
+     * Missing keys are added to the local file while keeping existing values intact.
+     * 
+     * @param localFile The file on the disk
+     * @param resourcePath The path to the resource inside the JAR
+     */
+    public void mergeWithDefault(File localFile, String resourcePath) {
+        if (!localFile.exists()) {
+            saveResourceToFolder(resourcePath, localFile.getParentFile().getName());
+            return;
+        }
+
+        YamlConfiguration localConfig = YamlConfiguration.loadConfiguration(localFile);
+        
+        try (InputStream is = plugin.getResource(resourcePath)) {
+            if (is == null) return;
+            
+            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8));
+            
+            boolean modified = false;
+            for (String key : defaultConfig.getKeys(true)) {
+                if (!localConfig.contains(key)) {
+                    localConfig.set(key, defaultConfig.get(key));
+                    modified = true;
+                }
+            }
+            
+            if (modified) {
+                localConfig.save(localFile);
+                plugin.getLogger().info("Updated " + localFile.getName() + " with missing default values.");
+            }
+            
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not merge config file: " + localFile.getName(), e);
+        }
+    }
+
     public ArrayList<TreasureData> setup()
     {
         createFolder();
@@ -158,59 +196,86 @@ public class FileHandler {
             return treasures;
         }
 
-        TreasureData m;
+        // Load default treasure config to use as schema for merging
+        YamlConfiguration defaultTreasureConfig = null;
+        try (InputStream is = plugin.getResource("treasure.yml")) {
+            if (is != null) {
+                defaultTreasureConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8));
+            }
+        } catch (IOException e) {
+            plugin.getLogger().warning("Could not load default treasure.yml for merging.");
+        }
 
         for(String s : directory.list())
         {
+            File f = new File(directory, s);
+            if (!f.getName().endsWith(".yml")) continue;
 
-            boolean repeated = false;
-            FileConfiguration treasureFile = getTreasureFile(s);
-
+            YamlConfiguration treasureFile = YamlConfiguration.loadConfiguration(f);
             ConfigurationSection treasureRootSection = treasureFile.getConfigurationSection("treasure");
 
             if (treasureRootSection == null || treasureRootSection.getKeys(false).isEmpty()) {
-                throw new IllegalStateException("No treasure section or keys found in the configuration.");
+                continue;
             }
 
             String treasureId = treasureRootSection.getKeys(false).iterator().next();
-
-            ConfigurationSection treasureSection = treasureFile.getConfigurationSection("treasure." + treasureId);
-
-            if (treasureSection == null) {
-                throw new IllegalStateException("Treasure section for id '" + treasureId + "' not found.");
+            
+            // Auto-merge missing fields from default schema if available
+            if (defaultTreasureConfig != null) {
+                ConfigurationSection defaultRoot = defaultTreasureConfig.getConfigurationSection("treasure");
+                if (defaultRoot != null && !defaultRoot.getKeys(false).isEmpty()) {
+                    String defaultId = defaultRoot.getKeys(false).iterator().next();
+                    ConfigurationSection defaultSection = defaultRoot.getConfigurationSection(defaultId);
+                    ConfigurationSection localSection = treasureRootSection.getConfigurationSection(treasureId);
+                    
+                    if (defaultSection != null && localSection != null) {
+                        boolean modified = false;
+                        for (String key : defaultSection.getKeys(true)) {
+                            if (!localSection.contains(key)) {
+                                localSection.set(key, defaultSection.get(key));
+                                modified = true;
+                            }
+                        }
+                        if (modified) {
+                            try {
+                                treasureFile.save(f);
+                                plugin.getLogger().info("Merged missing fields into treasure file: " + s);
+                            } catch (IOException e) {
+                                plugin.getLogger().warning("Could not save merged treasure file: " + s);
+                            }
+                        }
+                    }
+                }
             }
 
-            m = new TreasureData(treasureSection);
+            ConfigurationSection treasureSection = treasureFile.getConfigurationSection("treasure." + treasureId);
+            if (treasureSection == null) continue;
+
+            TreasureData m = new TreasureData(treasureSection);
             m.setIdentifier(treasureId);
 
+            boolean repeated = false;
             for(TreasureData x : treasures)
             {
-
                 if(x.getTreasureName().equals(m.getTreasureName()))
                 {
                     repeated = true;
                     Bukkit.getLogger().log(Level.SEVERE, "Treasure " + s + " has a name that's already taken");
                 }
-
                 if(x.getIdentifier().equals(m.getIdentifier()))
                 {
                     repeated = true;
                     Bukkit.getLogger().log(Level.SEVERE, "Treasure " + s + " has an ID that's already taken");
                 }
-
             }
 
             if(!repeated) {
-
                 treasures.add(m);
-
             }
-
         }
 
         plugin.getLogger().info("Loaded " + treasures.size() + " treasure(s)");
         return treasures;
-
     }
 
 }

@@ -80,6 +80,10 @@ public class ItemReward {
     public String getName() {
         return name;
     }
+
+    public String getSanitizedName() {
+        return org.bukkit.ChatColor.stripColor(name);
+    }
     public void setName(String name) {
         this.name = name;
     }

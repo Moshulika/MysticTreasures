@@ -5,6 +5,7 @@ import com.Moshu.Misc.Storage.Messages;
 import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Core.Hunt;
+import com.Moshu.TreasureHunt.Core.Treasure;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -12,6 +13,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.List;
 
 //Add bossbar support too
 public class ActionBar {
@@ -38,22 +41,29 @@ public class ActionBar {
                     h = Hunt.getNearestHunt(p.getLocation());
                     if (h == null) continue;
 
+                    Treasure treasure = h.getTreasure();
+                    if (treasure == null) continue;
+
+                    List<Entity> remainingMobs = treasure.getRemainingMobs();
+                    int remainingMobsSize = remainingMobs.size();
+
                     int x = h.getLocation().getBlockX();
                     int z = h.getLocation().getBlockZ();
-                    int offset = h.getTreasure().getTreasureData().getCoordsNearTreasure();
+                    int offset = treasure.getTreasureData().getCoordsNearTreasure();
                     int x_offset = x + Utils.randInt(-offset, offset);
                     int z_offset = z + Utils.randInt(-offset, offset);
                     String remainingTime = Utils.getCountDown(h.getRemainingTime());
                     String worldName = h.getLocation().getWorld().getName();
 
                         //Sunt in aceeasi lume Hunt-ul si Player-ul
-                        if (Locations.distanceTo(h.getLocation(), p.getLocation()) < h.getTreasure().getTreasureData().getMobWanderingDistance()) //Inside the mob area
+                        double mobWanderingDistance = treasure.getTreasureData().getMobWanderingDistance();
+                        if (Locations.distanceSquaredTo(h.getLocation(), p.getLocation()) < mobWanderingDistance * mobWanderingDistance) //Inside the mob area
                         {
 
-                            if (h.getTreasure().getRemainingMobs().isEmpty()) //All the mobs are dead
+                            if (remainingMobsSize == 0) //All the mobs are dead
                             {
 
-                                if (h.getTreasure().haveTheMobsSpawned()) {
+                                if (treasure.haveTheMobsSpawned()) {
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-all-mobs-dead")
                                             .replace("{time}", remainingTime)
@@ -78,12 +88,12 @@ public class ActionBar {
                             } else //There are mobs remaining
                             {
 
-                                if (h.getTreasure().getTreasureData().enableMobTracker()) {
+                                if (treasure.getTreasureData().enableMobTracker()) {
 
-                                    Entity first = h.getTreasure().getRemainingMobs().get(0);
+                                    Entity first = remainingMobs.get(0);
 
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-mobs-tracker")
-                                            .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
+                                            .replace("{remaining_mobs}", remainingMobsSize + "")
                                             .replace("{world}", worldName)
                                             .replace("{x}", first.getLocation().getBlockX() + "")
                                             .replace("{y}", first.getLocation().getBlockY() + "")
@@ -91,7 +101,7 @@ public class ActionBar {
 
                                 } else {
                                     p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar-mobs-remaining")
-                                            .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")));
+                                            .replace("{remaining_mobs}", remainingMobsSize + "")));
                                 }
 
                             }
@@ -100,7 +110,7 @@ public class ActionBar {
                         else //Outside of the mob area
                         {
                             p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(Messages.get("actionbar")
-                                    .replace("{remaining_mobs}", h.getTreasure().getRemainingMobs().size() + "")
+                                    .replace("{remaining_mobs}", remainingMobsSize + "")
                                     .replace("{time}", remainingTime)
                                     .replace("{world}", worldName)
                                     .replace("{x}", x + "")

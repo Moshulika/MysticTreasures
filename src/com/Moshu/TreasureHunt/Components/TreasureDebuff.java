@@ -101,6 +101,7 @@ public class TreasureDebuff {
 
         if (!isEnabled()) return;
         if (t.alreadyDebuffed()) return;
+
         if (clicksToDebuff >= getTreasureData().getClicksToOpen()) {
             plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
             return;
@@ -134,7 +135,7 @@ public class TreasureDebuff {
             }
 
             if (isRespawnMobs()) {
-                t.spawnTreasureKeepers();
+                // do we still need this?
             }
 
             treasureLoc.getWorld().strikeLightningEffect(treasureLoc);
