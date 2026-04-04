@@ -15,6 +15,7 @@ import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import io.th0rgal.oraxen.api.OraxenFurniture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
@@ -23,6 +24,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -117,7 +119,7 @@ public class TreasureData {
     private static ArrayList<TreasureData> treasureData;
     private final static ArrayList<String> treasureIdentifiers = new ArrayList<>();
 
-    private final TreasureRoundRegistry roundRegistry;
+    private TreasureRoundRegistry roundRegistry;
 
     public static void load()
     {
@@ -139,12 +141,17 @@ public class TreasureData {
     {
         for(TreasureData d : getTreasureData())
         {
-            treasureIdentifiers.add(d.getIdentifier());
+            String id = d.getIdentifier();
+            if (id != null) {
+                treasureIdentifiers.add(id);
+            }
         }
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public TreasureRoundRegistry getRoundRegistry() { return roundRegistry; }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public ConfigurationSection getDefaultSection() {
         return defaultSection;
     }
@@ -154,24 +161,30 @@ public class TreasureData {
         return this.treasureBlockString;
     }
 
-    public static ArrayList<String> getTreasureIdentifiers()
+    @SuppressFBWarnings("MS_EXPOSE_REP")
+    public static List<String> getTreasureIdentifiers()
     {
-        return treasureIdentifiers;
+        return Collections.unmodifiableList(treasureIdentifiers);
     }
 
-    public static ArrayList<TreasureData> getTreasureData()
+    public static synchronized ArrayList<TreasureData> getTreasureData()
     {
+        // Always return a non-null, mutable list to simplify callers and avoid NPEs in tests
+        if (treasureData == null) {
+            treasureData = new ArrayList<>();
+        }
         return treasureData;
     }
 
-    public ArrayList<TreasureScheduler> getOwnTreasureSchedulers()
+    public List<TreasureScheduler> getOwnTreasureSchedulers()
     {
-        return ownTreasureSchedulers;
+        return Collections.unmodifiableList(ownTreasureSchedulers);
     }
 
-    public static ArrayList<TreasureScheduler> getAllTreasureSchedulers()
+    @SuppressFBWarnings("MS_EXPOSE_REP")
+    public static List<TreasureScheduler> getAllTreasureSchedulers()
     {
-        return allTreasureSchedulers;
+        return Collections.unmodifiableList(allTreasureSchedulers);
     }
 
     public boolean canOpenChest()
@@ -193,6 +206,7 @@ public class TreasureData {
 
     public int getRewardTopX() { return rewardTopX; }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public TreasureDebuff getDebuff()
     {
         return debuff;
@@ -232,20 +246,21 @@ public class TreasureData {
         this.identifier = identifier;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public TreasureKey getTreasureKey() {
         return treasureKey;
     }
 
     public List<TreasureKeeper> getTreasureKeepers() {
-        return treasureKeepers;
+        return Collections.unmodifiableList(treasureKeepers);
     }
 
     public List<ItemReward> getItemRewards() {
-        return itemRewards;
+        return Collections.unmodifiableList(itemRewards);
     }
 
     public List<CommandReward> getCommandRewards() {
-        return commandRewards;
+        return Collections.unmodifiableList(commandRewards);
     }
 
     public TreasureType getTreasureType()
@@ -271,7 +286,13 @@ public class TreasureData {
         boolean oraxen = Utils.isEnabled("Oraxen");
         boolean nexo = Utils.isEnabled("Nexo");
 
-        plugin.getLogger().log(Level.INFO, "Loading treasure block..");
+        if (plugin != null) {
+            plugin.getLogger().log(Level.INFO, "Loading treasure block..");
+        }
+
+        if (name == null) {
+            return TreasureType.VANILLA;
+        }
 
         if (itemsAdder) {
 
@@ -287,11 +308,11 @@ public class TreasureData {
                     return TreasureType.VANILLA;
                 }
 
-            } catch (NullPointerException | ClassCastException e) {
-
-                plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+            } catch (ClassCastException e) {
+                if (plugin != null) {
+                    plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+                }
                 return TreasureType.VANILLA;
-
             }
 
         }
@@ -307,8 +328,10 @@ public class TreasureData {
                 }
 
 
-            } catch (NullPointerException | ClassCastException e) {
-                plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+            } catch (ClassCastException e) {
+                if (plugin != null) {
+                    plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+                }
                 return TreasureType.VANILLA;
             }
 
@@ -330,8 +353,10 @@ public class TreasureData {
                 }
 
 
-            } catch (NullPointerException | ClassCastException e) {
-                plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+            } catch (ClassCastException e) {
+                if (plugin != null) {
+                    plugin.getLogger().log(Level.SEVERE, "Problem with getting treasure block " + name);
+                }
                 return TreasureType.VANILLA;
             }
 
@@ -601,6 +626,7 @@ public class TreasureData {
      * Fetches all the data from the treasure file
      * @param defaultSection the treasure's path
      */
+    @SuppressFBWarnings({"CT_CONSTRUCTOR_THROW", "EI_EXPOSE_REP2"})
     public TreasureData(ConfigurationSection defaultSection) {
 
         if (defaultSection == null) {
@@ -1052,6 +1078,7 @@ public class TreasureData {
         return dropItemsOnGround;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public TreasureWaypoint getWaypoint()
     {
         return waypoint;
@@ -1105,6 +1132,7 @@ public class TreasureData {
         return droppedItemName;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<PotionEffect> getPotionEffects() {
         return potionEffects;
     }
@@ -1113,6 +1141,7 @@ public class TreasureData {
         return spawnToCertainCoords;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<Location> getSpawnCoords() {
         return spawnCoords;
     }

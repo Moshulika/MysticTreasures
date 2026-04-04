@@ -3,7 +3,10 @@ package com.Moshu.TreasureHunt.Core;
 import com.Moshu.Misc.Storage.Settings;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -13,6 +16,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class TreasureTest {
+
+    @BeforeEach
+    public void setup() {
+        MockBukkit.mock();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        MockBukkit.unmock();
+    }
 
     @Test
     public void testIsTreasureLogic() {

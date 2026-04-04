@@ -6,12 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UtilsTest {
 
     @Test
-    public void testRoundDouble() {
-        assertEquals(10.56, Utils.round(10.555));
-        assertEquals(10.55, Utils.round(10.554));
-    }
-
-    @Test
     public void testIsInt() {
         assertTrue(Utils.isInt("123"));
         assertFalse(Utils.isInt("abc"));

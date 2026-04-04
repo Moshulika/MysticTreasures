@@ -4,9 +4,11 @@ import com.Moshu.Misc.Utils;
 import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
+import io.th0rgal.oraxen.items.ItemBuilder;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.Indyuce.mmoitems.manager.TypeManager;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -14,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,18 +53,19 @@ public class TreasureKeeperDrops {
                 }
                 else
                 {
-                    plugin.getLogger().warning("Configuration section '" + key + "' does not exist!");
+                    if (plugin != null) plugin.getLogger().warning("Configuration section '" + key + "' does not exist!");
                 }
             }
         }
         else
         {
-            plugin.getLogger().warning("Configuration section 'drops' does not exist!");
+            if (plugin != null) plugin.getLogger().warning("Configuration section 'drops' does not exist!");
         }
     }
 
     private int getAmountFromRange(String s)
     {
+        if (s == null) return 1;
 
         String[] arr = s.split("-");
 
@@ -69,12 +73,16 @@ public class TreasureKeeperDrops {
         {
             if(!Utils.isInt(x))
             {
-                plugin.getLogger().warning("Invalid amount of item-reward: " + x);
+                if (plugin != null) plugin.getLogger().warning("Invalid amount of item-reward: " + x);
             }
         }
 
-        if(arr.length == 1) return Integer.parseInt(arr[0]);
-        else return Utils.randInt(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
+        try {
+            if(arr.length == 1) return Integer.parseInt(arr[0]);
+            else return Utils.randInt(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            return 1;
+        }
 
     }
 
@@ -82,6 +90,7 @@ public class TreasureKeeperDrops {
         return dropsMap.get(key);
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Map<String, DropData> getAllDrops() {
         return dropsMap;
     }
@@ -111,7 +120,7 @@ public class TreasureKeeperDrops {
 
                 if(item == null)
                 {
-                    plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
+                    if (plugin != null) plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
                     item = Material.STONE;
                 }
             }
@@ -123,11 +132,13 @@ public class TreasureKeeperDrops {
             return name;
         }
 
+        @SuppressFBWarnings("EI_EXPOSE_REP")
         public List<String> getEnchantments()
         {
             return enchantments;
         }
 
+        @SuppressFBWarnings("EI_EXPOSE_REP")
         public List<String> getLore()
         {
             return lore;
@@ -160,7 +171,9 @@ public class TreasureKeeperDrops {
             {
 
                 //type:id
-                String type = getItemId().split(":")[0];
+                String[] split = getItemId().split(":");
+                if (split.length < 1) return false;
+                String type = split[0];
                 TypeManager types = MMOItems.plugin.getTypes();
                 return types.has(type);
 
@@ -204,6 +217,7 @@ public class TreasureKeeperDrops {
 
         }
 
+        @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
         public ItemStack getItemStack()
         {
 
@@ -217,7 +231,7 @@ public class TreasureKeeperDrops {
                 }
                 else
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
 
@@ -225,7 +239,8 @@ public class TreasureKeeperDrops {
 
             if(isOraxen())
             {
-                ItemStack stack = OraxenItems.getItemById(getItemId()).build();
+                ItemBuilder builder = OraxenItems.getItemById(getItemId());
+                ItemStack stack = builder != null ? builder.build() : null;
 
                 if(stack != null)
                 {
@@ -234,14 +249,15 @@ public class TreasureKeeperDrops {
                 }
                 else
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
             }
 
             if(isNexo())
             {
-                ItemStack stack = NexoItems.itemFromId(getItemId()).build();
+                com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(getItemId());
+                ItemStack stack = builder != null ? builder.build() : null;
 
                 if(stack != null)
                 {
@@ -250,7 +266,7 @@ public class TreasureKeeperDrops {
                 }
                 else
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
             }
@@ -258,20 +274,21 @@ public class TreasureKeeperDrops {
             if(isMMOItem())
             {
 
-                if(getItemId().split(":").length != 2)
+                String[] split = getItemId().split(":");
+                if(split.length != 2)
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
 
-                String type = getItemId().split(":")[0];
-                String id = getItemId().split(":")[1];
+                String type = split[0];
+                String id = split[1];
 
                 MMOItem mmoitem = MMOItems.plugin.getMMOItem(MMOItems.plugin.getTypes().get(type), id);
 
                 if(mmoitem == null)
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
 
@@ -279,10 +296,10 @@ public class TreasureKeeperDrops {
 
             }
 
-            ItemStack itemStack = new ItemStack(item, amount);
+            ItemStack itemStack = new ItemStack(item != null ? item : Material.STONE, amount);
             ItemMeta itemMeta = itemStack.getItemMeta();
 
-            if(!name.equals("none"))
+            if(itemMeta != null && name != null && !name.equals("none"))
             {
                 itemMeta.setDisplayName(Utils.format(name));
                 itemMeta.setLore(Utils.formatList(lore));

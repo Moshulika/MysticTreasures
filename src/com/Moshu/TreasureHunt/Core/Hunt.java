@@ -5,6 +5,7 @@ import com.Moshu.Misc.Storage.Messages;
 import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.TreasureData;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -38,7 +39,9 @@ public class Hunt {
     private long startTime = 0;
     private final String treasureTypeString;
     private TreasureData treasureData;
-    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static Plugin getPlugin() {
+        return Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    }
     private static final HashMap<UUID, Hunt> activeHunts = new HashMap<>();
     private static final List<Hunt> activeTreasuresCache = Collections.synchronizedList(new ArrayList<>());
     private final UUID huntId;
@@ -181,7 +184,7 @@ public class Hunt {
                         locationReady.complete(loc);
                     })
                     .exceptionally(ex -> {
-                        plugin.getLogger().severe("Failed to compute random treasure location: " + ex.getMessage());
+                        getPlugin().getLogger().severe("Failed to compute random treasure location: " + ex.getMessage());
                         locationReady.completeExceptionally(ex);
                         return null;
                     });
@@ -221,7 +224,7 @@ public class Hunt {
         CompletableFuture<Hunt> started = new CompletableFuture<>();
         getLocationReadyFuture().thenRun(() -> {
 
-                    Bukkit.getScheduler().runTask(plugin, () -> {
+                    Bukkit.getScheduler().runTask(getPlugin(), () -> {
                         try {
                             start();
                             started.complete(this);
@@ -231,7 +234,7 @@ public class Hunt {
                     });
                 })
                 .exceptionally(ex -> {
-                    plugin.getLogger().severe("Failed to start treasure hunt with id '" + getTreasureData().getIdentifier() + "': " + ex.getMessage());
+                    getPlugin().getLogger().severe("Failed to start treasure hunt with id '" + getTreasureData().getIdentifier() + "': " + ex.getMessage());
                     started.completeExceptionally(ex);
                     return null;
                 });
@@ -254,7 +257,7 @@ public class Hunt {
         treasure = new Treasure(this, getTreasureData());
 
         if (!Locations.isSafeEnough(this.l)) {
-            plugin.getLogger().severe("Spawn location for treasure `" + getTreasureData().getTreasureName() + "` is unsafe. Modify your location!");
+            getPlugin().getLogger().severe("Spawn location for treasure `" + getTreasureData().getTreasureName() + "` is unsafe. Modify your location!");
             return;
         }
 
@@ -290,6 +293,7 @@ public class Hunt {
      * @return the TreasureData object containing all treasure configuration
      */
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public TreasureData getTreasureData() {
         return treasureData;
     }
@@ -301,6 +305,7 @@ public class Hunt {
      * @return a List of Hunt instances that have active treasures
      */
 
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public static List<Hunt> getActiveTreasures() {
         return activeTreasuresCache;
     }
@@ -504,6 +509,7 @@ public class Hunt {
      * @return the Location where the treasure is positioned, or null if not yet determined
      */
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Location getLocation() {
         return l;
     }
@@ -517,6 +523,7 @@ public class Hunt {
      * @return a CompletableFuture<Location> that completes when the location is determined
      */
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public CompletableFuture<Location> getLocationReadyFuture() {
         return locationReady;
     }
@@ -529,6 +536,7 @@ public class Hunt {
      * @return the Treasure instance spawned by this hunt, or null if not yet spawned
      */
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Treasure getTreasure() {
         return treasure;
     }
@@ -611,6 +619,7 @@ public class Hunt {
      * @param p the player to show the active hunts menu to
      */
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public static void activeHuntsMenu(Player p)
     {
 

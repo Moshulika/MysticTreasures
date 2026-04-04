@@ -2,10 +2,12 @@ package com.Moshu.Misc.Hooks;
 
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Core.Hunt;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+@SuppressFBWarnings("HE_INHERITS_EQUALS_USE_HASHCODE")
 public class Placeholders extends PlaceholderExpansion {
 
     @Override

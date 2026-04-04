@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -29,12 +30,12 @@ import java.util.regex.Pattern;
 public class Utils
 {
 
-    public static Main plugin;
-    public static File kitsf;
+    static Main plugin;
 
     /**
      * @hidden
      */
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     public Utils(Main plugin)
     {
 
@@ -51,15 +52,13 @@ public class Utils
     public static double round(double value)
     {
         String mny = new DecimalFormat("##.##").format(value);
-        double d = Double.parseDouble(mny);
-        return d;
+        return Double.parseDouble(mny);
     }
 
     public static float round(float value)
     {
         String mny = new DecimalFormat("##.#").format(value);
-        float d = Float.parseFloat(mny);
-        return d;
+        return Float.parseFloat(mny);
     }
 
     public static void addItemFlags(ItemMeta meta)
@@ -264,6 +263,7 @@ public class Utils
      */
     public static boolean hasItem(Player p, ItemStack is)
     {
+        if (p == null || is == null) return false;
 
         for(ItemStack i : p.getInventory().getContents())
         {
@@ -297,6 +297,7 @@ public class Utils
      */
     public static void removeItem(Player p, ItemStack is)
     {
+        if (p == null || is == null) return;
         for(ItemStack i : p.getInventory().getContents())
         {
 
@@ -332,6 +333,7 @@ public class Utils
      */
     public static void substractItem(Player p, ItemStack is, int amount)
     {
+        if (p == null || is == null) return;
 
         ItemStack item;
         int a;
@@ -581,6 +583,7 @@ public class Utils
      * Fill an inventory with colored glass, based on holiday
      * @param inv the inventory to be filled
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public static void fillWithGlass(Inventory inv)
     {
 
@@ -599,9 +602,11 @@ public class Utils
         ItemStack sticla = new ItemStack(mat);
 
         ItemMeta sticlam = sticla.getItemMeta();
-        sticlam.setDisplayName(" ");
-        sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
-        sticla.setItemMeta(sticlam);
+        if (sticlam != null) {
+            sticlam.setDisplayName(" ");
+            sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
+            sticla.setItemMeta(sticlam);
+        }
 
         ItemStack sticlafinal = sticla;
 
@@ -625,15 +630,18 @@ public class Utils
      * Get the color of the glass
      * @return an ItemStack with the glass having the appropriate color for the holiday
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public static ItemStack getGlass()
     {
 
         ItemStack sticla = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 
         ItemMeta sticlam = sticla.getItemMeta();
-        sticlam.setDisplayName(" ");
-        sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
-        sticla.setItemMeta(sticlam);
+        if (sticlam != null) {
+            sticlam.setDisplayName(" ");
+            sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
+            sticla.setItemMeta(sticlam);
+        }
 
         return sticla;
 
@@ -644,15 +652,18 @@ public class Utils
      * @param inv the inventory to be filled
      */
     @Deprecated
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public static void fillWithGlassLegacy(Inventory inv)
     {
 
         ItemStack sticla = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 
         ItemMeta sticlam = sticla.getItemMeta();
-        sticlam.setDisplayName(" ");
-        sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
-        sticla.setItemMeta(sticlam);
+        if (sticlam != null) {
+            sticlam.setDisplayName(" ");
+            sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
+            sticla.setItemMeta(sticlam);
+        }
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
@@ -757,6 +768,7 @@ public class Utils
 
     public static ItemStack addEnchants(ItemStack itemStack, List<String> enchantments)
     {
+        if (itemStack == null || enchantments == null) return itemStack;
 
         String[] args;
         String enchantment;
@@ -810,6 +822,10 @@ public class Utils
     public static ItemStack addUnsafeEnchants(ItemStack itemStack, List<String> enchants)
     {
 
+        if (itemStack == null || enchants == null) {
+            return itemStack;
+        }
+
         String[] args;
         String enchantment;
         Enchantment enchant;
@@ -860,13 +876,15 @@ public class Utils
      * @param is the inventory holding the item
      * @param error the error (should be as short as possible)
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public static void errorAsItem(ItemStack is, String error)
     {
+            if (is == null) return;
+            ItemMeta im = is.getItemMeta();
+            if (im == null) return;
 
             Material initialmat = is.getType();
-            String initialname = is.getItemMeta().getDisplayName();
-
-            ItemMeta im = is.getItemMeta();
+            String initialname = im.getDisplayName();
 
             is.setType(Material.BARRIER);
             im.setDisplayName(Utils.format( "&c" + error));
@@ -883,6 +901,7 @@ public class Utils
 
     public static ArrayList<String> formatList(List<String> list)
     {
+        if (list == null) return new ArrayList<>();
 
         ArrayList<String> newList = new ArrayList<>();
 
@@ -901,14 +920,17 @@ public class Utils
      * @param permission the permission he needs to have
      * @param is the itemstack to affect
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public static void setBarrier(Player p, String permission, ItemStack is)
     {
+        if (p == null || permission == null || is == null) return;
         if(!p.hasPermission(permission))
         {
-            Material initialmat = is.getType();
-            String initialname = is.getItemMeta().getDisplayName();
-
             ItemMeta im = is.getItemMeta();
+            if (im == null) return;
+
+            Material initialmat = is.getType();
+            String initialname = im.getDisplayName();
 
             is.setType(Material.BARRIER);
             im.setDisplayName(Utils.format( "&cNo permission!"));
@@ -980,8 +1002,6 @@ public class Utils
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(message);
 
-        net.md_5.bungee.api.ChatColor x = net.md_5.bungee.api.ChatColor.WHITE;
-
         String color = "";
 
         while (matcher.find()) {
@@ -1052,15 +1072,12 @@ public class Utils
     }
 
     /**
-     * Generate a random number 1-100
-     * @return a random number 1-100
+     * Generate a random number 0-100
+     * @return a random number 0-100
      */
     public static int chance()
     {
-
-        Random r = new Random();
-        return r.nextInt(101);
-
+        return ThreadLocalRandom.current().nextInt(1, 101);
     }
 
     /**
@@ -1286,9 +1303,9 @@ public class Utils
     public static Location getHighestBlock(World world, int x, int z, Location backup)
     {
 
-        int i = 255;
+        int i = world.getMaxHeight() - 1;
 
-            while (i >= 0) {
+            while (i >= world.getMinHeight()) {
                 if (!new Location(world, x, i, z).getBlock().isEmpty())
                 {
                     return new Location(world, x, i, z).add(0.0D, 1.0D, 0.0D);
@@ -1313,7 +1330,7 @@ public class Utils
         int z = originalLoc.getBlockZ();
         World w = originalLoc.getWorld();
 
-        while (i <= 320) {
+        while (i < w.getMaxHeight()) {
 
             if (new Location(w, x, i, z).getBlock().isEmpty())
             {
@@ -1339,7 +1356,7 @@ public class Utils
 
         int i = 31;
 
-        while (i <= 120) {
+        while (i < world.getMaxHeight()) {
             if (new Location(world, x, i, z).getBlock().isEmpty()) {
                 return new Location(world, x, i, z);
             }
@@ -1361,7 +1378,7 @@ public class Utils
 
         int i = 15;
 
-        while (i <= 255) {
+        while (i < world.getMaxHeight()) {
             if (new Location(world, x, i, z).getBlock().isEmpty()) {
                 return new Location(world, x, i, z);
             }
@@ -1431,6 +1448,7 @@ public class Utils
      */
     public static void sendBreakSound(Player p)
     {
+        if (p == null) return;
 
         String originalName = plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK");
         String soundName = originalName.toLowerCase().replace("_", ".");
@@ -1476,6 +1494,7 @@ public class Utils
      */
     public static void sendLevelupSound(Player p)
     {
+        if (p == null) return;
 
         String originalName = plugin.getConfig().getString("settings.positive-sound", "ENTITY_PLAYER_LEVELUP");
         String soundName = originalName.toLowerCase().replace("_", ".");
@@ -1618,6 +1637,7 @@ public class Utils
 
     public static void trySpawningParticle(Location location, Particle p)
     {
+        if (location == null || location.getWorld() == null || p == null) return;
         try
         {
             location.getWorld().spawnParticle(p, location.clone().add(0, 3, 0), 1);
@@ -1637,26 +1657,15 @@ public class Utils
             return new ItemStack(Material.STONE);
         }
 
-        Material m;
+        Material m = Material.getMaterial(mat);
 
-        try {
-
-            m = Material.getMaterial(mat);
-
-            if(m == null)
-            {
-                plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
-                return new ItemStack(Material.STONE);
-            }
-
-            return new ItemStack(m);
-
-        }
-        catch (NullPointerException e) {
-            plugin.getLogger().log(Level.SEVERE, "Invalid material " + mat  , e);
+        if(m == null)
+        {
+            plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
+            return new ItemStack(Material.STONE);
         }
 
-        return new ItemStack(Material.STONE);
+        return new ItemStack(m);
 
     }
 
@@ -1834,12 +1843,11 @@ public class Utils
     {
         Properties pr = new Properties();
 
-        try
+        try (FileInputStream in = new FileInputStream(f);
+             InputStreamReader reader = new InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8))
         {
-            FileInputStream in = new FileInputStream(f);
-            pr.load(in);
-            String string = pr.getProperty(s);
-            return string;
+            pr.load(reader);
+            return pr.getProperty(s, "");
         }
 
         catch (IOException e)

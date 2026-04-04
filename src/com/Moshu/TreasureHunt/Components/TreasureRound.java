@@ -2,24 +2,28 @@ package com.Moshu.TreasureHunt.Components;
 
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeper;
 import com.Moshu.TreasureHunt.Core.Treasure;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.entity.Entity;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TreasureRound {
 
     private final int roundNumber;
-    private final ArrayList<TreasureKeeper> roundTreasureKeepers;
+    private final List<TreasureKeeper> roundTreasureKeepers;
 
     public int getRoundNumber() {
         return roundNumber;
     }
 
-    public ArrayList<TreasureKeeper> getRoundTreasureKeepers() {
+    @SuppressFBWarnings("EI_EXPOSE_REP")
+    public List<TreasureKeeper> getRoundTreasureKeepers() {
         return roundTreasureKeepers;
     }
 
-    public TreasureRound(int roundNumber, ArrayList<TreasureKeeper> roundTreasureKeepers)
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
+    public TreasureRound(int roundNumber, List<TreasureKeeper> roundTreasureKeepers)
     {
 
         this.roundNumber = roundNumber;

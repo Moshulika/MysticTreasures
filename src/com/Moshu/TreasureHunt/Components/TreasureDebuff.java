@@ -5,13 +5,16 @@ import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Core.API.Events.TreasureDebuffEvent;
 import com.Moshu.TreasureHunt.Core.Treasure;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,6 +50,7 @@ public class TreasureDebuff {
         this.d = d;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public TreasureData getTreasureData()
     {
         return d;
@@ -84,10 +88,12 @@ public class TreasureDebuff {
         this.respawnMobs = respawnMobs;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<PotionEffect> getPotionEffects() {
         return potionEffects;
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setPotionEffects(List<PotionEffect> potionEffects) {
         this.potionEffects = potionEffects;
     }
@@ -103,7 +109,7 @@ public class TreasureDebuff {
         if (t.alreadyDebuffed()) return;
 
         if (clicksToDebuff >= getTreasureData().getClicksToOpen()) {
-            plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
+            if (plugin != null) plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
             return;
         }
 
@@ -122,11 +128,13 @@ public class TreasureDebuff {
                 playerLoc = k.getLocation();
 
                 if (isShockwave()) {
-                    playerLoc.getWorld().spawnParticle(Particle.SWEEP_ATTACK, playerLoc, 1);
+                    World world = playerLoc.getWorld();
+                    if (world != null) world.spawnParticle(Particle.SWEEP_ATTACK, playerLoc, 1);
                     k.setVelocity(playerLoc.getDirection().setY(0).multiply(-2).setY(0.5));
                 }
 
-                k.addPotionEffects(getPotionEffects());
+                List<PotionEffect> effects = getPotionEffects();
+                if (effects != null) k.addPotionEffects(effects);
 
                 for (String s : Messages.getAndFormatList("messages.debuff-reached")) {
                     k.sendMessage(s);
@@ -138,8 +146,11 @@ public class TreasureDebuff {
                 // do we still need this?
             }
 
-            treasureLoc.getWorld().strikeLightningEffect(treasureLoc);
-            treasureLoc.getWorld().spawnParticle(EXPLOSION_EMITTER, treasureLoc, 3);
+            World world = treasureLoc.getWorld();
+            if (world != null) {
+                world.strikeLightningEffect(treasureLoc);
+                if (EXPLOSION_EMITTER != null) world.spawnParticle(EXPLOSION_EMITTER, treasureLoc, 3);
+            }
 
         }
 

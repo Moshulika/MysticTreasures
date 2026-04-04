@@ -1,6 +1,7 @@
 package com.Moshu.TreasureHunt.Components.Keepers;
 
 import com.Moshu.Misc.Utils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -32,21 +33,22 @@ public class TreasureKeeperEquipment {
                 if (equipConfig != null) {
 
                     String itemStr = equipConfig.getString("item", "STONE");
-                    if(itemStr.equals("none")) continue;
+                    if(itemStr == null || itemStr.equals("none")) continue;
 
                     Material item =  Material.matchMaterial(itemStr);
 
                     if(item == null)
                     {
-                        plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
+                        if (plugin != null) plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
                         item = Material.STONE;
                     }
 
                     String slot = equipConfig.getString("slot", "HAND");
+                    if (slot == null) slot = "HAND";
 
                     if(!validSlot(slot))
                     {
-                        plugin.getLogger().warning("Equipment slot '" + slot + "' does not exist!");
+                        if (plugin != null) plugin.getLogger().warning("Equipment slot '" + slot + "' does not exist!");
                         continue;
                     }
 
@@ -54,26 +56,28 @@ public class TreasureKeeperEquipment {
 
                     if(!isValidEquipment(item, eSlot))
                     {
-                        plugin.getLogger().warning("Invalid item for slot: " + item.name() + " in " + eSlot.name());
+                        if (plugin != null) plugin.getLogger().warning("Invalid item for slot: " + item.name() + " in " + eSlot.name());
                         item = getDefaultForSlot(slot);
                     }
 
                     List<String> enchantments = equipConfig.getStringList("enchantments");
 
-                    EquipmentData data = new EquipmentData(item, eSlot, enchantments);
-                    equipmentMap.put(key, data);
+                    if (item != null) {
+                        EquipmentData data = new EquipmentData(item, eSlot, enchantments);
+                        equipmentMap.put(key, data);
+                    }
 
                 }
                 else
                 {
-                    plugin.getLogger().warning("Configuration section '" + key + "' does not exist!");
+                    if (plugin != null) plugin.getLogger().warning("Configuration section '" + key + "' does not exist!");
                 }
             }
 
         }
         else
         {
-            plugin.getLogger().warning("Configuration section 'equipment' does not exist!");
+            if (plugin != null) plugin.getLogger().warning("Configuration section 'equipment' does not exist!");
         }
     }
 
@@ -113,7 +117,7 @@ public class TreasureKeeperEquipment {
         {
             return Material.IRON_SWORD;
         }
-        else return null;
+        else return Material.STONE;
 
     }
 
@@ -122,11 +126,11 @@ public class TreasureKeeperEquipment {
 
         try
         {
-            return EquipmentSlot.valueOf(slot);
+            return EquipmentSlot.valueOf(slot.toUpperCase());
         }
         catch (IllegalArgumentException e)
         {
-            plugin.getLogger().warning("Equipment slot " + slot + " does not exist!");
+            if (plugin != null) plugin.getLogger().warning("Equipment slot " + slot + " does not exist!");
             return EquipmentSlot.HAND;
         }
 
@@ -183,6 +187,7 @@ public class TreasureKeeperEquipment {
         return equipmentMap.get(key);
     }
 
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Map<String, EquipmentData> getAllEquipment() {
         return equipmentMap;
     }
@@ -206,6 +211,7 @@ public class TreasureKeeperEquipment {
             return slot;
         }
 
+        @SuppressFBWarnings("EI_EXPOSE_REP")
         public List<String> getEnchantments() {
             return enchantments;
         }

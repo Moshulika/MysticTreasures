@@ -2,13 +2,26 @@ package com.Moshu.TreasureHunt.Core;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 public class HuntTest {
+
+    @BeforeEach
+    public void setup() {
+        MockBukkit.mock();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        MockBukkit.unmock();
+    }
 
     @Test
     public void testIsHuntActiveCollision() {
@@ -21,6 +34,8 @@ public class HuntTest {
         when(mockHunt.getLocation()).thenReturn(huntLoc);
         
         // Add to active cache
+        Mockito.doCallRealMethod().when(mockHunt).setTreasureActive();
+        Mockito.doCallRealMethod().when(mockHunt).setInactive();
         mockHunt.setTreasureActive();
 
         // Check for collision at same spot

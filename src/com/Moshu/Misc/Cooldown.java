@@ -2,6 +2,7 @@ package com.Moshu.Misc;
 
 
 import com.Moshu.Main;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -16,8 +17,9 @@ public class Cooldown {
 
     public static Map<String, Long> cooldowns = new HashMap<>();
 
-    public static Main plugin;
+    static Main plugin;
 
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     public Cooldown(Main plugin)
     {
         Cooldown.plugin = plugin;

@@ -1,9 +1,23 @@
 package com.Moshu.TreasureHunt.Components.Rewards;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ItemRewardTest {
+
+    @BeforeEach
+    public void setup() {
+        MockBukkit.mock();
+    }
+
+    @AfterEach
+    public void tearDown() {
+        MockBukkit.unmock();
+    }
 
     @Test
     public void testGetSanitizedName() {

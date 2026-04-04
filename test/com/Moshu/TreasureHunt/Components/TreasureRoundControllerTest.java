@@ -1,8 +1,10 @@
 package com.Moshu.TreasureHunt.Components;
 
 import com.Moshu.TreasureHunt.Core.Treasure;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ public class TreasureRoundControllerTest {
 
     @BeforeEach
     public void setup() {
+        MockBukkit.mock();
         treasure = Mockito.mock(Treasure.class);
         registry = Mockito.mock(TreasureRoundRegistry.class);
         rounds = new ArrayList<>();
@@ -31,7 +34,15 @@ public class TreasureRoundControllerTest {
         when(registry.getRound(0)).thenReturn(rounds.get(0));
         when(registry.getRound(1)).thenReturn(rounds.get(1));
         
+        TreasureData mockData = Mockito.mock(TreasureData.class);
+        when(treasure.getTreasureData()).thenReturn(mockData);
+
         controller = new TreasureRoundController(treasure, registry);
+    }
+
+    @AfterEach
+    public void tearDown() {
+        MockBukkit.unmock();
     }
 
     @Test

@@ -8,11 +8,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
+public class HuntTabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
-    public static final ArrayList<String> empty = new ArrayList<>();
+    private static final List<String> EMPTY = Collections.emptyList();
 
 
     @Override
@@ -22,7 +23,7 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
 
             if (!(sender instanceof Player)) {
 
-                return empty;
+                return EMPTY;
             }
 
             Player p = (Player) sender;
@@ -118,9 +119,9 @@ public class TabCompleter implements org.bukkit.command.TabCompleter, Listener {
                 }
             }
 
-            return empty;
+            return EMPTY;
         } else {
-            return empty;
+            return EMPTY;
         }
 
     }

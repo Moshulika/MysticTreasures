@@ -40,9 +40,10 @@ public class DiscordWebhook {
 
     public static DiscordWebhook getInstance()
     {
-        if(instance == null)
-        {
-            instance = new DiscordWebhook();
+        synchronized (DiscordWebhook.class) {
+            if (instance == null) {
+                instance = new DiscordWebhook();
+            }
         }
 
         return instance;
@@ -103,7 +104,8 @@ public class DiscordWebhook {
 
     public String getPayload(DiscordTreasureEventType t)
     {
-        return t == DiscordTreasureEventType.SPAWN ? TREASURE_SPAWN_PAYLOAD : TREASURE_CLAIM_PAYLOAD;
+        String payload = t == DiscordTreasureEventType.SPAWN ? TREASURE_SPAWN_PAYLOAD : TREASURE_CLAIM_PAYLOAD;
+        return payload != null ? payload : "";
     }
 
     /**
@@ -201,6 +203,9 @@ public class DiscordWebhook {
             }
 
             int responseCode = connection.getResponseCode();
+            if (responseCode >= 400) {
+                plugin.getLogger().warning("Discord Webhook returned error code: " + responseCode);
+            }
 
         } catch (Exception e) {
             plugin.getLogger().warning("Could not send Discord Webhook Message - invalid URL or the connection has failed");

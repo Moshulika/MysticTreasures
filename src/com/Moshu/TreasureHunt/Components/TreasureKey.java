@@ -4,9 +4,11 @@ import com.Moshu.Misc.Utils;
 import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
+import io.th0rgal.oraxen.items.ItemBuilder;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.Indyuce.mmoitems.manager.TypeManager;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -44,6 +46,7 @@ public class TreasureKey {
      * @param name The display name of the key
      * @param lore The lore text for the key
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public TreasureKey(boolean enabled, String itemStr, String name, List<String> lore) {
 
         this.enabled = enabled;
@@ -91,9 +94,11 @@ public class TreasureKey {
     public void setName(String name) {
         this.name = name;
     }
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<String> getLore() {
         return lore;
     }
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setLore(List<String> lore) {
         this.lore = lore;
     }
@@ -192,6 +197,7 @@ public class TreasureKey {
 
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public ItemStack getItemStack(int amount)
     {
 
@@ -215,7 +221,8 @@ public class TreasureKey {
 
         if(isOraxen())
         {
-            ItemStack stack = OraxenItems.getItemById(getItemId()).build();
+            ItemBuilder builder = OraxenItems.getItemById(getItemId());
+            ItemStack stack = builder != null ? builder.build() : null;
 
             if(stack != null)
             {
@@ -231,7 +238,8 @@ public class TreasureKey {
 
         if(isNexo())
         {
-            ItemStack stack = NexoItems.itemFromId(getItemId()).build();
+            com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(getItemId());
+            ItemStack stack = builder != null ? builder.build() : null;
 
             if(stack != null)
             {
@@ -289,6 +297,8 @@ public class TreasureKey {
     public boolean isTreasureKey(ItemStack apparentKey)
     {
 
+        if (apparentKey == null || apparentKey.getType() == Material.AIR) return false;
+
         if(isOraxen(apparentKey))
         {
 
@@ -318,14 +328,25 @@ public class TreasureKey {
         if(realKey.getType() == apparentKey.getType())
         {
 
-            if(apparentKey.getItemMeta() == null) return false;
-            if(apparentKey.getItemMeta() == null && realKey.getItemMeta() == null) return true;
+            ItemMeta apparentMeta = apparentKey.getItemMeta();
+            ItemMeta realMeta = realKey.getItemMeta();
 
-            if(realKey.getItemMeta().getDisplayName().equals(apparentKey.getItemMeta().getDisplayName()))
+            if (apparentMeta == null || realMeta == null) {
+                return apparentMeta == null && realMeta == null;
+            }
+
+            String apparentName = apparentMeta.getDisplayName();
+            String realName = realMeta.getDisplayName();
+
+            if (realName != null && realName.equals(apparentName))
             {
 
-                List<String> lore_real = realKey.getItemMeta().getLore();
-                List<String> lore_apparent =  apparentKey.getItemMeta().getLore();
+                List<String> lore_real = realMeta.getLore();
+                List<String> lore_apparent =  apparentMeta.getLore();
+
+                if (lore_real == null || lore_apparent == null) {
+                    return lore_real == null && lore_apparent == null;
+                }
 
                 return new HashSet<>(lore_apparent).containsAll(lore_real);
 
@@ -340,10 +361,19 @@ public class TreasureKey {
 
     public static boolean isKey(ItemStack apparentKey)
     {
+        if (apparentKey == null || apparentKey.getType() == Material.AIR) {
+            return false;
+        }
 
-        for(TreasureData d : TreasureData.getTreasureData())
+        // Guard against uninitialized treasure data in unit tests / early startup
+        java.util.List<TreasureData> dataList = TreasureData.getTreasureData();
+        if (dataList == null || dataList.isEmpty()) {
+            return false;
+        }
+
+        for (TreasureData d : dataList)
         {
-            if(d.getTreasureKey().isTreasureKey(apparentKey)) return true;
+            if (d.getTreasureKey() != null && d.getTreasureKey().isTreasureKey(apparentKey)) return true;
         }
 
         return false;

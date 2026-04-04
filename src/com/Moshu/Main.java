@@ -21,6 +21,7 @@ import com.Moshu.TreasureHunt.Handlers.ActionBar;
 import com.Moshu.TreasureHunt.Handlers.TreasureEffects;
 import com.Moshu.TreasureHunt.TreasureTask;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -88,7 +89,7 @@ public class Main extends JavaPlugin {
         PluginDescriptionFile pdf = getDescription();
         s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fEnabling plugin version " + pdf.getVersion() + ".."));
 
-        TabCompleter tabc = new TabCompleter();
+        HuntTabCompleter tabc = new HuntTabCompleter();
 
         getCommand("hunt").setExecutor(treasureCommands);
         getCommand("hunt").setTabCompleter(tabc);
@@ -240,6 +241,7 @@ public class Main extends JavaPlugin {
      * 
      * @return The FileConfiguration object for cooldowns
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public FileConfiguration getCooldownsFile()
     {
         return cooldowns;
@@ -250,6 +252,7 @@ public class Main extends JavaPlugin {
      * 
      * @return The FileConfiguration object for messages
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public FileConfiguration getMessages()
     {
         return messages;
@@ -260,6 +263,7 @@ public class Main extends JavaPlugin {
      * 
      * @return The FileConfiguration object for the main config
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public FileConfiguration getConfigFile()
     {
         return config;
@@ -304,7 +308,7 @@ public class Main extends JavaPlugin {
         if(getConfigFile().getBoolean("settings.bstats", true))
         {
             int pluginId = 23859;
-            Metrics metrics = new Metrics(this, pluginId);
+            new Metrics(this, pluginId);
             Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fbStats is enabled"));
         }
 
@@ -345,23 +349,35 @@ public class Main extends JavaPlugin {
 
         if (!messagesf.exists())
         {
-            messagesf.getParentFile().mkdirs();
+            if (messagesf.getParentFile() != null && !messagesf.getParentFile().exists()) {
+                if (!messagesf.getParentFile().mkdirs()) {
+                    getLogger().warning("Could not create directories for messages.yml");
+                }
+            }
             saveResource("messages.yml", false);
             Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fMessages.yml &fnot found, creating."));
         }
 
         if(!cooldowndsf.exists())
         {
-            cooldowndsf.getParentFile().mkdirs();
+            if (cooldowndsf.getParentFile() != null && !cooldowndsf.getParentFile().exists()) {
+                if (!cooldowndsf.getParentFile().mkdirs()) {
+                    getLogger().warning("Could not create directories for cooldowns.yml");
+                }
+            }
             saveResource("cooldowns.yml", false);
             Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fCooldowns.yml &fnot found, creating."));
         }
 
         if(!discord_webhookf.exists())
         {
-            discord_webhookf.getParentFile().mkdirs();
+            if (discord_webhookf.getParentFile() != null && !discord_webhookf.getParentFile().exists()) {
+                if (!discord_webhookf.getParentFile().mkdirs()) {
+                    getLogger().warning("Could not create directories for discord-webhook.json");
+                }
+            }
             saveResource("discord-webhook.json", false);
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fdiscrod-webhook.json &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fdiscord-webhook.json &fnot found, creating."));
         }
 
         config = new YamlConfiguration();

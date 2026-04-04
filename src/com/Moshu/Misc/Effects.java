@@ -38,9 +38,7 @@ public class Effects {
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            final int radius = 1;
 
-            final double i = 0;
             boolean rev;
             int step = 0;
             double x, y, z;
@@ -110,7 +108,6 @@ public class Effects {
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            final int radius = 1;
             final Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(255, 255, 0), 1);
 
             double c = 0;
@@ -179,7 +176,6 @@ public class Effects {
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            final int radius = 1;
             final Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(0, 128, 255), 1);
 
             int step = 0;

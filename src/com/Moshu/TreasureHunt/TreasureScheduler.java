@@ -10,6 +10,7 @@ import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.Calendar;
 
@@ -93,6 +94,7 @@ public class TreasureScheduler {
      * 
      * @param data The TreasureData object containing hunt configuration
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setData(TreasureData data) {
         this.data = data;
      }
@@ -143,6 +145,7 @@ public class TreasureScheduler {
      * 
      * @return The parsed Location object, or null if validation fails
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public Location getLocation()
     {
 
@@ -224,6 +227,7 @@ public class TreasureScheduler {
      * 
      * @return The TreasureData object
      */
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public TreasureData getData()
     {
         return data;

@@ -6,7 +6,7 @@ import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.player.User;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerOpenWindow;
 
-public class PacketListener implements com.github.retrooper.packetevents.event.PacketListener {
+public class HuntPacketListener implements com.github.retrooper.packetevents.event.PacketListener {
 
     @Override
     public void onPacketSend(PacketSendEvent event) {

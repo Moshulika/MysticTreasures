@@ -119,7 +119,7 @@ public class HuntAPI {
      * @return a list of all the hunts' identifiers active
      */
     public static List<String> getActiveHuntsIdentifiers() {
-        return Hunt.getHuntsIdentifiers();
+        return Hunt.getActiveTreasureIdentifiers();
     }
 
     /**

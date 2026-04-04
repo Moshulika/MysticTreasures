@@ -3,6 +3,7 @@ package com.Moshu.Misc.Storage;
 
 import com.Moshu.Main;
 import com.Moshu.Misc.Utils;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ public class Messages {
 
     private static Main plugin;
 
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     public Messages(Main plugin)
     {
         Messages.plugin = plugin;

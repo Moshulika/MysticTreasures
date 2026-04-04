@@ -2,11 +2,13 @@ package com.Moshu.Misc.Storage;
 
 import com.Moshu.Main;
 import java.io.File;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class FileUpdater {
 
     private static Main plugin;
 
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     public FileUpdater(Main plugin)
     {
         FileUpdater.plugin = plugin;

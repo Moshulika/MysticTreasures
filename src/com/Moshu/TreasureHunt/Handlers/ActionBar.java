@@ -19,7 +19,7 @@ import java.util.List;
 //Add bossbar support too
 public class ActionBar {
 
-    public static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    public static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     public static void start()
     {

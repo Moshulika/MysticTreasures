@@ -4,6 +4,7 @@ package com.Moshu.Misc.Storage;
 import com.Moshu.Main;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ public class Settings {
     private static Main plugin;
 
     //TODO: Replace the getInt, etc. methods with cached setting values
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     public Settings(Main plugin)
     {
         Settings.plugin = plugin;
@@ -26,6 +28,7 @@ public class Settings {
     private static int INVENTORY_CLICK_COOLDOWN = 50;
     private static int MAX_CONCURRENT_PLAYERS_IN_INV = 3;
 
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public static List<String> getAllowedWorlds()
     {
         return plugin.getConfig().getStringList("settings.allowed-worlds");
@@ -89,6 +92,7 @@ public class Settings {
         return SLOW_FALLING_LEVEL - 1;
     }
 
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public static List<String> getBlacklistedCommands() {
         return BLACKLISTED_COMMANDS;
     }
@@ -136,6 +140,7 @@ public class Settings {
 
     }
 
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public static List<String> getStringList(String path)
     {
         try

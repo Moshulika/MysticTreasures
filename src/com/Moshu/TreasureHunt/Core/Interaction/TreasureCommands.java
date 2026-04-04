@@ -7,7 +7,9 @@ import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.TreasureData;
 import com.Moshu.TreasureHunt.Core.Hunt;
 import com.Moshu.TreasureHunt.Core.Treasure;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,10 +20,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class TreasureCommands implements CommandExecutor {
 
-    private static Main plugin;
+    private final Main plugin;
 
     public TreasureCommands(Main plugin) {
-        TreasureCommands.plugin = plugin;
+        this.plugin = plugin;
     }
 
     private static final ArrayList<Player> debugging = new ArrayList<Player>();
@@ -64,9 +66,16 @@ public class TreasureCommands implements CommandExecutor {
                     for (Hunt h : Hunt.getActiveTreasures()) {
 
                         t = h.getTreasure();
+                        if (t == null) continue;
 
-                        Bukkit.getConsoleSender().sendMessage(Utils.format("&5&l" + x + ". &f" + t.getTreasureData().getIdentifier() + " @ " +
-                                t.getLocation().getWorld().getName() + ", X:" + t.getLocation().getBlockX() + ", Z:" + t.getLocation().getBlockZ() +
+                        Location loc = t.getLocation();
+                        if (loc == null || loc.getWorld() == null) continue;
+
+                        TreasureData data = t.getTreasureData();
+                        if (data == null) continue;
+
+                        Bukkit.getConsoleSender().sendMessage(Utils.format("&5&l" + x + ". &f" + data.getIdentifier() + " @ " +
+                                loc.getWorld().getName() + ", X:" + loc.getBlockX() + ", Z:" + loc.getBlockZ() +
                                 ", remaining time: " + Utils.formatRemainingTime(h.getRemainingTime())));
                         x++;
                     }
@@ -75,14 +84,13 @@ public class TreasureCommands implements CommandExecutor {
 
             } else if (args.length == 1) {
 
-                if (args[0].equalsIgnoreCase("start")) {
+                if (args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("key")) {
 
                     sender.sendMessage(Messages.get("wrong-command"));
 
                 } else if (args[0].equalsIgnoreCase("stop")) {
 
                     sender.sendMessage(Messages.get("wrong-command"));
-
 
                 }
                 else if(args[0].equalsIgnoreCase("showcase"))
@@ -206,18 +214,13 @@ public class TreasureCommands implements CommandExecutor {
 
                         String id = args[1];
 
-                        if (!Hunt.isHuntActive(id)) {
+                        Hunt h = Hunt.getHuntByIdentifier(id);
+                        if (h == null || h.getTreasure() == null || !h.getTreasure().isActive()) {
                             sender.sendMessage(Messages.get("hunt-not-active"));
                             return true;
                         }
 
-                        //Treasure is not yet spawned, so block stopping the treasure because it will cause bugs.
-                        if (!Hunt.getHuntByIdentifier(id).getTreasure().isActive()) {
-                            sender.sendMessage(Messages.get("hunt-not-active"));
-                            return true;
-                        }
-
-                        Hunt.getHuntByIdentifier(id).stop();
+                        h.stop();
                         sender.sendMessage(Messages.get("hunt-stopped"));
 
                     }
@@ -237,13 +240,13 @@ public class TreasureCommands implements CommandExecutor {
 
                 } else if (args[0].equalsIgnoreCase("clear")) {
 
-                    if (Bukkit.getPlayer(args[1]) == null) {
+                    Player target = Bukkit.getPlayer(args[1]);
+                    if (target == null) {
                         sender.sendMessage(Messages.get("player-not-found"));
                         return true;
                     }
 
-                    Player t = Bukkit.getPlayer(args[1]);
-                    Cooldown.setCooldowns(t.getUniqueId(), "treasure-winner", 0);
+                    Cooldown.setCooldowns(target.getUniqueId(), "treasure-winner", 0);
                     sender.sendMessage(Messages.get("cooldown-reset"));
 
                 } else if (args[0].equalsIgnoreCase("key")) {
@@ -309,12 +312,11 @@ public class TreasureCommands implements CommandExecutor {
                         }
                     }
 
-                    if (Bukkit.getPlayer(args[1]) == null) {
+                    Player target = Bukkit.getPlayer(args[1]);
+                    if (target == null) {
                         sender.sendMessage(Messages.get("player-not-found"));
                         return true;
                     }
-
-                    Player t = Bukkit.getPlayer(args[1]);
 
                     if (!TreasureData.getTreasureIdentifiers().contains(args[2])) {
                         sender.sendMessage(Messages.get("inexistent-treasure"));
@@ -329,8 +331,13 @@ public class TreasureCommands implements CommandExecutor {
                     }
 
                     int amount = Integer.parseInt(args[3]);
-                    Utils.addToInventory(t, TreasureData.getByIdentifier(id).getTreasureKey().getItemStack(amount));
-                    sender.sendMessage(Messages.get("received-key"));
+                    TreasureData data = TreasureData.getByIdentifier(id);
+                    if (data != null) {
+                        Utils.addToInventory(target, data.getTreasureKey().getItemStack(amount));
+                        sender.sendMessage(Messages.get("received-key"));
+                    } else {
+                        sender.sendMessage(Messages.get("inexistent-treasure"));
+                    }
 
                 } else {
                     sender.sendMessage(Messages.get("wrong-command"));

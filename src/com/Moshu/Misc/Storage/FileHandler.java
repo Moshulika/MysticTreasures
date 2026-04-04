@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.Level;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class FileHandler {
 
@@ -23,13 +24,14 @@ public class FileHandler {
 
     private static FileHandler fileHandler;
 
-    public static FileHandler getInstance() {
+    public static synchronized FileHandler getInstance() {
 
-        if(fileHandler == null) return new  FileHandler();
+        if(fileHandler == null) fileHandler = new FileHandler();
         return fileHandler;
 
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     private void saveResourceToFolder(String resourceName, String folderName) {
 
         File dataFolder = plugin.getDataFolder();
@@ -47,7 +49,8 @@ public class FileHandler {
             return;
         }
 
-        if(targetFolder.listFiles().length != 0) {
+        File[] files = targetFolder.listFiles();
+        if(files != null && files.length != 0) {
             return;
         }
 
@@ -113,6 +116,7 @@ public class FileHandler {
         }
     }
 
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public ArrayList<TreasureData> setup()
     {
         createFolder();
@@ -120,11 +124,13 @@ public class FileHandler {
         return loadTreasures();
     }
 
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public ArrayList<TreasureData> reload()
     {
         return loadTreasures();
     }
 
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     private void createFolder()
     {
         folder = new File(plugin.getDataFolder(), "treasures");
@@ -165,15 +171,17 @@ public class FileHandler {
      * Get a list of all menu names available
      * @return a list of all the menus available
      */
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public ArrayList<String> getTreasureNames()
     {
 
         ArrayList<String> menus = new ArrayList<>();
         File directory = new File(plugin.getDataFolder() + "/treasures/");
 
-        if(directory.list() == null) return menus;
+        String[] filesList = directory.list();
+        if(filesList == null) return menus;
 
-        Collections.addAll(menus, directory.list());
+        Collections.addAll(menus, filesList);
 
         return menus;
 
@@ -184,13 +192,15 @@ public class FileHandler {
      * Get a list of all menus available
      * @return a list of all the menus available
      */
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     private ArrayList<TreasureData> loadTreasures()
     {
 
         ArrayList<TreasureData> treasures = new ArrayList<>();
         File directory = new File(plugin.getDataFolder() + "/treasures/");
 
-        if(directory.list() == null)
+        String[] filesList = directory.list();
+        if(filesList == null)
         {
             plugin.getLogger().info("No treasures found inside the treasures folder");
             return treasures;
@@ -206,7 +216,7 @@ public class FileHandler {
             plugin.getLogger().warning("Could not load default treasure.yml for merging.");
         }
 
-        for(String s : directory.list())
+        for(String s : filesList)
         {
             File f = new File(directory, s);
             if (!f.getName().endsWith(".yml")) continue;

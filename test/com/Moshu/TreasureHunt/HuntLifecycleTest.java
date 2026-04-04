@@ -1,8 +1,5 @@
 package com.Moshu.TreasureHunt;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
-import be.seeseemelk.mockbukkit.entity.PlayerMock;
 import com.Moshu.Main;
 import com.Moshu.TreasureHunt.Components.Rewards.ItemReward;
 import com.Moshu.TreasureHunt.Components.TreasureData;
@@ -15,6 +12,9 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.entity.PlayerMock;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -56,6 +56,13 @@ public class HuntLifecycleTest {
         when(mockData.getWorld()).thenReturn(spawnLoc.getWorld());
         when(mockData.getDuration()).thenReturn(30);
         
+        com.Moshu.TreasureHunt.Components.TreasureKey mockKey = Mockito.mock(com.Moshu.TreasureHunt.Components.TreasureKey.class);
+        when(mockKey.requiresKey()).thenReturn(false);
+        when(mockData.getTreasureKey()).thenReturn(mockKey);
+        
+        com.Moshu.TreasureHunt.Components.TreasureRoundRegistry mockRegistry = Mockito.mock(com.Moshu.TreasureHunt.Components.TreasureRoundRegistry.class);
+        when(mockData.getRoundRegistry()).thenReturn(mockRegistry);
+        
         // Mock rewards
         ItemReward reward = new ItemReward();
         reward.setAmount(1);
@@ -68,14 +75,13 @@ public class HuntLifecycleTest {
         when(mockData.getItemRewards()).thenReturn(rewards);
         when(mockData.canOpenChest()).thenReturn(false); // Simple award on click for this test
         
-        // 2. Start Hunt
+        // 2. Create a Hunt and directly wire in our mocked TreasureData
         Hunt hunt = new Hunt(spawnLoc, "test_treasure", 30);
-        // Note: Hunt constructor internally calls TreasureData.getByIdentifier. 
-        // Realistically, we'd need to mock the internal registry or use a real test config.
-        // For now, let's test Treasure interaction directly if Hunt is too coupled to files.
-        
-        Treasure treasure = hunt.getTreasure();
-        assertNotNull(treasure);
+        // The Hunt constructor relies on TreasureData.getByIdentifier, which is file-backed and
+        // hard to mock. For unit testing we instead construct a Treasure instance directly using
+        // the mocked TreasureData.
+        Treasure treasure = new Treasure(hunt, mockData);
+        assertNotNull(treasure, "Treasure should be created with mocked TreasureData");
         
         // 3. Interaction & Rewards
         // Simulate player clicking the treasure

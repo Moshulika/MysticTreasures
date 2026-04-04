@@ -4,9 +4,11 @@ import com.Moshu.Misc.Utils;
 import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
+import io.th0rgal.oraxen.items.ItemBuilder;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.Indyuce.mmoitems.manager.TypeManager;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +29,9 @@ import java.util.List;
  */
 public class ItemReward {
 
-    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static Plugin getPlugin() {
+        return Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    }
 
     private String identifier; // e.g., "diamond" or "emerald"
     private Material item;
@@ -82,17 +86,26 @@ public class ItemReward {
     }
 
     public String getSanitizedName() {
-        return org.bukkit.ChatColor.stripColor(name);
+        // Use the same formatting pipeline as the rest of the plugin so that both
+        // legacy (&) and HEX color codes are stripped consistently.
+        // Utils.format() converts HEX to colors and applies & codes, then we strip them.
+        return org.bukkit.ChatColor.stripColor(com.Moshu.Misc.Utils.format(name));
     }
     public void setName(String name) {
         this.name = name;
     }
+
+    @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<String> getLore() {
         return lore;
     }
+
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setLore(List<String> lore) {
         this.lore = lore;
     }
+
+    @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setEnchants(List<String> enchants) { this.enchants = enchants; }
     public int getAmount() {
         return amount;
@@ -118,7 +131,9 @@ public class ItemReward {
         {
 
             //type:id
-            String type = getItemId().split(":")[0];
+            String[] split = getItemId().split(":");
+            if (split.length < 1) return false;
+            String type = split[0];
             TypeManager types = MMOItems.plugin.getTypes();
             return types.has(type);
 
@@ -171,7 +186,8 @@ public class ItemReward {
 
         if(item == null)
         {
-            plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
+            Plugin p = getPlugin();
+            if (p != null) p.getLogger().warning("Material '" + itemStr + "' does not exist!");
             item = Material.STONE;
         }
 
@@ -186,6 +202,7 @@ public class ItemReward {
      *
      * @return the Bukkit ItemStack for this ItemReward
      */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
     public ItemStack getItemStack()
     {
 
@@ -201,7 +218,8 @@ public class ItemReward {
             }
             else
             {
-                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                Plugin p = getPlugin();
+                if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
 
@@ -209,7 +227,8 @@ public class ItemReward {
 
         if(isOraxen())
         {
-            ItemStack stack = OraxenItems.getItemById(getItemId()).build();
+            ItemBuilder builder = OraxenItems.getItemById(getItemId());
+            ItemStack stack = builder != null ? builder.build() : null;
 
             if(stack != null)
             {
@@ -218,14 +237,16 @@ public class ItemReward {
             }
             else
             {
-                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                Plugin p = getPlugin();
+                if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
         }
 
         if(isNexo())
         {
-            ItemStack stack = NexoItems.itemFromId(getItemId()).build();
+            com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(getItemId());
+            ItemStack stack = builder != null ? builder.build() : null;
 
             if(stack != null)
             {
@@ -234,7 +255,8 @@ public class ItemReward {
             }
             else
             {
-                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                Plugin p = getPlugin();
+                if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
         }
@@ -242,20 +264,23 @@ public class ItemReward {
         if(isMMOItem())
         {
 
-            if(getItemId().split(":").length != 2)
+            String[] split = getItemId().split(":");
+            if(split.length != 2)
             {
-                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                Plugin p = getPlugin();
+                if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
 
-            String type = getItemId().split(":")[0];
-            String id = getItemId().split(":")[1];
+            String type = split[0];
+            String id = split[1];
 
             MMOItem mmoitem = MMOItems.plugin.getMMOItem(MMOItems.plugin.getTypes().get(type), id);
 
             if(mmoitem == null)
             {
-                plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                Plugin p = getPlugin();
+                if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
 
@@ -263,28 +288,35 @@ public class ItemReward {
 
         }
 
-        ItemStack itemStack = new ItemStack(item, amount);
+        if (item == null && itemStr != null) {
+            build();
+        }
+
+        ItemStack itemStack = new ItemStack(item == null ? Material.STONE : item, amount);
         ItemMeta itemMeta = itemStack.getItemMeta();
 
-        if(!name.isEmpty())
-        {
-            itemMeta.setDisplayName(Utils.format(name));
-        }
-
-        if(!lore.isEmpty())
-        {
-
-            ArrayList<String> coloredLore = new ArrayList<>();
-
-            for(String s: lore)
+        if (itemMeta != null) {
+            if(name != null && !name.isEmpty())
             {
-                coloredLore.add(Utils.format(s));
+                itemMeta.setDisplayName(Utils.format(name));
             }
 
-            itemMeta.setLore(coloredLore);
+            if(lore != null && !lore.isEmpty())
+            {
+
+                ArrayList<String> coloredLore = new ArrayList<>();
+
+                for(String s: lore)
+                {
+                    coloredLore.add(Utils.format(s));
+                }
+
+                itemMeta.setLore(coloredLore);
+            }
+
+            itemStack.setItemMeta(itemMeta);
         }
 
-        itemStack.setItemMeta(itemMeta);
         return Utils.addUnsafeEnchants(itemStack, enchants);
 
     }

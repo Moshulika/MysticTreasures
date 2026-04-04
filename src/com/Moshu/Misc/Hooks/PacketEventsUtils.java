@@ -35,7 +35,7 @@ public class PacketEventsUtils {
         PacketEvents.getAPI().load();
 
         PacketEvents.getAPI().getEventManager().registerListener(
-                new PacketListener(), PacketListenerPriority.HIGH);
+                new HuntPacketListener(), PacketListenerPriority.HIGH);
     }
 
     public static void disablePacketEvents()

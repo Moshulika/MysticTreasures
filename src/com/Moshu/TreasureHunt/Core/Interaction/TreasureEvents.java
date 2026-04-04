@@ -404,6 +404,7 @@ public class TreasureEvents implements Listener {
                         if(h == null) return;
 
                         Treasure t = h.getTreasure();
+                        if (t == null) return;
 
                         if (!t.getParticipants().contains(attacker)) {
                             t.addParticipant(attacker);
@@ -469,6 +470,7 @@ public class TreasureEvents implements Listener {
 
                             if(h == null) return;
                             Treasure t = h.getTreasure();
+                            if (t == null) return;
 
                             if (!t.getParticipants().contains(p)) {
                                 t.addParticipant(p);
@@ -499,6 +501,8 @@ public class TreasureEvents implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent e) {
+
+        if (e.getTo() == null) return;
 
         if (Hunt.huntActiveInWorld(e.getPlayer().getWorld()))
         {
@@ -808,11 +812,13 @@ public class TreasureEvents implements Listener {
      */
     public boolean handleInteraction(Player p, Location o)
     {
+        if (o == null || o.getWorld() == null) return false;
         Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
 
         if (Treasure.isTreasure(o)) {
 
             Treasure t = Treasure.getTreasure(l);
+            if (t == null) return false;
 
             TreasureInteractEvent claimEvent = new TreasureInteractEvent(t, p);
             Bukkit.getPluginManager().callEvent(claimEvent);
@@ -824,7 +830,7 @@ public class TreasureEvents implements Listener {
             if (!hasKey(p, t)) return true;
 
             // Rounds logic
-            if (t.getRoundController().hasMoreRounds()) {
+            if (t.getRoundController() != null && t.getRoundController().hasMoreRounds()) {
                 if (t.getRoundController().startRound()) {
                     // New round started successfully
                     return true;
@@ -855,6 +861,7 @@ public class TreasureEvents implements Listener {
         if (e.getHand() == EquipmentSlot.OFF_HAND) return;
         if (e.getPlayer().getGameMode() == GameMode.SPECTATOR) return;
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (e.getClickedBlock() == null) return;
 
         if (Hunt.huntActiveInWorld(e.getPlayer().getWorld())) {
 

@@ -24,8 +24,6 @@ import java.util.zip.GZIPOutputStream;
 
 public class Metrics {
 
-    private final Plugin plugin;
-
     private final MetricsBase metricsBase;
 
     /**
@@ -36,7 +34,6 @@ public class Metrics {
      *     href="https://bstats.org/what-is-my-plugin-id">What is my plugin id?</a>
      */
     public Metrics(Plugin plugin, int serviceId) {
-        this.plugin = plugin;
         // Get the config file
         File bStatsFolder = new File(plugin.getDataFolder().getParentFile(), "bStats");
         File configFile = new File(bStatsFolder, "config.yml");
@@ -73,6 +70,8 @@ public class Metrics {
             isFolia = Class.forName("io.papermc.paper.threadedregions.RegionizedServer") != null;
         } catch (Exception e) {
         }
+        String pluginVersion = plugin.getDescription().getVersion();
+        java.util.logging.Logger logger = plugin.getLogger();
         metricsBase =
                 new // See https://github.com/Bastian/bstats-metrics/pull/126
                         // See https://github.com/Bastian/bstats-metrics/pull/126
@@ -87,13 +86,13 @@ public class Metrics {
                         serviceId,
                         enabled,
                         this::appendPlatformData,
-                        this::appendServiceData,
+                        builder -> builder.appendField("pluginVersion", pluginVersion),
                         isFolia
                                 ? null
                                 : submitDataTask -> Bukkit.getScheduler().runTask(plugin, submitDataTask),
                         plugin::isEnabled,
-                        (message, error) -> this.plugin.getLogger().log(Level.WARNING, message, error),
-                        (message) -> this.plugin.getLogger().log(Level.INFO, message),
+                        (message, error) -> logger.log(Level.WARNING, message, error),
+                        (message) -> logger.log(Level.INFO, message),
                         logErrors,
                         logSentData,
                         logResponseStatusText,
@@ -126,10 +125,6 @@ public class Metrics {
         builder.appendField("coreCount", Runtime.getRuntime().availableProcessors());
     }
 
-    private void appendServiceData(JsonObjectBuilder builder) {
-        builder.appendField("pluginVersion", plugin.getDescription().getVersion());
-    }
-
     private int getPlayerAmount() {
         try {
             // Around MC 1.8 the return type was changed from an array to a collection,
@@ -139,13 +134,13 @@ public class Metrics {
             return onlinePlayersMethod.getReturnType().equals(Collection.class)
                     ? ((Collection<?>) onlinePlayersMethod.invoke(Bukkit.getServer())).size()
                     : ((Player[]) onlinePlayersMethod.invoke(Bukkit.getServer())).length;
-        } catch (Exception e) {
+        } catch (ReflectiveOperationException e) {
             // Just use the new method if the reflection failed
             return Bukkit.getOnlinePlayers().size();
         }
     }
 
-    public static class MetricsBase {
+    public static final class MetricsBase {
 
         /** The version of the Metrics class. */
         public static final String METRICS_VERSION = "3.1.0";
@@ -344,7 +339,7 @@ public class Metrics {
             }
             StringBuilder builder = new StringBuilder();
             try (BufferedReader bufferedReader =
-                         new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                         new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     builder.append(line);
@@ -363,9 +358,9 @@ public class Metrics {
                 // Maven's Relocate is clever and changes strings, too. So we have to use this
                 // little "trick" ... :D
                 final String defaultPackage =
-                        new String(new byte[] {'o', 'r', 'g', '.', 'b', 's', 't', 'a', 't', 's'});
+                        new String(new byte[] {'o', 'r', 'g', '.', 'b', 's', 't', 'a', 't', 's'}, StandardCharsets.UTF_8);
                 final String examplePackage =
-                        new String(new byte[] {'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'});
+                        new String(new byte[] {'y', 'o', 'u', 'r', '.', 'p', 'a', 'c', 'k', 'a', 'g', 'e'}, StandardCharsets.UTF_8);
                 // We want to make sure no one just copy & pastes the example and uses the wrong
                 // package names
                 if (MetricsBase.class.getPackage().getName().startsWith(defaultPackage)
@@ -612,6 +607,9 @@ public class Metrics {
     public abstract static class CustomChart {
 
         private final String chartId;
+
+        @Override
+        protected final void finalize() {}
 
         protected CustomChart(String chartId) {
             if (chartId == null) {

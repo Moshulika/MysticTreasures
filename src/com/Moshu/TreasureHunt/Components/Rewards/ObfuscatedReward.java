@@ -4,6 +4,8 @@ import com.Moshu.Misc.Utils;
 import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
 import io.th0rgal.oraxen.api.OraxenItems;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.th0rgal.oraxen.items.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -55,6 +57,7 @@ public class ObfuscatedReward {
             return name;
         }
 
+        @SuppressFBWarnings("EI_EXPOSE_REP")
         public List<String> getLore()
         {
             return lore;
@@ -94,6 +97,7 @@ public class ObfuscatedReward {
 
         }
 
+        @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
         public ItemStack get()
         {
 
@@ -107,7 +111,7 @@ public class ObfuscatedReward {
                 }
                 else
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
 
@@ -115,7 +119,8 @@ public class ObfuscatedReward {
 
             if(isOraxen())
             {
-                ItemStack stack = OraxenItems.getItemById(getItemId()).build();
+                ItemBuilder builder = OraxenItems.getItemById(getItemId());
+                ItemStack stack = builder != null ? builder.build() : null;
 
                 if(stack != null)
                 {
@@ -123,14 +128,15 @@ public class ObfuscatedReward {
                 }
                 else
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
             }
 
             if(isNexo())
             {
-                ItemStack stack = NexoItems.itemFromId(getItemId()).build();
+                com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(getItemId());
+                ItemStack stack = builder != null ? builder.build() : null;
 
                 if(stack != null)
                 {
@@ -138,41 +144,43 @@ public class ObfuscatedReward {
                 }
                 else
                 {
-                    plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
+                    if (plugin != null) plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                     return new ItemStack(Material.STONE);
                 }
             }
 
-            Material item = Material.matchMaterial(itemStr);
+            Material item = Material.matchMaterial(itemStr != null ? itemStr : "STONE");
 
             if(item == null)
             {
-                plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
+                if (plugin != null) plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
                 item = Material.STONE;
             }
 
             ItemStack itemStack = new ItemStack(item);
             ItemMeta itemMeta = itemStack.getItemMeta();
 
-            if(!name.isEmpty())
-            {
-                itemMeta.setDisplayName(Utils.format(name));
-            }
-
-            if(!lore.isEmpty())
-            {
-
-                ArrayList<String> coloredLore = new ArrayList<>();
-
-                for(String s: lore)
+            if (itemMeta != null) {
+                if(name != null && !name.isEmpty())
                 {
-                    coloredLore.add(Utils.format(s));
+                    itemMeta.setDisplayName(Utils.format(name));
                 }
 
-                itemMeta.setLore(coloredLore);
-            }
+                if(lore != null && !lore.isEmpty())
+                {
 
-            itemStack.setItemMeta(itemMeta);
+                    ArrayList<String> coloredLore = new ArrayList<>();
+
+                    for(String s: lore)
+                    {
+                        coloredLore.add(Utils.format(s));
+                    }
+
+                    itemMeta.setLore(coloredLore);
+                }
+
+                itemStack.setItemMeta(itemMeta);
+            }
             return itemStack;
 
 

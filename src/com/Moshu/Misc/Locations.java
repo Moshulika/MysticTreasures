@@ -18,8 +18,11 @@ import org.bukkit.plugin.Plugin;
 import org.popcraft.chunkyborder.BorderData;
 
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +32,9 @@ public class Locations {
     private static final ArrayList<Biome> blacklist = new ArrayList<>();
     private static final ArrayList<Material> block_blacklist = new ArrayList<>();
 
-    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static Plugin getPlugin() {
+        return Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    }
 
     public static void init()
     {
@@ -50,7 +55,7 @@ public class Locations {
                 try {
                     biome = Biome.valueOf(originalName);
                 } catch (IllegalArgumentException ex) {
-                    plugin.getLogger().warning("Invalid blacklisted biome: " + originalName);
+                    getPlugin().getLogger().warning("Invalid blacklisted biome: " + originalName);
                 }
             }
 
@@ -177,18 +182,10 @@ public class Locations {
 
     }
 
-    private static Location loc2;
-
-    /**
-     * Checks if location under the location is a liqud
-     * @param loc the location
-     * @return true/false
-     */
-
     public static boolean isLiquidUnder(Location loc)
     {
 
-        loc2 = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ());
+        Location loc2 = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ());
 
         return loc.getWorld().getBlockAt(loc2).isLiquid() ||
                 loc.getWorld().getBlockAt(loc2).getType() == Material.WATER ||
@@ -202,7 +199,7 @@ public class Locations {
 
         if(Utils.isEnabled("Lands")) {
 
-            LandsIntegration api = LandsIntegration.of(plugin);
+            LandsIntegration api = LandsIntegration.of(getPlugin());
             return api.getLandByChunk(loc.getWorld(), loc.getBlockX(), loc.getBlockZ()) != null;
 
         }
@@ -309,7 +306,7 @@ public class Locations {
      */
     public static boolean isLeaves(Location loc) {
 
-        loc2 = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ());
+        Location loc2 = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ());
         return loc2.getWorld().getBlockAt(loc2).getType().toString().toLowerCase().contains("leaves");
     }
 
@@ -327,28 +324,34 @@ public class Locations {
     public static boolean isInBorder(Location l, int maxTreasureDistance)
     {
 
-
-        if(!Utils.isEnabled("ChunkyBorder"))
+        // Vanilla / no ChunkyBorder installed:
+        // - Respect the vanilla world border radius
+        // - Also respect the configured maxTreasureDistance (if it is smaller)
+        // - Always leave a 10 block safety margin from any limit
+        if (!Utils.isEnabled("ChunkyBorder"))
         {
+            double borderRadius = l.getWorld().getWorldBorder().getSize() / 2.0;
 
-            int max_distance = maxTreasureDistance - 10;
-            double world_border = l.getWorld().getWorldBorder().getSize() - 10;
+            // Effective radius is the smaller of the two Salad constraints
+            double effectiveRadius = Math.min(borderRadius, maxTreasureDistance);
+            double safeRadius = Math.max(0, effectiveRadius - 10); // 10 block safety margin
 
-            if(l.getX() >= max_distance || l.getZ() >= max_distance) return false;
-            else return !(l.getX() >= world_border) && !(l.getZ() >= world_border);
-
+            double distanceFromCenter = Math.max(Math.abs(l.getX()), Math.abs(l.getZ()));
+            return distanceFromCenter <= safeRadius;
         }
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin("ChunkyBorder");
+        if (plugin == null) return true;
         File f = new File(plugin.getDataFolder(), "borders.json");
+        if (!f.exists()) return true;
 
-        try
+        try (Reader reader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))
         {
 
-            Map<String, BorderData> loadedBorders = new Gson().fromJson(new FileReader(f), new TypeToken<Map<String, BorderData>>() {}.getType());
+            Map<String, BorderData> loadedBorders = new Gson().fromJson(reader, new TypeToken<Map<String, BorderData>>() {}.getType());
 
             if (loadedBorders == null) return true;
-            if (loadedBorders.size() == 0) return true;
+            if (loadedBorders.isEmpty()) return true;
             if (!loadedBorders.containsKey(l.getWorld().getName())) return true;
 
             double x = loadedBorders.get(l.getWorld().getName()).getRadiusX();
@@ -386,16 +389,18 @@ public class Locations {
         }
 
         Plugin plugin = Bukkit.getPluginManager().getPlugin("ChunkyBorder");
+        if (plugin == null) return defaultborder;
         File f = new File(plugin.getDataFolder(), "borders.json");
+        if (!f.exists()) return defaultborder;
 
-        try
+        try (Reader reader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))
         {
 
-            Map<String, BorderData> loadedBorders = new Gson().fromJson(new FileReader(f), new TypeToken<Map<String, BorderData>>() {
+            Map<String, BorderData> loadedBorders = new Gson().fromJson(reader, new TypeToken<Map<String, BorderData>>() {
             }.getType());
 
             if (loadedBorders == null) return defaultborder;
-            if (loadedBorders.size() == 0) return defaultborder;
+            if (loadedBorders.isEmpty()) return defaultborder;
             if (!loadedBorders.containsKey(w.getName())) return defaultborder;
 
             return (int) loadedBorders.get(w.getName()).getRadiusX() - 1000;

@@ -13,6 +13,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 
@@ -21,6 +22,7 @@ public class HologramHandler {
     private static HologramHandler handler = null;
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
+    @SuppressFBWarnings("MS_EXPOSE_REP")
     public static HologramHandler getInstance()
     {
 
