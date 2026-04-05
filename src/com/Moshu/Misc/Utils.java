@@ -1206,6 +1206,40 @@ public class Utils {
     }
 
     /**
+     * Finds a safe location near the specified base location, suitable for indoor spawning.
+     *
+     * @param loc The base location
+     * @param radius The maximum distance from the base location
+     * @return A safe Location
+     */
+    public static Location getNearLocationInside(Location loc, int radius) {
+        int x = randInt(-radius, radius);
+        int z = randInt(-radius, radius);
+
+        Location randomLoc = loc.clone().add(x, 0, z);
+
+        World world = loc.getWorld();
+        if (world == null) return loc;
+        return getSafeBlock(randomLoc, world.getSpawnLocation());
+    }
+
+    /**
+     * Finds a safe location near the specified base location, suitable for outdoor spawning.
+     *
+     * @param l The base location
+     * @param radius The maximum distance from the base location
+     * @return A safe Location
+     */
+    public static Location getNearLocation(Location l, int radius) {
+        int x = randInt(-radius, radius);
+        int z = randInt(-radius, radius);
+
+        World world = l.getWorld();
+        if (world == null) return l;
+        return getHighestBlock(world, l.getBlockX() + x, l.getBlockZ() + z, world.getSpawnLocation());
+    }
+
+    /**
      * Generates a random integer between two values
      *
      * @param min the min value

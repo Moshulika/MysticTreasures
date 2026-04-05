@@ -22,6 +22,7 @@ public class TreasureRoundControllerTest {
     @BeforeEach
     public void setup() {
         MockBukkit.mock();
+        MockBukkit.load(com.Moshu.Main.class);
         treasure = Mockito.mock(Treasure.class);
         registry = Mockito.mock(TreasureRoundRegistry.class);
         rounds = new ArrayList<>();

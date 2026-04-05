@@ -25,7 +25,8 @@ treasure:
     treasure-spawns-inside: false # If true, treasure spawns inside structures/areas
     max-treasure-distance: 15000 # Overrides world border if smaller (useful if border unset)
     duration: 20 # Minutes before treasure despawns
-    rounds: 1 # How many rounds the treasure has (1 = no debuff)
+    rounds:
+      - "default_round"
     waypoint:
       enabled: false # Only working on Spigot/Paper >= 1.21.6
       color: "GOLD" # Minecraft colors
@@ -72,17 +73,6 @@ treasure:
     cooldown-between-clicks: 10 # Milliseconds delay between clicks
 
     ###########################################################################
-    # 💀 DEBUFF SYSTEM
-    ###########################################################################
-    debuff:
-      enable: true
-      clicks-to-debuff: 5 # Must be < clicks-to-open (and not equal to 1)
-      shockwave: true
-      respawn-mobs: true  # Must be true if you want to have multiple rounds with mobs
-      potion-effects:
-        - "BLINDNESS:1:100" # FORMAT: EFFECT:LEVEL:DURATION
-
-    ###########################################################################
     # 📍 TREASURE SPAWN SETTINGS
     ###########################################################################
     spawn-to-certain-coords: false # True → treasure spawns only at coords below (if more than one, randomly selected)
@@ -127,136 +117,3 @@ treasure:
     ###########################################################################
     potion-effects:
       - "REGENERATION:1"
-
-    ###########################################################################
-    # 👹 TREASURE KEEPERS (MOBS GUARDING THE TREASURE)
-    #     SUPPORTS MYTHICMOBS → Just set `mythic-mobs` to true and set `entity-type` to the mob name
-    #     Drops support custom items from ItemsAdder, Oraxen, Nexo and MMOItems (check ItemRewards for more info)
-    ###########################################################################
-    mobs:
-      pillager:          # This key needs to be unique
-        entity-type: "PILLAGER"
-        mythic-mobs: false
-        custom-name: "Enemy"
-        range: "5-10"
-        ################
-        #
-        # 👹 ROUNDS SYSTEM
-        #    Set the rounds you wish this mob to spawn in.
-        #    If unset, the mob will spawn every time
-        #    Round 0 is the initial round (no debuff)
-        #    From round 1 onwards, the mob spawns on debuff rounds
-        #
-        #    Works only if debuff.respawn-mobs is set to true
-        #
-        ################
-        rounds:
-          - 0
-          - 1
-        chance: 100
-        max-health: 30
-        menu-item: "PILLAGER_SPAWN_EGG"
-        potion-effects:
-          - ""
-        equipment:
-          helmet:        # This key needs to be unique
-            item: "none" # 'none' disables slot
-            slot: "HEAD" # Slots: HEAD, CHEST, LEGS, FEET, HAND, OFF_HAND
-            enchantments:
-              - "PROTECTION:4"
-          # ... (same style for other equipment slots)
-        drops:
-          diamonds:     # This key needs to be unique
-            item: "DIAMOND"
-            name: "&6Awesome Drop"
-            lore:
-              - "Some text here"
-            amount: "1-10"
-            chance: 0
-            enchantments:
-              - ""
-      # (same style formatting applies to vindicator, ravager, archer, zombie, spider…)
-
-    ###########################################################################
-    # 🎯 ITEM REWARDS
-    #
-    # Supports custom items from ItemsAdder, Oraxen, Nexo and MMOItems
-    # To use this, just replace the item name in the 'item' field with the ID of your custom item like you would add any other item.
-    # For example, if I want to add a MMOItems ItemReward, I can just do:
-    # `item: SWORD:TERRORBANE`
-    #
-    # Custom items are also supported as menu items, item drops for TreasureKeepers and TreasureKeys
-    #
-    ###########################################################################
-    item-rewards:
-      only-to-top-1: # Identifier (any text). Needs to be unique.
-        item: DIAMOND
-        menu-item: "#1 DIAMOND"
-        name: "&6&l&oDIAMONDS"
-        lore:
-          - "&7&oHave fun with this reward!"
-        amount: 1-10 # Range
-        chance: 100 # % chance
-        award-to-top: 1 # Only top 1 gets this
-        enchantments:
-          - ""
-      diamond:
-        item: DIAMOND
-        menu-item: "DIAMOND"
-        name: "&6&l&oDIAMONDS"
-        lore:
-          - "&7&oHave fun with this reward!"
-        amount: 1-10
-        chance: 100
-        enchantments:
-          - ""
-      emerald:
-        item: EMERALD
-        menu-item: "EMERALD"
-        name: "&6&l&oEMERALDS"
-        lore:
-          - "&7&oHave fun with this reward!"
-        amount: 1-10
-        chance: 100
-      iron:
-        item: IRON_INGOT
-        menu-item: "IRON_INGOT"
-        name: "&6&l&oIRON"
-        lore:
-          - "&7&oHave fun with this reward!"
-        amount: 1-10
-        chance: 100
-      apple:
-        item: ENCHANTED_GOLDEN_APPLE
-        menu-item: "ENCHANTED_GOLDEN_APPLE"
-        name: "&6&l&oGOLDEN APPLE"
-        lore:
-          - "&7&oHave fun with this reward!"
-        amount: 1-3
-        chance: 25
-      dirt:
-        item: DIRT
-        menu-item: "DIRT"
-        name: "&6&l&oDIRT"
-        lore:
-          - "&7&oHave fun with this reward!"
-        amount: 8-16
-        chance: 75
-      bush:
-        item: DEAD_BUSH
-        menu-item: "DEAD_BUSH"
-        name: "&6&l&oDEAD BUSH"
-        lore:
-          - "&7&oHave fun with this reward!"
-        amount: 4-8
-        chance: 50
-
-    ###########################################################################
-    # 🖥️ COMMAND REWARDS
-    ###########################################################################
-    command-rewards:
-      money: #This key needs to be unique
-        menu-item: "SUNFLOWER"
-        command: "eco give %player% 2500"
-        chance: 100
-        award-to-top: 1 # Only top 1 gets this, remove key if not used or set to 0

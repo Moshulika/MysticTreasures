@@ -10,7 +10,9 @@ import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeper;
 import com.Moshu.TreasureHunt.Components.Rewards.CommandReward;
 import com.Moshu.TreasureHunt.Components.Rewards.ItemReward;
+import com.Moshu.TreasureHunt.Components.RoundData;
 import com.Moshu.TreasureHunt.Components.TreasureData;
+import com.Moshu.TreasureHunt.Components.TreasureRound;
 import com.Moshu.TreasureHunt.Components.TreasureRoundController;
 import com.Moshu.TreasureHunt.Core.API.Events.TreasureSpawnEvent;
 import com.Moshu.TreasureHunt.Handlers.HologramHandler;
@@ -158,9 +160,9 @@ public class Treasure {
         isLocked = d.getTreasureKey().requiresKey();
         this.isActive = false;
 
-        setupInventory();
-
         this.roundController = new TreasureRoundController(this, treasureData.getRoundRegistry());
+
+        setupInventory();
 
     }
 
@@ -171,38 +173,168 @@ public class Treasure {
      * treasure is claimed.
      */
 
-    private void setupInventory() {
+    public void giveRewards(RoundData roundData) {
+        if (roundData == null) return;
+        
+        Treasure.AwardMethod method = roundData.getAwardMethod();
+        if (method == null) method = Treasure.AwardMethod.CHEST;
+        
+        switch (method) {
+            case ALL_PLAYERS:
+                awardPrizes(roundData);
+                break;
+            case HIGHEST_DAMAGE:
+                if (wereTreasureKeepersDamaged()) {
+                    awardPrize(getPlayerWithMostDamage(), roundData);
+                } else {
+                    // Fallback if no damage recorded
+                    awardPrizes(roundData);
+                }
+                break;
+            case TOP_X:
+                awardPrizesToTop(roundData.getRewardTopX(), roundData);
+                break;
+            case DROP_ON_GROUND:
+                awardPrize(null, roundData); // Passing null will drop on ground
+                break;
+            case CHEST:
+            default:
+                setupInventory();
+                break;
+        }
+    }
 
-        if (getTreasureData().canOpenChest()) {
+    public void awardPrizes(RoundData roundData) {
+        launchFireworks();
+        int cooldown = Settings.getCooldown();
+        
+        for (Player p : getParticipants()) {
+            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
+                p.sendMessage(Messages.get("winner-cooldown").replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
+                continue;
+            }
 
-            String title = Messages.get("treasure-reward-menu-title");
-            rewardInventory = Bukkit.createInventory(null, 54, title != null ? title : "Treasure Rewards");
+            if (cooldown != 0) {
+                new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60).set();
+            }
 
-            for (ItemReward i : getTreasureData().getItemRewards()) {
+            runCommandPrizes(p, roundData);
+            giveItemRewards(p, roundData, false);
+        }
+        announceWinners();
+    }
+
+    public void awardPrizesToTop(int topPlayers, RoundData roundData) {
+        launchFireworks();
+        int cooldown = Settings.getCooldown();
+        int topCounter = 0;
+
+        for (UUID u : getSortedPlayersByDamage()) {
+            if (topCounter >= topPlayers) break;
+            Player p = Bukkit.getPlayer(u);
+            if (p == null) continue;
+
+            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) continue;
+
+            if (cooldown != 0) {
+                new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60).set();
+            }
+
+            runCommandPrizes(p, roundData);
+            giveItemRewards(p, roundData, false);
+            topCounter++;
+        }
+        announceWinners();
+    }
+
+    public void awardPrize(Player p, RoundData roundData) {
+        launchFireworks();
+        int cooldown = Settings.getCooldown();
+
+        if (p != null) {
+            if (cooldown != 0) {
+                new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60).set();
+            }
+            runCommandPrizes(p, roundData);
+            giveItemRewards(p, roundData, roundData.getAwardMethod() == Treasure.AwardMethod.DROP_ON_GROUND);
+            announceWinner(p);
+        } else if (roundData.getAwardMethod() == Treasure.AwardMethod.DROP_ON_GROUND) {
+            // Drop for everyone or generic drop
+            for (ItemReward r : roundData.getItemRewards()) {
+                if (Utils.chance() > r.getChance()) continue;
+                dropItemOnGround(r);
+            }
+        }
+    }
+
+    private void giveItemRewards(Player p, RoundData roundData, boolean dropOnGround) {
+        for (ItemReward r : roundData.getItemRewards()) {
+            if (Utils.chance() > r.getChance()) continue;
+
+            if (dropOnGround) {
+                dropItemOnGround(r);
+            } else {
+                ItemStack item = r.getItemStack();
+                if (item == null || item.getType() == Material.AIR) continue;
+
+                if (!Utils.hasFullInventory(p)) {
+                    p.getInventory().addItem(item);
+                } else {
+                    p.getWorld().dropItemNaturally(p.getLocation(), item);
+                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", item.getAmount() + "").replace("{item}", Utils.setCapitals(item.getType().toString().toLowerCase().replace("_", " "))));
+                }
+            }
+        }
+    }
+
+    private void dropItemOnGround(ItemReward r) {
+        World w = getLocation().getWorld();
+        int xOffset = (int) ((Math.random() * 10) - 5);
+        int zOffset = (int) ((Math.random() * 10) - 5);
+        Location dropLoc = Utils.getHighestBlock(w, getLocation().getBlockX() + xOffset, getLocation().getBlockZ() + zOffset, getLocation());
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(getPlugin(), () -> {
+            Item i = w.dropItemNaturally(dropLoc, r.getItemStack());
+            i.setGlowing(true);
+            i.setInvulnerable(true);
+            i.setCustomNameVisible(true);
+            i.setCustomName(Utils.format(getTreasureData().getDroppedItemName()));
+        }, 20L);
+    }
+
+    public void runCommandPrizes(Player p, RoundData roundData) {
+        for (CommandReward c : roundData.getCommandRewards()) {
+            if (Utils.chance() > c.getChance()) continue;
+            c.run(p);
+        }
+        if (!receivedCommandRewards.contains(p)) {
+            receivedCommandRewards.add(p);
+        }
+    }
+
+    public void setupInventory() {
+
+        String title = Messages.get("treasure-reward-menu-title");
+        rewardInventory = Bukkit.createInventory(null, 54, title != null ? title : "Treasure Rewards");
+
+        for(TreasureRound round : treasureData.getRoundRegistry().getRounds()) {
+
+            for (ItemReward i : round.getRoundData().getItemRewards()) {
                 if (Utils.chance() > i.getChance()) continue;
-
                 ItemStack is = i.getItemStack();
                 if (is == null || is.getType() == Material.AIR) continue;
 
                 int slot = Utils.randInt(0, 53);
-
-                if (rewardInventory.getItem(slot) != null) {
-
-                    if (rewardInventory.getItem(slot).getType() != Material.AIR) {
-
-                        if (rewardInventory.firstEmpty() == -1) break;
-                        slot = rewardInventory.firstEmpty();
-
-                    }
+                if (rewardInventory.getItem(slot) != null && rewardInventory.getItem(slot).getType() != Material.AIR) {
+                    slot = rewardInventory.firstEmpty();
+                    if (slot == -1) break;
                 }
-
                 rewardInventory.setItem(slot, is);
-
             }
 
         }
-
     }
+
 
     /**
      * Checks if the treasure has already applied debuff effects.
@@ -1623,58 +1755,14 @@ public class Treasure {
      * This method handles the complete reward distribution process including
      * item rewards, command execution, and notification of successful claims.
      */
-    public void awardPrizes() {
-
-        launchFireworks();
-
-        int cooldown = Settings.getCooldown();
-        int topCounter = 0;
-
-        for (Player p : getParticipants()) {
-
-            if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
-                String msg = Messages.get("winner-cooldown");
-                if (msg != null) {
-                    p.sendMessage(msg.replace("{time}", Utils.formatRemainingTime(Cooldown.getRemainingTimeMinutes(p.getUniqueId(), "treasure-winner"))));
-                }
-                return;
+        public void awardPrizes() {
+        if (getRoundController() != null) {
+            int idx = getRoundController().getRoundNumber() - 1;
+            TreasureRound round = getRoundController().getRoundRegistry().getRound(idx);
+            if (round != null && round.getRoundData() != null) {
+                awardPrizes(round.getRoundData());
             }
-
-            if (cooldown != 0) {
-                Cooldown cd = new Cooldown(p.getUniqueId(), "treasure-winner", cooldown * 60);
-                cd.set();
-            }
-
-            runCommandPrizes(p);
-
-            for (ItemReward i : getTreasureData().getItemRewards()) {
-
-                if (i.shouldGiveOnlyToTopX() && !i.isTopX(topCounter)) continue;
-                if (Utils.chance() > i.getChance()) continue;
-
-                ItemStack item = i.getItemStack();
-
-                if (!Utils.hasFullInventory(p)) {
-
-                    if (item == null || item.getType() == Material.AIR) continue;
-
-                    p.getInventory().addItem(item);
-
-                } else {
-
-                    if (item == null || item.getType() == Material.AIR) continue;
-
-                    p.getWorld().dropItemNaturally(p.getLocation(), item);
-                    p.sendMessage(Messages.get("full-inventory").replace("{amount}", item.getAmount() + "").replace("{item}", Utils.setCapitals(item.getType().toString().toLowerCase().replace("_", " "))));
-
-                }
-
-            }
-
-            announceWinners();
-            topCounter++;
         }
-
     }
 
     /**

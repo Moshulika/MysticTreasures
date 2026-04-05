@@ -34,7 +34,7 @@ public class TreasureMenu implements Listener {
         String yes = Messages.get("menu-yes");
         String no = Messages.get("menu-no");
         String requiresMobsDead = d.requireAllMobsDead() ? yes : no;
-        String debuff = d.getDebuff().isEnabled() ? yes : no;
+        String debuff = d.hasDebuff() ? yes : no;
         String world = d.getWorldName();
         String requiresKey = d.getTreasureKey().requiresKey() ? yes : no;
 

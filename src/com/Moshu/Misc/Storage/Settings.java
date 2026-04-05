@@ -29,19 +29,29 @@ public class Settings {
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
     public static List<String> getAllowedWorlds() {
+
+        if (plugin == null) return new ArrayList<>();
+
         return plugin.getConfig().getStringList("settings.allowed-worlds");
     }
 
     public static boolean actionbar() {
+
+        if (plugin == null) return true;
+
         return plugin.getConfig().getBoolean("settings.actionbar.enabled", true);
     }
 
     public static int actionbarRefresh() {
+
+        if (plugin == null) return 2;
+
         return plugin.getConfig().getInt("settings.actionbar.refresh", 2);
     }
 
     public static Particle getCompatParticle(String setting) {
 
+        if (plugin == null) return Particle.CRIT;
 
         try {
             return Particle.valueOf(plugin.getConfig().getString("settings.effects-particles." + setting, "COMPOSTER"));
@@ -92,6 +102,9 @@ public class Settings {
     }
 
     public static int getInt(String path) {
+
+        if (plugin == null) return 0;
+
         try {
             return plugin.getConfig().getInt("settings." + path);
 
@@ -104,6 +117,9 @@ public class Settings {
     }
 
     public static boolean getBoolean(String path) {
+
+        if (plugin == null) return false;
+
         try {
             return plugin.getConfig().getBoolean("settings." + path);
         } catch (Exception e) {
@@ -115,6 +131,9 @@ public class Settings {
     }
 
     public static String getString(String path) {
+
+        if (plugin == null) return "";
+
         try {
             return plugin.getConfig().getString("settings." + path, "Error loading string " + path);
         } catch (Exception e) {
@@ -127,6 +146,9 @@ public class Settings {
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
     public static List<String> getStringList(String path) {
+
+        if (plugin == null) return new ArrayList<>();
+
         try {
             return plugin.getConfig().getStringList("settings." + path);
         } catch (Exception e) {
@@ -138,6 +160,9 @@ public class Settings {
     }
 
     public static int getCooldown() {
+
+        if (plugin == null) return 1440;
+
         try {
             return plugin.getConfig().getInt("settings.winner-cooldown");
         } catch (Exception e) {

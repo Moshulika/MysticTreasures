@@ -46,19 +46,29 @@ public class TreasureRoundController {
         }
 
         // If the current round is NOT cleared yet, don't start the next one
-        // We check remainingMobs() from the Treasure object
         if (t.haveTheMobsSpawned() && t.remainingMobs() > 0) {
             return false;
         }
 
-        // Apply debuff starting from the second round (index 1), but only if a debuff is configured and enabled
-        if (roundNumber >= 1 && t.getTreasureData() != null && t.getTreasureData().getDebuff() != null) {
-            if (t.getTreasureData().getDebuff().isEnabled()) {
-                t.getTreasureData().getDebuff().debuff(t);
+        // Give rewards for the previous round if it's not the first time
+        if (roundNumber > 0) {
+            TreasureRound prevRound = r.getRound(roundNumber - 1);
+            if (prevRound != null && prevRound.getRoundData() != null) {
+                t.giveRewards(prevRound.getRoundData());
             }
         }
 
-        r.getRound(roundNumber).start(t);
+        TreasureRound round = r.getRound(roundNumber);
+
+        // Apply debuff starting from the second round (index 1), but only if a debuff is configured
+        if (roundNumber >= 1 && round != null && round.getRoundData() != null && round.getRoundData().getDebuff() != null) {
+            round.getRoundData().getDebuff().debuff(t);
+        }
+
+        if (round != null) {
+            round.start(t);
+        }
+        
         roundNumber++;
         return true;
 

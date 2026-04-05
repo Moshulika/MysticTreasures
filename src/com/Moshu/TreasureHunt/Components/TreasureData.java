@@ -61,9 +61,6 @@ public class TreasureData {
 
     private TreasureType treasureType;
 
-    private final ArrayList<ItemReward> itemRewards = new ArrayList<>();
-    private final ArrayList<CommandReward> commandRewards = new ArrayList<>();
-    private final ArrayList<TreasureKeeper> treasureKeepers = new ArrayList<>();
 
     @NotNull
     private final static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
@@ -101,7 +98,6 @@ public class TreasureData {
     private final int coordsNearTreasure;
     private final String menuItem;
     private final int cooldownBetweenClicks;
-    private TreasureDebuff debuff;
     private final boolean spawnsInside;
     private final String awardMethodString;
     private Treasure.AwardMethod awardMethod;
@@ -199,10 +195,6 @@ public class TreasureData {
         return rewardTopX;
     }
 
-    @SuppressFBWarnings("EI_EXPOSE_REP")
-    public TreasureDebuff getDebuff() {
-        return debuff;
-    }
 
     public static TreasureData getByIdentifier(String id) {
 
@@ -237,16 +229,60 @@ public class TreasureData {
         return treasureKey;
     }
 
+
     public List<TreasureKeeper> getTreasureKeepers() {
-        return Collections.unmodifiableList(treasureKeepers);
+        List<TreasureKeeper> all = new ArrayList<>();
+        if (roundRegistry != null && roundRegistry.getRounds() != null) {
+            for (TreasureRound round : roundRegistry.getRounds()) {
+                all.addAll(round.getRoundTreasureKeepers());
+            }
+        }
+        return Collections.unmodifiableList(all);
     }
 
     public List<ItemReward> getItemRewards() {
-        return Collections.unmodifiableList(itemRewards);
+        List<ItemReward> all = new ArrayList<>();
+        if (roundRegistry != null && roundRegistry.getRounds() != null) {
+            for (TreasureRound round : roundRegistry.getRounds()) {
+                if (round.getRoundData() != null) {
+                    all.addAll(round.getRoundData().getItemRewards());
+                }
+            }
+        }
+        return Collections.unmodifiableList(all);
     }
 
     public List<CommandReward> getCommandRewards() {
-        return Collections.unmodifiableList(commandRewards);
+        List<CommandReward> all = new ArrayList<>();
+        if (roundRegistry != null && roundRegistry.getRounds() != null) {
+            for (TreasureRound round : roundRegistry.getRounds()) {
+                if (round.getRoundData() != null) {
+                    all.addAll(round.getRoundData().getCommandRewards());
+                }
+            }
+        }
+        return Collections.unmodifiableList(all);
+    }
+
+    public boolean hasDebuff() {
+        if (roundRegistry != null && roundRegistry.getRounds() != null) {
+            for (TreasureRound round : roundRegistry.getRounds()) {
+                if (round.getRoundData() != null && round.getRoundData().getDebuff() != null) return true;
+            }
+        }
+        return false;
+    }
+    
+    // Kept for backward compatibility, returns the first round's debuff or null
+    @SuppressFBWarnings("EI_EXPOSE_REP")
+    public TreasureDebuff getDebuff() {
+        if (roundRegistry != null && roundRegistry.getRounds() != null && !roundRegistry.getRounds().isEmpty()) {
+            TreasureRound round = roundRegistry.getRound(0);
+            if (round != null && round.getRoundData() != null) {
+                return round.getRoundData().getDebuff();
+            }
+        }
+        return null;
     }
 
     public TreasureType getTreasureType() {
@@ -339,14 +375,16 @@ public class TreasureData {
 
     }
 
-    private int getAmountFromRange(String s) {
+    public static int getAmountFromRangeStatic(String s) {
 
         String[] arr = s.split("-");
         if (arr.length == 0) return 0;
 
         for (String x : arr) {
             if (!Utils.isInt(x)) {
-                plugin.getLogger().warning("Invalid amount of item-reward: " + x);
+                if (plugin != null) {
+                    plugin.getLogger().warning("Invalid amount of item-reward: " + x);
+                }
             }
         }
 
@@ -355,8 +393,12 @@ public class TreasureData {
 
     }
 
+    private int getAmountFromRange(String s) {
+        return getAmountFromRangeStatic(s);
+    }
 
-    private ArrayList<PotionEffect> deserializeEffects(List<String> potionEffects) {
+
+    public static ArrayList<PotionEffect> deserializeEffects(List<String> potionEffects) {
 
         ArrayList<PotionEffect> potionEffectsList = new ArrayList<>();
         if (potionEffects.isEmpty()) return potionEffectsList;
@@ -402,7 +444,7 @@ public class TreasureData {
         return potionEffectsList;
     }
 
-    private ArrayList<PotionEffect> deserializeEffectsWithDuration(List<String> potionEffects) {
+    public static ArrayList<PotionEffect> deserializeEffectsWithDuration(List<String> potionEffects) {
 
         ArrayList<PotionEffect> potionEffectsList = new ArrayList<>();
         if (potionEffects.isEmpty()) return potionEffectsList;
@@ -625,9 +667,6 @@ public class TreasureData {
 
         parseAwardMethod();
 
-        this.roundRegistry = new TreasureRoundRegistry(this);
-        this.roundRegistry.setRounds(defaultSection.getInt("rounds", 1));
-        this.roundRegistry.load();
 
         try {
             String particleStr = defaultSection.getString("treasure-particles", "COMPOSTER");
@@ -683,143 +722,6 @@ public class TreasureData {
             plugin.getLogger().warning("Configuration section 'treasure-key' does not exist for treasure " + treasureName);
         }
 
-        // Load Debuff section
-        ConfigurationSection debuffSection = defaultSection.getConfigurationSection("debuff");
-
-        if (debuffSection != null) {
-
-            debuff = new TreasureDebuff(this);
-            debuff.setEnabled(debuffSection.getBoolean("enable", false));
-            debuff.setShockwave(debuffSection.getBoolean("shockwave", true));
-            debuff.setRespawnMobs(debuffSection.getBoolean("respawn-mobs", true));
-            debuff.setClicksToDebuff(debuffSection.getInt("clicks-to-debuff", 10));
-            debuff.setPotionEffects(deserializeEffectsWithDuration(debuffSection.getStringList("potion-effects")));
-
-            plugin.getLogger().log(Level.INFO, "Fetched treasure debuff, enabled: " + debuff.isEnabled() + ", shockwave: " + debuff.isShockwave() +
-                    ", respawn-mobs: " + debuff.isRespawnMobs() + ", clicks-to-debuff: " + debuff.getClicksToDebuff());
-
-        } else {
-            plugin.getLogger().warning("Configuration section 'debuff' does not exist for treasure " + treasureName);
-        }
-
-
-        // Load all Mobs
-        ConfigurationSection mobsSection = defaultSection.getConfigurationSection("mobs");
-
-        if (mobsSection != null) {
-
-            Set<String> mobKeys = mobsSection.getKeys(false);
-
-            for (String mobId : mobKeys) {
-
-                ConfigurationSection mobSection = mobsSection.getConfigurationSection(mobId);
-
-                if (mobSection != null) {
-
-                    TreasureKeeper mob = new TreasureKeeper(this);
-
-                    mob.setMobId(mobId);
-                    mob.setMythicMob(mobSection.getBoolean("mythic-mobs", false));
-                    mob.setKeeperIdentifier(mobSection.getString("entity-type", "ZOMBIE"));
-                    mob.setCustomName(mobSection.getString("custom-name", "Treasure Keeper"));
-                    mob.setRange(mobSection.getString("range", "5-10"));
-                    mob.setAmount(getAmountFromRange(mobSection.getString("range", "5-10")));
-                    mob.setChance(mobSection.getInt("chance", 100));
-                    mob.setMenuItem(mobSection.getString("menu-item", "STONE"));
-                    mob.setMaxHealth(mobSection.getInt("max-health", 20));
-                    mob.setRounds(mobSection.getStringList("rounds"));
-                    mob.setPotionEffects(deserializeEffects(mobSection.getStringList("potion-effects")));
-                    mob.setAnimatedSpawn(animateMobSpawning());
-
-                    TreasureKeeperDrops drops = new TreasureKeeperDrops(mobSection.getConfigurationSection("drops"));
-                    mob.setDrops(drops);
-
-                    TreasureKeeperEquipment equipment = new TreasureKeeperEquipment(mobSection.getConfigurationSection("equipment"));
-                    mob.setEquipment(equipment);
-
-                    treasureKeepers.add(mob);
-                } else {
-                    plugin.getLogger().warning("Configuration section for mob '" + mobId + "' does not exist!");
-                }
-            }
-
-            plugin.getLogger().log(Level.INFO, "Fetched " + treasureKeepers.size() + " treasure keepers");
-
-        }
-
-        // Load ItemRewards
-        ConfigurationSection itemRewardsSection = defaultSection.getConfigurationSection("item-rewards");
-
-        if (itemRewardsSection != null) {
-
-            Set<String> rewardKeys = itemRewardsSection.getKeys(false);
-
-            for (String rewardId : rewardKeys) {
-
-                ConfigurationSection rewardSection = itemRewardsSection.getConfigurationSection(rewardId);
-
-                if (rewardSection != null) {
-
-                    ItemReward reward = new ItemReward();
-                    reward.setIdentifier(rewardId);
-
-                    String itemStr = rewardSection.getString("item", "STONE");
-
-                    reward.setItemString(itemStr);
-                    reward.setName(rewardSection.getString("name", "&6&l&oREWARD #1"));
-                    reward.setLore(rewardSection.getStringList("lore"));
-                    reward.setRange(rewardSection.getString("amount", "5-10"));
-                    reward.setAmount(getAmountFromRange(rewardSection.getString("amount", "5-10")));
-                    reward.setChance(rewardSection.getInt("chance", 40));
-                    reward.setEnchants(rewardSection.getStringList("enchantments"));
-                    reward.setMenuItem(rewardSection.getString("menu-item", "STONE"));
-                    reward.setRewardToTopX(rewardSection.getInt("award-to-top", 0));
-                    reward.build();
-                    itemRewards.add(reward);
-
-                } else {
-                    plugin.getLogger().warning("Configuration section for reward '" + rewardId + "' does not exist!");
-                }
-            }
-
-            plugin.getLogger().log(Level.INFO, "Fetched " + itemRewards.size() + " item rewards");
-
-        } else {
-            plugin.getLogger().warning("Configuration section 'item-rewards' does not exist for treasure " + treasureName);
-        }
-
-        // Load CommandRewards
-        ConfigurationSection commandRewardsSection = defaultSection.getConfigurationSection("command-rewards");
-        if (commandRewardsSection != null) {
-
-            Set<String> commandKeys = commandRewardsSection.getKeys(false);
-
-            for (String commandId : commandKeys) {
-
-                ConfigurationSection commandSection = commandRewardsSection.getConfigurationSection(commandId);
-
-                if (commandSection != null) {
-
-                    CommandReward cr = new CommandReward();
-                    cr.setIdentifier(commandId);
-                    cr.setCommand(commandSection.getString("command"));
-                    cr.setChance(commandSection.getInt("chance"));
-                    cr.setMenuItem(commandSection.getString("menu-item", "STONE"));
-
-                    commandRewards.add(cr);
-
-                } else {
-                    plugin.getLogger().warning("Configuration section for command reward '" + commandId + "' does not exist!");
-                }
-            }
-
-            plugin.getLogger().log(Level.INFO, "Fetched " + commandRewards.size() + " command rewards");
-
-        } else {
-            plugin.getLogger().warning("Configuration section 'command-rewards' does not exist!");
-        }
-
-
         ConfigurationSection schedulerSection = defaultSection.getConfigurationSection("scheduler");
         if (schedulerSection != null) {
 
@@ -857,10 +759,17 @@ public class TreasureData {
         }
 
 
-        roundRegistry = new TreasureRoundRegistry(this);
 
-        int rounds = defaultSection.getInt("rounds", 1);
-        roundRegistry.setRounds(rounds);
+        roundRegistry = new TreasureRoundRegistry(this);
+        List<String> rounds = defaultSection.getStringList("rounds");
+        
+        if (rounds.isEmpty()) {
+            if (plugin != null) {
+                plugin.getLogger().severe("Treasure '" + defaultSection.getName() + "' is missing the 'rounds' list! Please configure rounds in your treasure.yml.");
+            }
+        }
+        
+        roundRegistry.setRoundIds(rounds);
         roundRegistry.load();
 
     }

@@ -19,46 +19,34 @@ import java.util.List;
 /**
  * Represents a debuff system that can be applied to players during treasure hunts.
  * This class manages negative effects that can be triggered when players interact
- * with treasures, including potion effects, shockwaves, and mob respawning.
+ * with treasures, including potion effects and shockwaves.
  *
  * @author Moshu
- * @version 1.0
+ * @version 1.1
  */
 public class TreasureDebuff {
 
-    private boolean enabled;
     private int clicksToDebuff;
     private boolean shockwave;
-    private boolean respawnMobs;
     private List<PotionEffect> potionEffects;
-    private final TreasureData d;
+    private final RoundData d;
 
-    private static final Particle EXPLOSION = Settings.getCompatParticle("treasure-spawn-particle");
     private static final Particle EXPLOSION_EMITTER = Settings.getCompatParticle("treasure-remove-particle");
-    private static final Particle CAMPFIRE_SIGNAL_SMOKE = Settings.getCompatParticle("treasure-fall-particle");
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     /**
-     * Creates a new treasure debuff with the specified treasure data.
+     * Creates a new treasure debuff with the specified round data.
      *
-     * @param d The treasure data configuration
+     * @param d The round data configuration
      */
-    public TreasureDebuff(TreasureData d) {
+    public TreasureDebuff(RoundData d) {
         this.d = d;
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public TreasureData getTreasureData() {
+    public RoundData getRoundData() {
         return d;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public int getClicksToDebuff() {
@@ -75,14 +63,6 @@ public class TreasureDebuff {
 
     public void setShockwave(boolean shockwave) {
         this.shockwave = shockwave;
-    }
-
-    public boolean isRespawnMobs() {
-        return respawnMobs;
-    }
-
-    public void setRespawnMobs(boolean respawnMobs) {
-        this.respawnMobs = respawnMobs;
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
@@ -102,12 +82,11 @@ public class TreasureDebuff {
      */
     public void debuff(Treasure t) {
 
-        if (!isEnabled()) return;
         if (t.alreadyDebuffed()) return;
 
-        if (clicksToDebuff >= getTreasureData().getClicksToOpen()) {
+        if (clicksToDebuff >= t.getTreasureData().getClicksToOpen()) {
             if (plugin != null)
-                plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
+                plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open for round " + d.getId() + "! Change this in order to use it.");
             return;
         }
 
@@ -138,10 +117,6 @@ public class TreasureDebuff {
                     k.sendMessage(s);
                 }
 
-            }
-
-            if (isRespawnMobs()) {
-                // do we still need this?
             }
 
             World world = treasureLoc.getWorld();

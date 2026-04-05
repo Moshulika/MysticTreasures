@@ -151,11 +151,14 @@ public class FileHandler {
     public ArrayList<TreasureData> setup() {
         createFolder();
         saveResourceToFolder("treasure.yml", "treasures");
+        saveResourceToFolder("rounds.yml", "rounds");
+        com.Moshu.TreasureHunt.Components.RoundManager.load();
         return loadTreasures();
     }
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
     public ArrayList<TreasureData> reload() {
+        com.Moshu.TreasureHunt.Components.RoundManager.load();
         return loadTreasures();
     }
 
@@ -238,7 +241,7 @@ public class FileHandler {
             plugin.getLogger().warning("Could not load default treasure.yml for merging.");
         }
 
-        java.util.List<String> protectedSections = java.util.Arrays.asList("mobs", "item-rewards", "command-rewards", "scheduler");
+        java.util.List<String> protectedSections = java.util.Arrays.asList("rounds", "scheduler");
 
 
         for (String s : filesList) {

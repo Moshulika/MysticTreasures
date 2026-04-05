@@ -242,25 +242,9 @@ public class TreasureKeeper {
         return this.keeperIdentifier;
     }
 
-    private Location getNearLocationInside(Location loc) {
-        int x = Utils.randInt(-6, 6);
-        int z = Utils.randInt(-6, 6);
 
-        Location randomLoc = loc.clone().add(x, 0, z);
 
-        World world = loc.getWorld();
-        if (world == null) return loc;
-        return Utils.getSafeBlock(randomLoc, world.getSpawnLocation());
-    }
 
-    private Location getNearLocation(Location l) {
-        int x = Utils.randInt(-6, 6);
-        int z = Utils.randInt(-6, 6);
-
-        World world = l.getWorld();
-        if (world == null) return l;
-        return Utils.getHighestBlock(world, l.getBlockX(), l.getBlockZ(), world.getSpawnLocation()).add(x, 0, z);
-    }
 
     private void equip(LivingEntity e) {
 
@@ -313,14 +297,12 @@ public class TreasureKeeper {
         return Hunt.getHuntByIdentifier(getTreasureIdentifier(e));
     }
 
-    private Location pickLocation(boolean spawnsInside, Location originalLoc) {
-
+    private Location pickLocation(boolean spawnsInside, Location originalLoc, int radius) {
         if (spawnsInside) {
-            return getNearLocationInside(originalLoc);
+            return Utils.getNearLocationInside(originalLoc, radius);
         } else {
-            return getNearLocation(originalLoc);
+            return Utils.getNearLocation(originalLoc, radius);
         }
-
     }
 
     public void spawn(List<Entity> spawnedEntityRegister, Treasure t) {
@@ -340,7 +322,7 @@ public class TreasureKeeper {
 
                     for (int i = 0; i < getAmount(); i++) {
 
-                        ActiveMob knight = mob.spawn(BukkitAdapter.adapt(pickLocation(spawnsInside, loc)), 1);
+                        ActiveMob knight = mob.spawn(BukkitAdapter.adapt(pickLocation(spawnsInside, loc, getTreasureData().getMobWanderingDistance())), 1);
                         Entity entity = knight.getEntity().getBukkitEntity();
                         entity.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
                         entity.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
@@ -367,7 +349,7 @@ public class TreasureKeeper {
                     World world = loc.getWorld();
                     if (world == null) continue;
 
-                    LivingEntity e = (LivingEntity) world.spawnEntity(pickLocation(spawnsInside, loc), getEntityType());
+                    LivingEntity e = (LivingEntity) world.spawnEntity(pickLocation(spawnsInside, loc, getTreasureData().getMobWanderingDistance()), getEntityType());
                     e.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
                     e.setMetadata("treasure-keeper-" + getMobId(), new FixedMetadataValue(plugin, "treasure-keeper-" + getMobId()));
                     e.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));

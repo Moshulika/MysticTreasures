@@ -6,7 +6,9 @@ import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeper;
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeperDrops;
+import com.Moshu.TreasureHunt.Components.TreasureData;
 import com.Moshu.TreasureHunt.Components.TreasureKey;
+import com.Moshu.TreasureHunt.Components.TreasureRound;
 import com.Moshu.TreasureHunt.Core.API.Events.TreasureInteractEvent;
 import com.Moshu.TreasureHunt.Core.Hunt;
 import com.Moshu.TreasureHunt.Core.Treasure;
@@ -26,6 +28,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityCombustEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -169,29 +172,42 @@ public class TreasureEvents implements Listener {
     }
 
     private void awardAndRemove(Player p, Treasure t) {
-        if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
-            t.awardPrizes();
-        } else if (t.getTreasureData().rewardMostDamageGiven()) {
-
-            if (t.wereTreasureKeepersDamaged()) {
-                t.awardPrize(t.getPlayerWithMostDamage());
-            } else {
-                t.awardPrize(p);
+        if (t.getRoundController() != null) {
+            int currentRoundIdx = t.getRoundController().getRoundNumber() - 1;
+            TreasureRound currentRound = t.getRoundController().getRoundRegistry().getRound(currentRoundIdx);
+            if (currentRound != null && currentRound.getRoundData() != null) {
+                t.giveRewards(currentRound.getRoundData());
             }
 
-        } else if (t.getTreasureData().shouldOnlyRewardTopX()) {
-            t.awardPrizesToTop(t.getTreasureData().getRewardTopX());
+            // Only remove and end if it's the last round
+            if (t.getRoundController().isLastRound()) {
+                t.remove(true);
+                Utils.sendLevelupSound(p);
+            }
         } else {
-            t.awardPrize(p);
+            // Fallback for safety
+            t.remove(true);
+            Utils.sendLevelupSound(p);
         }
-
-        t.remove(true);
-        Utils.sendLevelupSound(p);
-
     }
 
     private void rewardHandler(Player p, Treasure t) {
-        if (t.getTreasureData().canOpenChest()) {
+        TreasureRound currentRound = null;
+        if (t.getRoundController() != null) {
+            int idx = t.getRoundController().getRoundNumber() - 1;
+            currentRound = t.getRoundController().getRoundRegistry().getRound(idx);
+        }
+        
+        boolean isChest = false;
+        if (currentRound != null && currentRound.getRoundData() != null) {
+            isChest = currentRound.getRoundData().getAwardMethod() == Treasure.AwardMethod.CHEST;
+        }
+
+        if (isChest) {
+            if (t.getRewardInventory() == null) {
+                 awardAndRemove(p, t);
+                 return;
+            }
 
             if (t.getRewardInventory().getViewers().size() >= Settings.getMaxPlayersLooting()) {
                 p.sendMessage(Messages.get("max-players-looting"));
@@ -214,7 +230,10 @@ public class TreasureEvents implements Listener {
             }
 
             if (!t.receivedCommandRewards(p)) {
-                t.runCommandPrizes(p);
+                // We'll use the round-specific command prizes when opening the chest
+                if (currentRound != null && currentRound.getRoundData() != null) {
+                    t.runCommandPrizes(p, currentRound.getRoundData());
+                }
             }
 
             p.openInventory(t.getRewardInventory());
@@ -774,7 +793,16 @@ public class TreasureEvents implements Listener {
 
             if (hasCooldown(p)) return true;
             if (!canTreasureBeOpened(p, t)) return true;
-            if (!hasKey(p, t)) return true;
+            
+            // KEY REQUIREMENT: Must have key to even start the first round
+            if (t.isLocked()) {
+                if (!hasKey(p, t)) return true;
+                
+                // Unlock immediately on first interaction if they have the key
+                Utils.substractItem(p, t.getTreasureData().getTreasureKey().getItemStack(1), 1);
+                sendTreasureUnlocked(p);
+                t.unlock();
+            }
 
             // Rounds logic
             if (t.getRoundController() != null && t.getRoundController().hasMoreRounds()) {
@@ -849,7 +877,25 @@ public class TreasureEvents implements Listener {
             if (disableBreakToAward(p, t)) return;
             if (hasCooldown(p)) return;
             if (!canTreasureBeOpened(p, t)) return;
-            if (!hasKey(p, t)) return;
+            
+            // KEY REQUIREMENT: Must have key to even interact
+            if (t.isLocked()) {
+                if (!hasKey(p, t)) return;
+                
+                Utils.substractItem(p, t.getTreasureData().getTreasureKey().getItemStack(1), 1);
+                sendTreasureUnlocked(p);
+                t.unlock();
+            }
+            
+            // Respect rounds in break event too
+            if (t.getRoundController() != null && t.getRoundController().hasMoreRounds()) {
+                if (t.getRoundController().startRound()) {
+                    return;
+                } else if (t.remainingMobs() > 0) {
+                    sendMobsNotCleared(p);
+                    return;
+                }
+            }
 
             openTreasure(p, t);
 
@@ -871,6 +917,38 @@ public class TreasureEvents implements Listener {
         }
 
 
+    }
+
+
+    @EventHandler(ignoreCancelled = true)
+    public void onSuffocation(EntityDamageEvent e) {
+        if (e.getCause() != EntityDamageEvent.DamageCause.SUFFOCATION) return;
+        if (!(e.getEntity() instanceof LivingEntity)) return;
+
+        LivingEntity victim = (LivingEntity) e.getEntity();
+        if (!TreasureKeeper.isTreasureKeeper(victim)) return;
+
+        Hunt h = TreasureKeeper.getHunt(victim);
+        if (h == null || h.getTreasure() == null) return;
+
+        Treasure t = h.getTreasure();
+        TreasureData data = t.getTreasureData();
+
+        boolean spawnsInside = data.isSpawnsInside() || data.spawnToCertainCoords();
+        Location treasureLoc = t.getLocation();
+        
+        // Find a new safe location within wandering distance
+        int radius = data.getMobWanderingDistance();
+        Location newLoc;
+        
+        if (spawnsInside) {
+            newLoc = Utils.getNearLocationInside(treasureLoc, radius);
+        } else {
+            newLoc = Utils.getNearLocation(treasureLoc, radius);
+        }
+        
+        victim.teleport(newLoc);
+        e.setCancelled(true);
     }
 
 }
