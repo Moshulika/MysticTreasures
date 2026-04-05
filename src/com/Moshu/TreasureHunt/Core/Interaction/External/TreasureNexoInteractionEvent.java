@@ -10,8 +10,7 @@ import org.bukkit.event.Listener;
 public class TreasureNexoInteractionEvent implements Listener {
 
     @EventHandler
-    public void onInteract(NexoFurnitureInteractEvent e)
-    {
+    public void onInteract(NexoFurnitureInteractEvent e) {
         Location loc = e.getBaseEntity().getLocation();
         TreasureEvents treasureEvents = TreasureEvents.getInstance();
         boolean isTreasure = treasureEvents.handleInteraction(e.getPlayer(), loc);
@@ -19,8 +18,7 @@ public class TreasureNexoInteractionEvent implements Listener {
     }
 
     @EventHandler
-    public void onInteract(NexoBlockBreakEvent e)
-    {
+    public void onInteract(NexoBlockBreakEvent e) {
         Location loc = e.getBlock().getLocation();
         TreasureEvents treasureEvents = TreasureEvents.getInstance();
         boolean isTreasure = treasureEvents.handleInteraction(e.getPlayer(), loc);

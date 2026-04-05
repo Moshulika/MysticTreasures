@@ -1,10 +1,10 @@
 package com.Moshu.Misc.Storage;
 
 import com.Moshu.TreasureHunt.Components.TreasureData;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -15,7 +15,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.logging.Level;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class FileHandler {
 
@@ -26,7 +25,7 @@ public class FileHandler {
 
     public static synchronized FileHandler getInstance() {
 
-        if(fileHandler == null) fileHandler = new FileHandler();
+        if (fileHandler == null) fileHandler = new FileHandler();
         return fileHandler;
 
     }
@@ -50,14 +49,13 @@ public class FileHandler {
         }
 
         File[] files = targetFolder.listFiles();
-        if(files != null && files.length != 0) {
+        if (files != null && files.length != 0) {
             return;
         }
 
         // Copy the resource file from the JAR
         try (InputStream inputStream = plugin.getResource(resourceName);
-             FileOutputStream outputStream = new FileOutputStream(outputFile))
-        {
+             FileOutputStream outputStream = new FileOutputStream(outputFile)) {
 
             if (inputStream == null) {
                 plugin.getLogger().warning("Resource " + resourceName + " not found in JAR!");
@@ -81,61 +79,91 @@ public class FileHandler {
     /**
      * Merges a local YAML file with its default version from the JAR.
      * Missing keys are added to the local file while keeping existing values intact.
-     * 
-     * @param localFile The file on the disk
+     *
+     * @param localFile    The file on the disk
      * @param resourcePath The path to the resource inside the JAR
      */
     public void mergeWithDefault(File localFile, String resourcePath) {
+        mergeWithDefault(localFile, resourcePath, Collections.emptyList());
+    }
+
+    /**
+     * Merges a local YAML file with its default version from the JAR, respecting protected sections.
+     *
+     * @param localFile         The file on the disk
+     * @param resourcePath      The path to the resource inside the JAR
+     * @param protectedSections List of sections that should not be merged if they already exist locally
+     */
+    public void mergeWithDefault(File localFile, String resourcePath, java.util.List<String> protectedSections) {
         if (!localFile.exists()) {
             saveResourceToFolder(resourcePath, localFile.getParentFile().getName());
             return;
         }
 
         YamlConfiguration localConfig = YamlConfiguration.loadConfiguration(localFile);
-        
+
         try (InputStream is = plugin.getResource(resourcePath)) {
             if (is == null) return;
-            
+
             YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8));
-            
-            boolean modified = false;
-            for (String key : defaultConfig.getKeys(true)) {
-                if (!localConfig.contains(key)) {
-                    localConfig.set(key, defaultConfig.get(key));
-                    modified = true;
-                }
-            }
-            
-            if (modified) {
+
+            if (mergeConfigs(localConfig, defaultConfig, protectedSections)) {
                 localConfig.save(localFile);
                 plugin.getLogger().info("Updated " + localFile.getName() + " with missing default values.");
             }
-            
+
         } catch (IOException e) {
             plugin.getLogger().log(Level.SEVERE, "Could not merge config file: " + localFile.getName(), e);
         }
     }
 
+    /**
+     * Merges a configuration section with another, respecting protected sections.
+     *
+     * @param local             The local section to merge into
+     * @param defaultConfig     The default section to merge from
+     * @param protectedSections A list of keys that, if present in the local config, should skip merging their children.
+     * @return true if the local config was modified
+     */
+    private boolean mergeConfigs(ConfigurationSection local, ConfigurationSection defaultConfig, java.util.List<String> protectedSections) {
+        boolean modified = false;
+        for (String key : defaultConfig.getKeys(true)) {
+            // Check if this key or any of its parents are in the protectedSections list
+            boolean isProtected = false;
+            for (String ps : protectedSections) {
+                if ((key.equals(ps) || key.startsWith(ps + ".")) && local.contains(ps)) {
+                    isProtected = true;
+                    break;
+                }
+            }
+
+            if (isProtected) continue;
+
+            if (!local.contains(key)) {
+                local.set(key, defaultConfig.get(key));
+                modified = true;
+            }
+        }
+        return modified;
+    }
+
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public ArrayList<TreasureData> setup()
-    {
+    public ArrayList<TreasureData> setup() {
         createFolder();
         saveResourceToFolder("treasure.yml", "treasures");
         return loadTreasures();
     }
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public ArrayList<TreasureData> reload()
-    {
+    public ArrayList<TreasureData> reload() {
         return loadTreasures();
     }
 
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-    private void createFolder()
-    {
+    private void createFolder() {
         folder = new File(plugin.getDataFolder(), "treasures");
 
-        if(!folder.exists()) folder.mkdir();
+        if (!folder.exists()) folder.mkdir();
     }
 
     /**
@@ -145,20 +173,15 @@ public class FileHandler {
      * @param name the treasure's name
      * @return the configuration file for the treasure
      */
-    public YamlConfiguration getTreasureFile(String name)
-    {
+    public YamlConfiguration getTreasureFile(String name) {
 
         File f = new File(plugin.getDataFolder() + "/treasures/" + name);
 
         YamlConfiguration shop = new YamlConfiguration();
 
-        try
-        {
+        try {
             shop.load(f);
-        }
-
-        catch (IOException | InvalidConfigurationException e)
-        {
+        } catch (IOException | InvalidConfigurationException e) {
 
         }
 
@@ -169,17 +192,17 @@ public class FileHandler {
 
     /**
      * Get a list of all menu names available
+     *
      * @return a list of all the menus available
      */
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public ArrayList<String> getTreasureNames()
-    {
+    public ArrayList<String> getTreasureNames() {
 
         ArrayList<String> menus = new ArrayList<>();
         File directory = new File(plugin.getDataFolder() + "/treasures/");
 
         String[] filesList = directory.list();
-        if(filesList == null) return menus;
+        if (filesList == null) return menus;
 
         Collections.addAll(menus, filesList);
 
@@ -190,18 +213,17 @@ public class FileHandler {
     /**
      *
      * Get a list of all menus available
+     *
      * @return a list of all the menus available
      */
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    private ArrayList<TreasureData> loadTreasures()
-    {
+    private ArrayList<TreasureData> loadTreasures() {
 
         ArrayList<TreasureData> treasures = new ArrayList<>();
         File directory = new File(plugin.getDataFolder() + "/treasures/");
 
         String[] filesList = directory.list();
-        if(filesList == null)
-        {
+        if (filesList == null) {
             plugin.getLogger().info("No treasures found inside the treasures folder");
             return treasures;
         }
@@ -216,8 +238,10 @@ public class FileHandler {
             plugin.getLogger().warning("Could not load default treasure.yml for merging.");
         }
 
-        for(String s : filesList)
-        {
+        java.util.List<String> protectedSections = java.util.Arrays.asList("mobs", "item-rewards", "command-rewards", "scheduler");
+
+
+        for (String s : filesList) {
             File f = new File(directory, s);
             if (!f.getName().endsWith(".yml")) continue;
 
@@ -229,7 +253,7 @@ public class FileHandler {
             }
 
             String treasureId = treasureRootSection.getKeys(false).iterator().next();
-            
+
             // Auto-merge missing fields from default schema if available
             if (defaultTreasureConfig != null) {
                 ConfigurationSection defaultRoot = defaultTreasureConfig.getConfigurationSection("treasure");
@@ -237,16 +261,9 @@ public class FileHandler {
                     String defaultId = defaultRoot.getKeys(false).iterator().next();
                     ConfigurationSection defaultSection = defaultRoot.getConfigurationSection(defaultId);
                     ConfigurationSection localSection = treasureRootSection.getConfigurationSection(treasureId);
-                    
+
                     if (defaultSection != null && localSection != null) {
-                        boolean modified = false;
-                        for (String key : defaultSection.getKeys(true)) {
-                            if (!localSection.contains(key)) {
-                                localSection.set(key, defaultSection.get(key));
-                                modified = true;
-                            }
-                        }
-                        if (modified) {
+                        if (mergeConfigs(localSection, defaultSection, protectedSections)) {
                             try {
                                 treasureFile.save(f);
                                 plugin.getLogger().info("Merged missing fields into treasure file: " + s);
@@ -265,21 +282,18 @@ public class FileHandler {
             m.setIdentifier(treasureId);
 
             boolean repeated = false;
-            for(TreasureData x : treasures)
-            {
-                if(x.getTreasureName().equals(m.getTreasureName()))
-                {
+            for (TreasureData x : treasures) {
+                if (x.getTreasureName().equals(m.getTreasureName())) {
                     repeated = true;
                     Bukkit.getLogger().log(Level.SEVERE, "Treasure " + s + " has a name that's already taken");
                 }
-                if(x.getIdentifier().equals(m.getIdentifier()))
-                {
+                if (x.getIdentifier().equals(m.getIdentifier())) {
                     repeated = true;
                     Bukkit.getLogger().log(Level.SEVERE, "Treasure " + s + " has an ID that's already taken");
                 }
             }
 
-            if(!repeated) {
+            if (!repeated) {
                 treasures.add(m);
             }
         }

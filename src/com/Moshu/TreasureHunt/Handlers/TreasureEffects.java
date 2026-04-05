@@ -20,8 +20,7 @@ public class TreasureEffects {
     /*
     Cumva sa fie pentru toti jucatorii, daca sunt in raza unui treasure activ
      */
-    public static void check()
-    {
+    public static void check() {
 
         BukkitRunnable run = new BukkitRunnable() {
 
@@ -32,22 +31,22 @@ public class TreasureEffects {
             public void run() {
 
 
-                if(Bukkit.getOnlinePlayers().isEmpty()) return;
-                if(Hunt.getActiveTreasures().isEmpty()) return;
+                if (Bukkit.getOnlinePlayers().isEmpty()) return;
+                if (Hunt.getActiveTreasures().isEmpty()) return;
 
-                for(Player p : Bukkit.getOnlinePlayers()) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
 
                     h = Hunt.getNearestHunt(p.getLocation());
                     if (h == null) continue;
 
                     distance = Settings.getInt("potion-effect-radius");
 
-                    if(Locations.distanceSquaredTo(p.getLocation(), h.getLocation()) <= (double) distance * distance) {
+                    if (Locations.distanceSquaredTo(p.getLocation(), h.getLocation()) <= (double) distance * distance) {
 
-                        Bukkit.getScheduler().runTask(plugin, ()->
+                        Bukkit.getScheduler().runTask(plugin, () ->
                         {
 
-                            for(PotionEffect effect : effects) {
+                            for (PotionEffect effect : effects) {
                                 p.addPotionEffect(effect);
                             }
 

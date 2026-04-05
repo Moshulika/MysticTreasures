@@ -47,6 +47,7 @@ public class Placeholders extends PlaceholderExpansion {
 
     /**
      * TODO add the latest winner with damage given, and other stats.
+     *
      * @param player
      * @param identifier
      * @return
@@ -56,8 +57,7 @@ public class Placeholders extends PlaceholderExpansion {
 
         //treasures found, mobs killed
 
-        if(player == null)
-        {
+        if (player == null) {
             return " ";
         }
 
@@ -67,8 +67,7 @@ public class Placeholders extends PlaceholderExpansion {
             Player p = player.getPlayer();
             Hunt h = Hunt.getNearestHunt(p.getLocation());
 
-            if(h != null && h.isHuntActive())
-            {
+            if (h != null && h.isHuntActive()) {
 
                 if (identifier.equalsIgnoreCase("x")) {
                     return Integer.toString(h.getLocation().getBlockX());
@@ -82,25 +81,23 @@ public class Placeholders extends PlaceholderExpansion {
                     return h.getLocation().getWorld().getName();
                 }
 
-                if(identifier.equalsIgnoreCase("active")) {
+                if (identifier.equalsIgnoreCase("active")) {
                     return "true";
                 }
 
-                if(identifier.equalsIgnoreCase("remaining")) {
+                if (identifier.equalsIgnoreCase("remaining")) {
                     return Utils.getCountDown(h.getRemainingTime());
                 }
 
-                if(identifier.equalsIgnoreCase("mobs")) {
+                if (identifier.equalsIgnoreCase("mobs")) {
                     return Integer.toString(h.getTreasure().remainingMobs());
                 }
 
-                if(identifier.equalsIgnoreCase("participants")) {
+                if (identifier.equalsIgnoreCase("participants")) {
                     return Integer.toString(h.getTreasure().getParticipants().size());
                 }
 
-            }
-            else
-            {
+            } else {
                 if (identifier.equalsIgnoreCase("x")) {
                     return "-";
                 }
@@ -113,19 +110,19 @@ public class Placeholders extends PlaceholderExpansion {
                     return p.getWorld().getName();
                 }
 
-                if(identifier.equalsIgnoreCase("active")) {
+                if (identifier.equalsIgnoreCase("active")) {
                     return "false";
                 }
 
-                if(identifier.equalsIgnoreCase("remaining")) {
+                if (identifier.equalsIgnoreCase("remaining")) {
                     return "Hunt inactive";
                 }
 
-                if(identifier.equalsIgnoreCase("mobs")) {
+                if (identifier.equalsIgnoreCase("mobs")) {
                     return "0";
                 }
 
-                if(identifier.equalsIgnoreCase("participants")) {
+                if (identifier.equalsIgnoreCase("participants")) {
                     return "0";
                 }
 

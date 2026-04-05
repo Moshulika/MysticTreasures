@@ -24,10 +24,10 @@ import java.util.concurrent.TimeUnit;
  * Represents an active treasure hunt instance.
  * This class manages the lifecycle of a treasure hunt, from creation to completion,
  * including location generation, treasure spawning, and hunt state management.
- * 
+ * <p>
  * Each Hunt instance corresponds to a single treasure hunt event and contains
  * all the necessary data and logic to manage that specific hunt.
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
@@ -39,9 +39,11 @@ public class Hunt {
     private long startTime = 0;
     private final String treasureTypeString;
     private TreasureData treasureData;
+
     private static Plugin getPlugin() {
         return Bukkit.getPluginManager().getPlugin("MysticTreasures");
     }
+
     private static final HashMap<UUID, Hunt> activeHunts = new HashMap<>();
     private static final List<Hunt> activeTreasuresCache = Collections.synchronizedList(new ArrayList<>());
     private final UUID huntId;
@@ -95,9 +97,8 @@ public class Hunt {
      * @return the Hunt instance, or null if not found
      */
     public static Hunt getHuntByIdentifier(String id) {
-        for(Hunt h : activeHunts.values())
-        {
-            if(h.getTreasureData().getIdentifier().equals(id)) return h;
+        for (Hunt h : activeHunts.values()) {
+            if (h.getTreasureData().getIdentifier().equals(id)) return h;
         }
         return null;
     }
@@ -144,7 +145,7 @@ public class Hunt {
      * and world boundaries. This constructor initializes the hunt but does not start it.
      *
      * @param treasureTypeString the identifier of the treasure type to spawn
-     * @param duration the duration in minutes for how long the hunt should remain active
+     * @param duration           the duration in minutes for how long the hunt should remain active
      */
 
     public Hunt(String treasureTypeString, int duration) {
@@ -196,9 +197,9 @@ public class Hunt {
      * This constructor immediately sets the hunt location and initializes the hunt,
      * but does not start it. The location must be valid and safe for treasure spawning.
      *
-     * @param location the specific location where the treasure should spawn
+     * @param location           the specific location where the treasure should spawn
      * @param treasureTypeString the identifier of the treasure type to spawn
-     * @param duration the duration in minutes for how long the hunt should remain active
+     * @param duration           the duration in minutes for how long the hunt should remain active
      */
 
     public Hunt(Location location, String treasureTypeString, int duration) {
@@ -478,9 +479,8 @@ public class Hunt {
      */
 
     public static boolean isHuntActive(String id) {
-        for(Hunt h : activeHunts.values())
-        {
-            if(h.getTreasureData().getIdentifier().equals(id)) return true;
+        for (Hunt h : activeHunts.values()) {
+            if (h.getTreasureData().getIdentifier().equals(id)) return true;
         }
         return false;
     }
@@ -549,8 +549,7 @@ public class Hunt {
      * @return the duration in minutes for this hunt
      */
 
-    public int getDuration()
-    {
+    public int getDuration() {
         return duration;
     }
 
@@ -562,8 +561,7 @@ public class Hunt {
      * @return the elapsed time in milliseconds since the hunt started
      */
 
-    public long getElapsedTime()
-    {
+    public long getElapsedTime() {
         return getStartTime() - getRemainingTime();
     }
 
@@ -575,8 +573,7 @@ public class Hunt {
      * @return the start time in milliseconds since epoch, or 0 if not yet started
      */
 
-    public long getStartTime()
-    {
+    public long getStartTime() {
         return startTime;
     }
 
@@ -587,17 +584,15 @@ public class Hunt {
      * and treasure information.
      *
      * @param list the base lore strings to enhance with hunt information
-     * @param h the hunt instance to extract information from
+     * @param h    the hunt instance to extract information from
      * @return an ArrayList of formatted lore strings for display in menus
      */
 
-    private static ArrayList<String> menuItemLore(List<String> list, Hunt h)
-    {
+    private static ArrayList<String> menuItemLore(List<String> list, Hunt h) {
 
         ArrayList<String> newList = new ArrayList<>();
 
-        for(String s : list)
-        {
+        for (String s : list) {
             newList.add(s.replace("{time}", Utils.getCountDown(h.getRemainingTime()))
                     .replace("{keepers}", "" + h.getTreasure().getRemainingMobs().size())
                     .replace("{x}", "" + h.getLocation().getBlockX())
@@ -620,8 +615,7 @@ public class Hunt {
      */
 
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public static void activeHuntsMenu(Player p)
-    {
+    public static void activeHuntsMenu(Player p) {
 
         Inventory inv = Bukkit.createInventory(null, 27, Messages.get("active-hunts-menu.title"));
         ItemMeta meta;
@@ -629,12 +623,11 @@ public class Hunt {
         String name = Utils.format(Messages.get("active-hunts-menu.name"));
 
         int i = 0;
-        for(Hunt h : activeTreasuresCache)
-        {
+        for (Hunt h : activeTreasuresCache) {
 
             ItemStack item = new ItemStack(Utils.checkMaterial(h.getTreasureData().getMenuItem()));
             meta = item.getItemMeta();
-            if(meta == null) continue;
+            if (meta == null) continue;
 
             meta.setDisplayName(name.replace("{treasure_name}", h.getTreasure().getTreasureData().getTreasureName()));
             meta.setLore(menuItemLore(Messages.getAndFormatList("messages.active-hunts-menu.lore"), h));

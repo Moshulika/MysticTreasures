@@ -1,20 +1,13 @@
 package com.Moshu.TreasureHunt.Components;
 
 import com.Moshu.Misc.Utils;
-import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeper;
-import com.Moshu.TreasureHunt.Core.Hunt;
 import com.Moshu.TreasureHunt.Core.Treasure;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.Plugin;
-
-import java.util.ArrayList;
 
 public class TreasureWaypoint {
 
@@ -44,23 +37,21 @@ public class TreasureWaypoint {
         return range;
     }
 
-    private ArmorStand getStand()
-    {
+    private ArmorStand getStand() {
         return stand;
     }
 
-    public void remove()
-    {
-        if(!isEnabled()) return;
-        if(getStand() == null) return;
+    public void remove() {
+        if (!isEnabled()) return;
+        if (getStand() == null) return;
 
         getStand().remove();
     }
 
     public void set(Treasure t) {
 
-        if(!isEnabled()) return;
-        if(getStand() != null) remove();
+        if (!isEnabled()) return;
+        if (getStand() != null) remove();
 
         Location treasureLocation = t.getLocation().clone();
 

@@ -10,18 +10,13 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import me.angeschossen.lands.api.LandsIntegration;
-import me.angeschossen.lands.api.land.Land;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.plugin.Plugin;
 import org.popcraft.chunkyborder.BorderData;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +31,11 @@ public class Locations {
         return Bukkit.getPluginManager().getPlugin("MysticTreasures");
     }
 
-    public static void init()
-    {
+    public static void init() {
 
         List<String> biomes = Settings.getStringList("blacklisted-biomes");
 
-        for(String originalName : biomes) {
+        for (String originalName : biomes) {
 
             String soundName = originalName.toLowerCase().replace("_", ".");
             Biome biome = null;
@@ -68,19 +62,18 @@ public class Locations {
 
     }
 
-    public static boolean isAllowedWorld(org.bukkit.World w)
-    {
+    public static boolean isAllowedWorld(org.bukkit.World w) {
         return Settings.getAllowedWorlds().contains(w.getName());
     }
 
     /**
      * Checks if current location is in a WorldGuard region
-     * @param loc the location
+     *
+     * @param loc        the location
      * @param regionName the regions name
      * @return true/false
      */
-    public static boolean isInRegion(Location loc, String regionName)
-    {
+    public static boolean isInRegion(Location loc, String regionName) {
 
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             return false;
@@ -101,11 +94,11 @@ public class Locations {
 
     /**
      * Checks if the location is in a region at all
+     *
      * @param loc the location
      * @return true/false
      */
-    public static boolean isInRegion(Location loc)
-    {
+    public static boolean isInRegion(Location loc) {
 
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             return false;
@@ -127,11 +120,11 @@ public class Locations {
 
     /**
      * Checks if the chunk is in a region at all
+     *
      * @param c the chunk
      * @return true/false
      */
-    public static boolean isInRegion(Chunk c, int y)
-    {
+    public static boolean isInRegion(Chunk c, int y) {
 
         if (Bukkit.getPluginManager().getPlugin("WorldGuard") == null) {
             return false;
@@ -158,11 +151,11 @@ public class Locations {
 
     /**
      * Checks if location is a liqud
+     *
      * @param loc the location
      * @return true/false
      */
-    public static boolean isLiquid(Location loc)
-    {
+    public static boolean isLiquid(Location loc) {
 
         return loc.getWorld().getBlockAt(loc).isLiquid() || loc.getWorld().getBlockAt(loc).getType() == Material.WATER;
 
@@ -170,11 +163,11 @@ public class Locations {
 
     /**
      * Checks if the location above the location is a liqud
+     *
      * @param loc the location
      * @return true/false
      */
-    public static boolean isLiquidAbove(Location loc)
-    {
+    public static boolean isLiquidAbove(Location loc) {
 
         loc.setY(loc.getY() + 1);
 
@@ -182,8 +175,7 @@ public class Locations {
 
     }
 
-    public static boolean isLiquidUnder(Location loc)
-    {
+    public static boolean isLiquidUnder(Location loc) {
 
         Location loc2 = new Location(loc.getWorld(), loc.getBlockX(), loc.getBlockY() - 1, loc.getBlockZ());
 
@@ -194,10 +186,9 @@ public class Locations {
 
     }
 
-    public static boolean isInLands(Location loc)
-    {
+    public static boolean isInLands(Location loc) {
 
-        if(Utils.isEnabled("Lands")) {
+        if (Utils.isEnabled("Lands")) {
 
             LandsIntegration api = LandsIntegration.of(getPlugin());
             return api.getLandByChunk(loc.getWorld(), loc.getBlockX(), loc.getBlockZ()) != null;
@@ -210,18 +201,17 @@ public class Locations {
 
     /**
      * Checks if a location is considered unsafe based on check()
+     *
      * @param loc the location
      * @return true/false
      */
-    public static boolean isUnsafe(Location loc, int maxTreasureDistance)
-    {
+    public static boolean isUnsafe(Location loc, int maxTreasureDistance) {
 
         return !check(loc, maxTreasureDistance);
 
     }
 
-    public static boolean isSafeEnough(Location loc)
-    {
+    public static boolean isSafeEnough(Location loc) {
         return !isLiquidUnder(loc) && !isPassableBlockUnder(loc);
     }
 
@@ -232,11 +222,10 @@ public class Locations {
      * and false if the location is not suitable
      * for a player
      */
-    public static boolean check(Location loc, int maxTreasureDistance)
-    {
+    public static boolean check(Location loc, int maxTreasureDistance) {
 
 
-        return  isInBorder(loc, maxTreasureDistance) &&
+        return isInBorder(loc, maxTreasureDistance) &&
                 !isInLands(loc) &&
                 !isInRegion(loc) &&
                 !blacklistedBiome(loc) &&
@@ -248,20 +237,19 @@ public class Locations {
     }
 
 
-    public static boolean isPassableBlockUnder(Location loc)
-    {
-        Block b = loc.clone().subtract(0, 1,0).getBlock();
+    public static boolean isPassableBlockUnder(Location loc) {
+        Block b = loc.clone().subtract(0, 1, 0).getBlock();
         return b.isPassable() || b.getType() == Material.SNOW;
     }
 
 
     /**
      * Checks if the location under the location is air
+     *
      * @param loc the location
      * @return true/false
      */
-    public static boolean inAir(Location loc)
-    {
+    public static boolean inAir(Location loc) {
 
         loc.setY(loc.getBlockY() - (double) 1);
         return loc.getBlock().isEmpty();
@@ -271,12 +259,12 @@ public class Locations {
 
     /**
      * Loads a chunk
+     *
      * @param l the location
      */
-    public static void load(Location l)
-    {
+    public static void load(Location l) {
 
-        if(!l.getWorld().isChunkLoaded(l.getBlockX(), l.getBlockZ()))
+        if (!l.getWorld().isChunkLoaded(l.getBlockX(), l.getBlockZ()))
             l.getWorld().getChunkAt(l.getBlockX(), l.getBlockZ()).load();
 
     }
@@ -284,11 +272,11 @@ public class Locations {
 
     /**
      * Checks if the biome at the location is a blacklisted biome
+     *
      * @param loc the location
      * @return true/false
      */
-    public static boolean blacklistedBiome(Location loc)
-    {
+    public static boolean blacklistedBiome(Location loc) {
 
         int x = loc.getBlockX();
         int z = loc.getBlockZ();
@@ -301,6 +289,7 @@ public class Locations {
 
     /**
      * Checks if the block at the location is a type of leaf
+     *
      * @param loc the location
      * @return true/false
      */
@@ -312,24 +301,22 @@ public class Locations {
 
     /**
      * Checks if the block at the location is air
+     *
      * @param l the location
      * @return true/false
      */
-    public static boolean isAir(Location l)
-    {
+    public static boolean isAir(Location l) {
         return l.getBlock().isEmpty();
     }
 
 
-    public static boolean isInBorder(Location l, int maxTreasureDistance)
-    {
+    public static boolean isInBorder(Location l, int maxTreasureDistance) {
 
         // Vanilla / no ChunkyBorder installed:
         // - Respect the vanilla world border radius
         // - Also respect the configured maxTreasureDistance (if it is smaller)
         // - Always leave a 10 block safety margin from any limit
-        if (!Utils.isEnabled("ChunkyBorder"))
-        {
+        if (!Utils.isEnabled("ChunkyBorder")) {
             double borderRadius = l.getWorld().getWorldBorder().getSize() / 2.0;
 
             // Effective radius is the smaller of the two Salad constraints
@@ -345,10 +332,10 @@ public class Locations {
         File f = new File(plugin.getDataFolder(), "borders.json");
         if (!f.exists()) return true;
 
-        try (Reader reader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))
-        {
+        try (Reader reader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)) {
 
-            Map<String, BorderData> loadedBorders = new Gson().fromJson(reader, new TypeToken<Map<String, BorderData>>() {}.getType());
+            Map<String, BorderData> loadedBorders = new Gson().fromJson(reader, new TypeToken<Map<String, BorderData>>() {
+            }.getType());
 
             if (loadedBorders == null) return true;
             if (loadedBorders.isEmpty()) return true;
@@ -367,15 +354,13 @@ public class Locations {
 
     }
 
-    public static double distanceTo(Location loc1, Location loc2)
-    {
-        if(loc1.getWorld().getName().equals(loc2.getWorld().getName())) return loc1.distance(loc2);
+    public static double distanceTo(Location loc1, Location loc2) {
+        if (loc1.getWorld().getName().equals(loc2.getWorld().getName())) return loc1.distance(loc2);
         return Double.MAX_VALUE;
     }
 
-    public static double distanceSquaredTo(Location loc1, Location loc2)
-    {
-        if(loc1.getWorld().getName().equals(loc2.getWorld().getName())) return loc1.distanceSquared(loc2);
+    public static double distanceSquaredTo(Location loc1, Location loc2) {
+        if (loc1.getWorld().getName().equals(loc2.getWorld().getName())) return loc1.distanceSquared(loc2);
         return Double.MAX_VALUE;
     }
 
@@ -393,8 +378,7 @@ public class Locations {
         File f = new File(plugin.getDataFolder(), "borders.json");
         if (!f.exists()) return defaultborder;
 
-        try (Reader reader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))
-        {
+        try (Reader reader = new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8)) {
 
             Map<String, BorderData> loadedBorders = new Gson().fromJson(reader, new TypeToken<Map<String, BorderData>>() {
             }.getType());
@@ -415,7 +399,8 @@ public class Locations {
 
     /**
      * Get a safe, random location
-     * @param w the world of the treasure
+     *
+     * @param w        the world of the treasure
      * @param distance the distance from the center of the world
      * @return the safe location
      */
@@ -439,8 +424,6 @@ public class Locations {
         return loc;
 
     }
-
-
 
 
 }

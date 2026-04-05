@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 public class TreasureRoundControllerTest {
 
@@ -25,15 +25,15 @@ public class TreasureRoundControllerTest {
         treasure = Mockito.mock(Treasure.class);
         registry = Mockito.mock(TreasureRoundRegistry.class);
         rounds = new ArrayList<>();
-        
+
         // Add 2 mock rounds
         rounds.add(Mockito.mock(TreasureRound.class));
         rounds.add(Mockito.mock(TreasureRound.class));
-        
+
         when(registry.getRounds()).thenReturn(rounds);
         when(registry.getRound(0)).thenReturn(rounds.get(0));
         when(registry.getRound(1)).thenReturn(rounds.get(1));
-        
+
         TreasureData mockData = Mockito.mock(TreasureData.class);
         when(treasure.getTreasureData()).thenReturn(mockData);
 
@@ -49,18 +49,18 @@ public class TreasureRoundControllerTest {
     public void testStartRoundSequence() {
         // Assume no mobs spawned yet for first round
         when(treasure.haveTheMobsSpawned()).thenReturn(false);
-        
+
         assertTrue(controller.startRound()); // Starts Round 1 (index 0)
         assertEquals(1, controller.getRoundNumber());
-        
+
         // After first round started, mobs are considered spawned. 
         // Need to mock mobs cleared to start next round.
         when(treasure.haveTheMobsSpawned()).thenReturn(true);
         when(treasure.remainingMobs()).thenReturn(0);
-        
+
         assertTrue(controller.startRound()); // Starts Round 2 (index 1)
         assertEquals(2, controller.getRoundNumber());
-        
+
         assertFalse(controller.startRound()); // No more rounds
     }
 
@@ -68,7 +68,7 @@ public class TreasureRoundControllerTest {
     public void testStartRoundBlockedByMobs() {
         when(treasure.haveTheMobsSpawned()).thenReturn(true);
         when(treasure.remainingMobs()).thenReturn(5); // Mobs still alive
-        
+
         assertFalse(controller.startRound());
         assertEquals(0, controller.getRoundNumber());
     }
@@ -76,16 +76,16 @@ public class TreasureRoundControllerTest {
     @Test
     public void testHasMoreRounds() {
         assertTrue(controller.hasMoreRounds());
-        
+
         when(treasure.haveTheMobsSpawned()).thenReturn(false);
         controller.startRound(); // Round 1
-        
+
         assertTrue(controller.hasMoreRounds());
-        
+
         when(treasure.haveTheMobsSpawned()).thenReturn(true);
         when(treasure.remainingMobs()).thenReturn(0);
         controller.startRound(); // Round 2
-        
+
         assertFalse(controller.hasMoreRounds());
     }
 }

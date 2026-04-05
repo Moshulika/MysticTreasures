@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 public class HuntTest {
@@ -32,7 +33,7 @@ public class HuntTest {
         Hunt mockHunt = Mockito.mock(Hunt.class);
         Location huntLoc = new Location(world, 10, 64, 10);
         when(mockHunt.getLocation()).thenReturn(huntLoc);
-        
+
         // Add to active cache
         Mockito.doCallRealMethod().when(mockHunt).setTreasureActive();
         Mockito.doCallRealMethod().when(mockHunt).setInactive();
@@ -45,7 +46,7 @@ public class HuntTest {
         // Check for no collision at different spot
         Location safeLoc = new Location(world, 20, 64, 20);
         assertFalse(Hunt.isHuntActive(safeLoc));
-        
+
         // Cleanup for other tests
         mockHunt.setInactive();
     }
@@ -54,7 +55,7 @@ public class HuntTest {
     public void testIsHuntActiveDifferentWorld() {
         World world1 = Mockito.mock(World.class);
         when(world1.getName()).thenReturn("world1");
-        
+
         World world2 = Mockito.mock(World.class);
         when(world2.getName()).thenReturn("world2");
 
@@ -64,7 +65,7 @@ public class HuntTest {
 
         // Same coords, different world
         assertFalse(Hunt.isHuntActive(new Location(world2, 10, 64, 10)));
-        
+
         mockHunt.setInactive();
     }
 }

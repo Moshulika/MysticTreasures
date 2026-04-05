@@ -1,7 +1,5 @@
 package com.Moshu.TreasureHunt.Core;
 
-import com.Moshu.Misc.Storage.Settings;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,10 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 public class TreasureTest {
@@ -38,7 +33,7 @@ public class TreasureTest {
     public void testRenameWorld() {
         World world = Mockito.mock(World.class);
         when(world.getName()).thenReturn("World-123! Test");
-        
+
         String renamed = Treasure.renameWorld(world);
         // Pattern: [^-_A-Za-z] -> _
         assertEquals("World-123__Test", renamed);
@@ -48,7 +43,7 @@ public class TreasureTest {
     public void testGetHologramName() {
         World world = Mockito.mock(World.class);
         when(world.getName()).thenReturn("MyWorld");
-        
+
         String name = Treasure.getHologramName(world, "GoldenChest");
         assertEquals("treasure_myworld_goldenchest", name);
     }

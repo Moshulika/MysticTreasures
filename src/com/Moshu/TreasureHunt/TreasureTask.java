@@ -1,6 +1,5 @@
 package com.Moshu.TreasureHunt;
 
-import com.Moshu.Misc.Storage.Messages;
 import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.TreasureData;
@@ -11,7 +10,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -20,11 +18,11 @@ import java.util.logging.Level;
  * Manages the scheduling and execution of treasure hunt tasks.
  * This class handles both scheduled treasure spawns and random treasure generation
  * based on configured intervals and conditions.
- * 
+ * <p>
  * The class provides two main task types:
  * - Scheduler tasks: Execute based on predefined schedules
  * - Random tasks: Execute based on chance and cooldown systems
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
@@ -37,17 +35,16 @@ public class TreasureTask {
      * Updates the timestamp of the last treasure hunt for a specific identifier.
      * Used to track cooldown periods between hunts of the same type.
      */
-    public static void updateLastHunt(String identifier)
-    {
+    public static void updateLastHunt(String identifier) {
         lastClaimTimestamps.put(identifier, System.currentTimeMillis());
     }
 
     /**
      * Gets the last claim timestamp for a specific treasure identifier.
+     *
      * @return The timestamp in milliseconds, or 0 if never claimed.
      */
-    public static long getLastClaim(String identifier)
-    {
+    public static long getLastClaim(String identifier) {
         return lastClaimTimestamps.getOrDefault(identifier, 0L);
     }
 
@@ -65,28 +62,24 @@ public class TreasureTask {
             @Override
             public void run() {
 
-                if(Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
+                if (Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
 
                 for (TreasureScheduler s : TreasureData.getAllTreasureSchedulers()) {
 
                     if (s.shouldSpawn()) {
 
-                        if(timestamps.containsKey(s.getId()))
-                        {
-                            if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - timestamps.get(s.getId())) < 5)
-                            {
+                        if (timestamps.containsKey(s.getId())) {
+                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - timestamps.get(s.getId())) < 5) {
                                 //plugin.getLogger().log(Level.WARNING, "Skipping scheduled treasure for being to close to previous treasure!");
                                 continue;
                             }
                         }
 
-                        if (s.spawn())
-                        {
+                        if (s.spawn()) {
                             plugin.getLogger().log(Level.INFO, "Spawning scheduled treasure: " + s.getId());
                             timestamps.put(s.getId(), System.currentTimeMillis());
                             break;
-                        }
-                        else
+                        } else
                             plugin.getLogger().log(Level.SEVERE, "Something went wrong while trying to spawn scheduled treasure treasure!");
 
                     }
@@ -104,15 +97,13 @@ public class TreasureTask {
 
     /**
      * Checks if any scheduled treasure should spawn to prevent concurrent spawns.
-     * 
+     *
      * @return True if a scheduled treasure is about to spawn, false otherwise
      */
-    private static boolean preventConcurrentSpawn()
-    {
+    private static boolean preventConcurrentSpawn() {
 
-        for(TreasureScheduler s : TreasureData.getAllTreasureSchedulers())
-        {
-            if(s.shouldSpawn()) return true;
+        for (TreasureScheduler s : TreasureData.getAllTreasureSchedulers()) {
+            if (s.shouldSpawn()) return true;
         }
 
         return false;
@@ -123,39 +114,35 @@ public class TreasureTask {
      * Creates tasks for each treasure data configuration with random delays
      * and processes them based on chance and cooldown systems.
      */
-    public static void task()
-    {
+    public static void task() {
 
         int delay;
 
-        for(TreasureData d : TreasureData.getTreasureData())
-        {
+        for (TreasureData d : TreasureData.getTreasureData()) {
 
             delay = ThreadLocalRandom.current().nextInt(200, 1200);
             final String identifier = d.getIdentifier();
 
             World w = Bukkit.getWorld(d.getWorldName());
 
-            if(w == null)
-            {
+            if (w == null) {
                 plugin.getLogger().log(Level.SEVERE, "Invalid world name inside " + identifier + "'s treasure configuration. Make sure the world declared in `world-name` exists on your server!");
                 continue;
             }
 
-            BukkitRunnable run = new BukkitRunnable()
-            {
+            BukkitRunnable run = new BukkitRunnable() {
 
                 @Override
                 public void run() {
 
-                    if(preventConcurrentSpawn()) return;
-                    if(Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
+                    if (preventConcurrentSpawn()) return;
+                    if (Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
 
-                    if(Utils.chance() < d.getChanceForTreasure())
-                    {
+                    if (Utils.chance() < d.getChanceForTreasure()) {
 
-                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - getLastClaim(identifier)) < d.getCooldown()) return;
-                        if(Hunt.isHuntActive(identifier)) return;
+                        if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - getLastClaim(identifier)) < d.getCooldown())
+                            return;
+                        if (Hunt.isHuntActive(identifier)) return;
 
                         Hunt h = new Hunt(identifier, d.getDuration());
                         h.startOnLocationFound();

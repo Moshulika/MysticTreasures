@@ -41,7 +41,7 @@ public class TreasureRoundController {
     public boolean startRound() {
 
         // If all rounds are finished
-        if(!hasMoreRounds()) {
+        if (!hasMoreRounds()) {
             return false;
         }
 
@@ -63,9 +63,6 @@ public class TreasureRoundController {
         return true;
 
     }
-
-
-
 
 
 }

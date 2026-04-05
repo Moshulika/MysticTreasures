@@ -23,10 +23,10 @@ import java.util.logging.Level;
  * Manages the obfuscation of treasure rewards to hide their true identity from players.
  * This class provides functionality to replace actual reward items with placeholder items
  * until players interact with them, creating a surprise element in treasure hunts.
- * 
+ * <p>
  * The obfuscation system supports both ProtocolLib and PacketEvents for packet manipulation
  * and can be configured through the plugin configuration.
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
@@ -47,8 +47,7 @@ public class RewardObfuscator implements Listener {
      * Reads settings from the plugin configuration and sets up the appropriate
      * protocol library for packet manipulation.
      */
-    public static void load()
-    {
+    public static void load() {
 
         FileConfiguration config = plugin.getConfig();
         OBFUSCATE = config.getBoolean("settings.obfuscate-rewards", false);
@@ -70,41 +69,37 @@ public class RewardObfuscator implements Listener {
 
     /**
      * Checks if reward obfuscation is enabled.
-     * 
+     *
      * @return True if obfuscation is enabled, false otherwise
      */
-    public static boolean isEnabled()
-    {
+    public static boolean isEnabled() {
         return OBFUSCATE;
     }
 
     /**
      * Gets the obfuscated reward configuration.
-     * 
+     *
      * @return The ObfuscatedReward object containing obfuscation settings
      */
-    public static ObfuscatedReward getReward()
-    {
+    public static ObfuscatedReward getReward() {
         return obfReward;
     }
 
     /**
      * Checks if the system is using ProtocolLib for packet manipulation.
-     * 
+     *
      * @return True if using ProtocolLib, false otherwise
      */
-    public static boolean isUsingProtocolLib()
-    {
+    public static boolean isUsingProtocolLib() {
         return protocolPlugin.equals("ProtocolLib");
     }
 
     /**
      * Checks if the system is using PacketEvents for packet manipulation.
-     * 
+     *
      * @return True if using PacketEvents, false otherwise
      */
-    public static boolean isUsingPacketEvents()
-    {
+    public static boolean isUsingPacketEvents() {
         return protocolPlugin.equals("packetevents");
     }
 
@@ -112,12 +107,11 @@ public class RewardObfuscator implements Listener {
 
     /**
      * Stores a player's window ID for packet manipulation.
-     * 
-     * @param uuid The player's UUID
+     *
+     * @param uuid     The player's UUID
      * @param windowId The window ID to store
      */
-    public static void putWindowId(UUID uuid, int windowId)
-    {
+    public static void putWindowId(UUID uuid, int windowId) {
         windowIds.put(uuid, windowId);
     }
 
@@ -127,9 +121,9 @@ public class RewardObfuscator implements Listener {
      */
     public static void registerOpenWindowListener() {
 
-        if(!isEnabled()) return;
+        if (!isEnabled()) return;
 
-        if(isUsingProtocolLib()) {
+        if (isUsingProtocolLib()) {
 
             ProtocolLibUtils.initProtocolLib(windowIds);
         }
@@ -138,21 +132,20 @@ public class RewardObfuscator implements Listener {
 
     /**
      * Deobfuscates a specific slot in a player's inventory, revealing the real item.
-     * 
-     * @param p The player whose inventory to deobfuscate
-     * @param slot The slot to deobfuscate
+     *
+     * @param p        The player whose inventory to deobfuscate
+     * @param slot     The slot to deobfuscate
      * @param realItem The real item to show
      */
-    public static void deobfuscate(Player p, int slot, ItemStack realItem)
-    {
-        if(!isEnabled()) return;
+    public static void deobfuscate(Player p, int slot, ItemStack realItem) {
+        if (!isEnabled()) return;
         sendRealSlot(p, realItem);
     }
 
     /**
      * Obfuscates an entire inventory, replacing real items with placeholder items.
-     * 
-     * @param player The player whose inventory to obfuscate
+     *
+     * @param player    The player whose inventory to obfuscate
      * @param inventory The inventory to obfuscate
      */
     public static void obfuscateInventory(Player player, Inventory inventory) {
@@ -180,13 +173,11 @@ public class RewardObfuscator implements Listener {
             }
         }
 
-        if(isUsingProtocolLib())
-        {
+        if (isUsingProtocolLib()) {
             ProtocolLibUtils.sendWindowItemsPacket(windowId, fakeItems, player);
         }
 
-        if(isUsingPacketEvents())
-        {
+        if (isUsingPacketEvents()) {
             PacketEventsUtils.sendWindowItemsPacket(windowId, fakeItems, player);
         }
 
@@ -196,12 +187,11 @@ public class RewardObfuscator implements Listener {
 
         if (!isEnabled()) return;
 
-        if(isUsingProtocolLib()) {
+        if (isUsingProtocolLib()) {
             ProtocolLibUtils.sendSetSlotPacket(realItem, player);
         }
 
-        if(isUsingPacketEvents())
-        {
+        if (isUsingPacketEvents()) {
             PacketEventsUtils.sendSetSlotPacket(realItem, player);
         }
 
@@ -221,8 +211,7 @@ public class RewardObfuscator implements Listener {
             getTitle.setAccessible(true);
             String title = (String) getTitle.invoke(view);
 
-            if(title.equals(Messages.get("treasure-reward-menu-title")))
-            {
+            if (title.equals(Messages.get("treasure-reward-menu-title"))) {
 
                 Player p = (Player) e.getPlayer();
 
@@ -230,7 +219,7 @@ public class RewardObfuscator implements Listener {
                 getTopInventoryMethod.setAccessible(true);
                 Object topInventory = getTopInventoryMethod.invoke(view);
 
-                Bukkit.getScheduler().runTaskLater(plugin, ()->
+                Bukkit.getScheduler().runTaskLater(plugin, () ->
                 {
                     obfuscateInventory(p, (Inventory) topInventory);
                 }, 0L);

@@ -19,8 +19,7 @@ public class ProtocolLibUtils {
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    public static void initProtocolLib(Map<UUID, Integer> windowIds)
-    {
+    public static void initProtocolLib(Map<UUID, Integer> windowIds) {
         ProtocolLibrary.getProtocolManager().addPacketListener(new PacketAdapter(plugin,
                 ListenerPriority.NORMAL,
                 PacketType.Play.Server.OPEN_WINDOW) {
@@ -35,8 +34,7 @@ public class ProtocolLibUtils {
         });
     }
 
-    public static void sendWindowItemsPacket(int windowId, List<ItemStack> fakeItems, Player player)
-    {
+    public static void sendWindowItemsPacket(int windowId, List<ItemStack> fakeItems, Player player) {
 
         PacketContainer packet = new PacketContainer(PacketType.Play.Server.WINDOW_ITEMS);
         packet.getIntegers().write(0, windowId);
@@ -46,8 +44,7 @@ public class ProtocolLibUtils {
 
     }
 
-    public static void sendSetSlotPacket(org.bukkit.inventory.ItemStack realItem, Player player)
-    {
+    public static void sendSetSlotPacket(org.bukkit.inventory.ItemStack realItem, Player player) {
         PacketContainer packet = new PacketContainer(PacketType.Play.Server.SET_SLOT);
         packet.getIntegers().write(0, -1);
         packet.getIntegers().write(1, -1);

@@ -3,12 +3,12 @@ package com.Moshu.TreasureHunt.Components;
 import com.Moshu.Misc.Utils;
 import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.Indyuce.mmoitems.manager.TypeManager;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -24,7 +24,7 @@ import java.util.List;
  * This class manages the configuration and validation of treasure keys,
  * supporting various item types including vanilla items, custom items from
  * ItemsAdder, Oraxen, Nexo, and MMOItems.
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
@@ -40,11 +40,11 @@ public class TreasureKey {
 
     /**
      * Creates a new treasure key with the specified configuration.
-     * 
+     *
      * @param enabled Whether the key requirement is enabled
      * @param itemStr The item identifier string
-     * @param name The display name of the key
-     * @param lore The lore text for the key
+     * @param name    The display name of the key
+     * @param lore    The lore text for the key
      */
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public TreasureKey(boolean enabled, String itemStr, String name, List<String> lore) {
@@ -54,8 +54,7 @@ public class TreasureKey {
         this.name = name;
         this.lore = lore;
 
-        if(!isNexo() && !isItemsAdder() && !isOraxen())
-        {
+        if (!isNexo() && !isItemsAdder() && !isOraxen()) {
 
             item = Material.matchMaterial(itemStr);
 
@@ -69,9 +68,10 @@ public class TreasureKey {
     }
 
     // Getters and setters
+
     /**
      * Checks if a key is required to open the treasure.
-     * 
+     *
      * @return True if a key is required, false otherwise
      */
     public boolean requiresKey() {
@@ -81,6 +81,7 @@ public class TreasureKey {
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
     public Material getItem() {
         return item == null ? Material.STONE : item;
     }
@@ -88,20 +89,25 @@ public class TreasureKey {
     public void setItem(Material item) {
         this.item = item;
     }
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     @SuppressFBWarnings("EI_EXPOSE_REP")
     public List<String> getLore() {
         return lore;
     }
+
     @SuppressFBWarnings("EI_EXPOSE_REP2")
     public void setLore(List<String> lore) {
         this.lore = lore;
     }
+
     public String getItemId() {
         return itemStr;
     }
@@ -112,14 +118,12 @@ public class TreasureKey {
 
     /**
      * Checks if this key is an MMOItems item.
-     * 
+     *
      * @return True if it's an MMOItems item, false otherwise
      */
-    public boolean isMMOItem()
-    {
+    public boolean isMMOItem() {
 
-        if(Utils.isEnabled("MMOItems"))
-        {
+        if (Utils.isEnabled("MMOItems")) {
 
             //type:id
             String type = getItemId().split(":")[0];
@@ -132,30 +136,25 @@ public class TreasureKey {
 
     }
 
-    private boolean isOraxen()
-    {
-        if(Utils.isEnabled("Oraxen"))
-        {
+    private boolean isOraxen() {
+        if (Utils.isEnabled("Oraxen")) {
             return OraxenItems.exists(getItemId());
         }
 
         return false;
     }
 
-    private boolean isOraxen(ItemStack is)
-    {
-        if(Utils.isEnabled("Oraxen")) {
+    private boolean isOraxen(ItemStack is) {
+        if (Utils.isEnabled("Oraxen")) {
             return OraxenItems.exists(is);
         }
 
         return false;
     }
 
-    private boolean isNexo()
-    {
+    private boolean isNexo() {
 
-        if(Utils.isEnabled("Nexo"))
-        {
+        if (Utils.isEnabled("Nexo")) {
             return NexoItems.exists(getItemId());
         }
 
@@ -163,21 +162,17 @@ public class TreasureKey {
 
     }
 
-    private boolean isNexo(ItemStack is)
-    {
-        if(Utils.isEnabled("Nexo"))
-        {
+    private boolean isNexo(ItemStack is) {
+        if (Utils.isEnabled("Nexo")) {
             return NexoItems.exists(is);
         }
 
         return false;
     }
 
-    private boolean isItemsAdder()
-    {
+    private boolean isItemsAdder() {
 
-        if(Utils.isEnabled("ItemsAdder"))
-        {
+        if (Utils.isEnabled("ItemsAdder")) {
             return CustomStack.isInRegistry(getItemId());
         }
 
@@ -185,11 +180,9 @@ public class TreasureKey {
 
     }
 
-    private boolean isItemsAdder(ItemStack is)
-    {
+    private boolean isItemsAdder(ItemStack is) {
 
-        if(Utils.isEnabled("ItemsAdder"))
-        {
+        if (Utils.isEnabled("ItemsAdder")) {
             return CustomStack.byItemStack(is) != null;
         }
 
@@ -198,66 +191,51 @@ public class TreasureKey {
     }
 
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public ItemStack getItemStack(int amount)
-    {
+    public ItemStack getItemStack(int amount) {
 
-        if(isItemsAdder())
-        {
+        if (isItemsAdder()) {
             CustomStack stack = CustomStack.getInstance(getItemId());
 
-            if(stack != null)
-            {
+            if (stack != null) {
                 ItemStack is = stack.getItemStack();
                 is.setAmount(amount);
                 return is;
-            }
-            else
-            {
+            } else {
                 plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
 
         }
 
-        if(isOraxen())
-        {
+        if (isOraxen()) {
             ItemBuilder builder = OraxenItems.getItemById(getItemId());
             ItemStack stack = builder != null ? builder.build() : null;
 
-            if(stack != null)
-            {
+            if (stack != null) {
                 stack.setAmount(amount);
                 return stack;
-            }
-            else
-            {
+            } else {
                 plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
         }
 
-        if(isNexo())
-        {
+        if (isNexo()) {
             com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(getItemId());
             ItemStack stack = builder != null ? builder.build() : null;
 
-            if(stack != null)
-            {
+            if (stack != null) {
                 stack.setAmount(amount);
                 return stack;
-            }
-            else
-            {
+            } else {
                 plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
         }
 
-        if(isMMOItem())
-        {
+        if (isMMOItem()) {
 
-            if(getItemId().split(":").length != 2)
-            {
+            if (getItemId().split(":").length != 2) {
                 plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
@@ -267,8 +245,7 @@ public class TreasureKey {
 
             MMOItem mmoitem = MMOItems.plugin.getMMOItem(MMOItems.plugin.getTypes().get(type), id);
 
-            if(mmoitem == null)
-            {
+            if (mmoitem == null) {
                 plugin.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
@@ -282,8 +259,7 @@ public class TreasureKey {
 
         ArrayList<String> coloredLore = new ArrayList<String>();
 
-        for(String s : lore)
-        {
+        for (String s : lore) {
             coloredLore.add(Utils.format(s));
         }
 
@@ -294,39 +270,34 @@ public class TreasureKey {
         return is;
     }
 
-    public boolean isTreasureKey(ItemStack apparentKey)
-    {
+    public boolean isTreasureKey(ItemStack apparentKey) {
 
         if (apparentKey == null || apparentKey.getType() == Material.AIR) return false;
 
-        if(isOraxen(apparentKey))
-        {
+        if (isOraxen(apparentKey)) {
 
             String apparentKeyId = OraxenItems.getIdByItem(apparentKey);
-            if(apparentKeyId == null) return false;
+            if (apparentKeyId == null) return false;
             return apparentKeyId.equals(getItemId());
 
         }
 
-        if(isItemsAdder(apparentKey))
-        {
+        if (isItemsAdder(apparentKey)) {
 
             CustomStack stack = CustomStack.getInstance(getItemId());
-            if(stack == null) return false;
+            if (stack == null) return false;
             return stack.getNamespacedID().equals(getItemId());
 
         }
 
-        if(isNexo(apparentKey))
-        {
-            if(NexoItems.idFromItem(apparentKey) == null) return false;
+        if (isNexo(apparentKey)) {
+            if (NexoItems.idFromItem(apparentKey) == null) return false;
             return NexoItems.idFromItem(apparentKey).equals(getItemId());
         }
 
         ItemStack realKey = getItemStack(1);
 
-        if(realKey.getType() == apparentKey.getType())
-        {
+        if (realKey.getType() == apparentKey.getType()) {
 
             ItemMeta apparentMeta = apparentKey.getItemMeta();
             ItemMeta realMeta = realKey.getItemMeta();
@@ -338,11 +309,10 @@ public class TreasureKey {
             String apparentName = apparentMeta.getDisplayName();
             String realName = realMeta.getDisplayName();
 
-            if (realName != null && realName.equals(apparentName))
-            {
+            if (realName != null && realName.equals(apparentName)) {
 
                 List<String> lore_real = realMeta.getLore();
-                List<String> lore_apparent =  apparentMeta.getLore();
+                List<String> lore_apparent = apparentMeta.getLore();
 
                 if (lore_real == null || lore_apparent == null) {
                     return lore_real == null && lore_apparent == null;
@@ -359,8 +329,7 @@ public class TreasureKey {
 
     }
 
-    public static boolean isKey(ItemStack apparentKey)
-    {
+    public static boolean isKey(ItemStack apparentKey) {
         if (apparentKey == null || apparentKey.getType() == Material.AIR) {
             return false;
         }
@@ -371,8 +340,7 @@ public class TreasureKey {
             return false;
         }
 
-        for (TreasureData d : dataList)
-        {
+        for (TreasureData d : dataList) {
             if (d.getTreasureKey() != null && d.getTreasureKey().isTreasureKey(apparentKey)) return true;
         }
 

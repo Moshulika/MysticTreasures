@@ -32,8 +32,7 @@ public class HuntTabCompleter implements org.bukkit.command.TabCompleter, Listen
 
                 ArrayList<String> c = new ArrayList<>();
 
-                if(p.hasPermission("mystictreasures.admin"))
-                {
+                if (p.hasPermission("mystictreasures.admin")) {
                     c.add("help");
                     c.add("start");
                     c.add("stop");
@@ -64,35 +63,28 @@ public class HuntTabCompleter implements org.bukkit.command.TabCompleter, Listen
 
                     return StringUtil.copyPartialMatches(args[1], c, completions);
 
-                }
-                else if(args[0].equalsIgnoreCase("stop"))
-                {
+                } else if (args[0].equalsIgnoreCase("stop")) {
                     ArrayList<String> c = new ArrayList<>();
                     c.addAll(TreasureData.getTreasureIdentifiers());
 
                     ArrayList<String> completions = new ArrayList<>();
 
                     return StringUtil.copyPartialMatches(args[1], c, completions);
-                }
-                else if(args[0].equalsIgnoreCase("key"))
-                {
+                } else if (args[0].equalsIgnoreCase("key")) {
                     ArrayList<String> completions = new ArrayList<>();
                     return StringUtil.copyPartialMatches(args[1], Utils.getOnlinePlayersNames(), completions);
                 }
 
             }
 
-            if(args.length == 3) {
+            if (args.length == 3) {
                 if (args[0].equalsIgnoreCase("key")) {
                     ArrayList<String> completions = new ArrayList<>();
 
                     return StringUtil.copyPartialMatches(args[2], TreasureData.getTreasureIdentifiers(), completions);
-                }
-                else if(args[0].equalsIgnoreCase("start"))
-                {
+                } else if (args[0].equalsIgnoreCase("start")) {
 
-                    if(args[1].equalsIgnoreCase("here"))
-                    {
+                    if (args[1].equalsIgnoreCase("here")) {
                         ArrayList<String> completions = new ArrayList<>();
                         return StringUtil.copyPartialMatches(args[2], TreasureData.getTreasureIdentifiers(), completions);
                     }
@@ -100,7 +92,7 @@ public class HuntTabCompleter implements org.bukkit.command.TabCompleter, Listen
                 }
             }
 
-            if(args.length == 4) {
+            if (args.length == 4) {
                 if (args[0].equalsIgnoreCase("key")) {
                     ArrayList<String> c = new ArrayList<>();
 
@@ -125,7 +117,6 @@ public class HuntTabCompleter implements org.bukkit.command.TabCompleter, Listen
         }
 
     }
-
 
 
 }

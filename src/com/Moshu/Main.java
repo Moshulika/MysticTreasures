@@ -40,19 +40,18 @@ import java.util.logging.Level;
  * Main plugin class for MysticTreasures.
  * This is the primary entry point for the treasure hunting plugin that manages
  * scheduled treasure hunts, player interactions, and all plugin functionality.
- * 
+ * <p>
  * The plugin provides a comprehensive treasure hunting system with:
  * - Scheduled treasure spawns
  * - Player interaction and rewards
  * - Integration with various Bukkit plugins
  * - Configuration management
  * - Cooldown systems
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
 public class Main extends JavaPlugin {
-
 
 
     public static Main plugin;
@@ -72,8 +71,7 @@ public class Main extends JavaPlugin {
      * sets up integrations with other plugins, and starts the treasure task.
      */
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
 
         CommandSender s = Bukkit.getConsoleSender();
         s.sendMessage(ChatColor.DARK_PURPLE + "\n" +
@@ -87,7 +85,7 @@ public class Main extends JavaPlugin {
                 "         |___/                                                              \n");
 
         PluginDescriptionFile pdf = getDescription();
-        s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fEnabling plugin version " + pdf.getVersion() + ".."));
+        s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fEnabling plugin version " + pdf.getVersion() + ".."));
 
         HuntTabCompleter tabc = new HuntTabCompleter();
 
@@ -101,7 +99,7 @@ public class Main extends JavaPlugin {
 
         registerExternalEvents();
 
-        s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fHooking into WorldGuard"));
+        s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fHooking into WorldGuard"));
         getWorldGuard();
 
         checkCustomItemsDependencies();
@@ -109,8 +107,8 @@ public class Main extends JavaPlugin {
         createDataFiles();
         FileUpdater.update();
 
-        if(Utils.isEnabled("PlaceholderAPI")) {
-            s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fHooking into PAPI"));
+        if (Utils.isEnabled("PlaceholderAPI")) {
+            s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fHooking into PAPI"));
             new Placeholders().register();
         }
 
@@ -121,7 +119,7 @@ public class Main extends JavaPlugin {
         metrics();
         Utils.readClassName();
 
-        if(Utils.isEnabled("packetevents")) {
+        if (Utils.isEnabled("packetevents")) {
             s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fHooking into PacketEvents"));
             PacketEventsUtils.initPacketEvents();
             s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fPacketEvents ready: " + PacketEventsUtils.isReady()));
@@ -135,7 +133,7 @@ public class Main extends JavaPlugin {
     @Override
     public void onLoad() {
 
-        if(Utils.isLoaded("packetevents")) {
+        if (Utils.isLoaded("packetevents")) {
             Bukkit.getConsoleSender().sendMessage("Loading PacketEvents..");
             PacketEventsUtils.loadPacketEvents();
         }
@@ -147,12 +145,10 @@ public class Main extends JavaPlugin {
      * Performs cleanup operations and saves any pending data.
      */
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         Treasure.removeAll();
 
-        if(Utils.isEnabled("packetevents"))
-        {
+        if (Utils.isEnabled("packetevents")) {
             PacketEventsUtils.disablePacketEvents();
         }
 
@@ -161,21 +157,17 @@ public class Main extends JavaPlugin {
     /**
      * Register external events to avoid missing dependency errors
      */
-    private void registerExternalEvents()
-    {
+    private void registerExternalEvents() {
 
-        if(Utils.isEnabled("Oraxen"))
-        {
+        if (Utils.isEnabled("Oraxen")) {
             Bukkit.getServer().getPluginManager().registerEvents(new TreasureOraxenInteractionEvent(), this);
         }
 
-        if(Utils.isEnabled("Nexo"))
-        {
+        if (Utils.isEnabled("Nexo")) {
             Bukkit.getServer().getPluginManager().registerEvents(new TreasureNexoInteractionEvent(), this);
         }
 
-        if(Utils.isEnabled("ItemsAdder"))
-        {
+        if (Utils.isEnabled("ItemsAdder")) {
             Bukkit.getServer().getPluginManager().registerEvents(new TreasureItemsAdderInteractionEvent(), this);
         }
 
@@ -185,15 +177,14 @@ public class Main extends JavaPlugin {
      * Sets up delayed hooks and initialization tasks that need to run after the server has fully started.
      * This includes loading treasure data, starting tasks, and initializing various components.
      */
-    private void delayedHooks()
-    {
+    private void delayedHooks() {
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(this, () ->
         {
 
             CommandSender s = Bukkit.getConsoleSender();
 
-            s.sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fStarting post-load setup"));
+            s.sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fStarting post-load setup"));
 
             getLogger().log(Level.INFO, "Loading treasure data..");
             TreasureData.load();
@@ -220,8 +211,7 @@ public class Main extends JavaPlugin {
      * Checks for custom item plugin dependencies and logs their status.
      * Currently checks for ItemsAdder, Oraxen, and Nexo plugins.
      */
-    private void checkCustomItemsDependencies()
-    {
+    private void checkCustomItemsDependencies() {
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
         boolean oraxen = Utils.isEnabled("Oraxen");
         boolean nexo = Utils.isEnabled("Nexo");
@@ -238,45 +228,40 @@ public class Main extends JavaPlugin {
 
     /**
      * Gets the cooldowns configuration file.
-     * 
+     *
      * @return The FileConfiguration object for cooldowns
      */
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public FileConfiguration getCooldownsFile()
-    {
+    public FileConfiguration getCooldownsFile() {
         return cooldowns;
     }
 
     /**
      * Gets the messages configuration file.
-     * 
+     *
      * @return The FileConfiguration object for messages
      */
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public FileConfiguration getMessages()
-    {
+    public FileConfiguration getMessages() {
         return messages;
     }
 
     /**
      * Gets the main configuration file.
-     * 
+     *
      * @return The FileConfiguration object for the main config
      */
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public FileConfiguration getConfigFile()
-    {
+    public FileConfiguration getConfigFile() {
         return config;
     }
 
     /**
      * Reload non-essential files
      */
-    public void reloadFiles()
-    {
+    public void reloadFiles() {
 
-        try
-        {
+        try {
 
             config.load(configf);
             messages.load(messagesf);
@@ -284,17 +269,16 @@ public class Main extends JavaPlugin {
             RewardObfuscator.load();
             DiscordWebhook.getInstance().init();
 
-        }
-        catch (IOException | InvalidConfigurationException e)
-        {
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
 
     }
 
-    /** @hidden */
-    public static void consoleMessage(String s)
-    {
+    /**
+     * @hidden
+     */
+    public static void consoleMessage(String s) {
         Bukkit.getConsoleSender().sendMessage(Utils.format(s));
     }
 
@@ -302,11 +286,9 @@ public class Main extends JavaPlugin {
      * Initializes bStats metrics collection if enabled in configuration.
      * Sends plugin usage statistics to bStats for analytics.
      */
-    private void metrics()
-    {
+    private void metrics() {
 
-        if(getConfigFile().getBoolean("settings.bstats", true))
-        {
+        if (getConfigFile().getBoolean("settings.bstats", true)) {
             int pluginId = 23859;
             new Metrics(this, pluginId);
             Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fbStats is enabled"));
@@ -316,14 +298,13 @@ public class Main extends JavaPlugin {
 
     /**
      * Gets world guard instance
+     *
      * @return WorldGuard instance or null
      */
-    private WorldGuardPlugin getWorldGuard()
-    {
+    private WorldGuardPlugin getWorldGuard() {
         Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
 
-        if ((plugin == null) || (!(plugin instanceof WorldGuardPlugin)))
-        {
+        if ((plugin == null) || (!(plugin instanceof WorldGuardPlugin))) {
             consoleMessage("&c&lDependency Check: &fYou don't have WorldGuard installed.");
             return null;
         }
@@ -341,43 +322,39 @@ public class Main extends JavaPlugin {
         cooldowndsf = new File(getDataFolder(), "cooldowns.yml");
         discord_webhookf = new File(getDataFolder(), "discord-webhook.json");
 
-        if (!configf.exists())
-        {
+        if (!configf.exists()) {
             saveDefaultConfig();
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fConfig.yml &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fConfig.yml &fnot found, creating."));
         }
 
-        if (!messagesf.exists())
-        {
+        if (!messagesf.exists()) {
             if (messagesf.getParentFile() != null && !messagesf.getParentFile().exists()) {
                 if (!messagesf.getParentFile().mkdirs()) {
                     getLogger().warning("Could not create directories for messages.yml");
                 }
             }
             saveResource("messages.yml", false);
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fMessages.yml &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fMessages.yml &fnot found, creating."));
         }
 
-        if(!cooldowndsf.exists())
-        {
+        if (!cooldowndsf.exists()) {
             if (cooldowndsf.getParentFile() != null && !cooldowndsf.getParentFile().exists()) {
                 if (!cooldowndsf.getParentFile().mkdirs()) {
                     getLogger().warning("Could not create directories for cooldowns.yml");
                 }
             }
             saveResource("cooldowns.yml", false);
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fCooldowns.yml &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fCooldowns.yml &fnot found, creating."));
         }
 
-        if(!discord_webhookf.exists())
-        {
+        if (!discord_webhookf.exists()) {
             if (discord_webhookf.getParentFile() != null && !discord_webhookf.getParentFile().exists()) {
                 if (!discord_webhookf.getParentFile().mkdirs()) {
                     getLogger().warning("Could not create directories for discord-webhook.json");
                 }
             }
             saveResource("discord-webhook.json", false);
-            Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lMystic&d&lTreasures: &fdiscord-webhook.json &fnot found, creating."));
+            Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fdiscord-webhook.json &fnot found, creating."));
         }
 
         config = new YamlConfiguration();
@@ -390,9 +367,7 @@ public class Main extends JavaPlugin {
             messages.load(messagesf);
             cooldowns.load(cooldowndsf);
 
-        }
-        catch (IOException | InvalidConfigurationException e)
-        {
+        } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
 

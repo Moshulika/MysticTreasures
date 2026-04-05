@@ -14,23 +14,19 @@ import java.util.List;
 
 public class PacketEventsUtils {
 
-    public static void initPacketEvents()
-    {
+    public static void initPacketEvents() {
         PacketEvents.getAPI().init();
     }
 
-    public static boolean isReady()
-    {
+    public static boolean isReady() {
         return PacketEvents.getAPI().isInitialized() && PacketEvents.getAPI().isLoaded();
     }
 
-    public static boolean initReady()
-    {
+    public static boolean initReady() {
         return PacketEvents.getAPI().isInitialized();
     }
 
-    public static void loadPacketEvents()
-    {
+    public static void loadPacketEvents() {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(Bukkit.getPluginManager().getPlugin("MysticTreasures")));
         PacketEvents.getAPI().load();
 
@@ -38,18 +34,15 @@ public class PacketEventsUtils {
                 new HuntPacketListener(), PacketListenerPriority.HIGH);
     }
 
-    public static void disablePacketEvents()
-    {
+    public static void disablePacketEvents() {
         PacketEvents.getAPI().terminate();
     }
 
-    public static void sendWindowItemsPacket(int windowId, List<org.bukkit.inventory.ItemStack> fakeItems, Player player)
-    {
+    public static void sendWindowItemsPacket(int windowId, List<org.bukkit.inventory.ItemStack> fakeItems, Player player) {
 
         List<com.github.retrooper.packetevents.protocol.item.ItemStack> convertedFakeItems = new ArrayList<>();
 
-        for(org.bukkit.inventory.ItemStack is : fakeItems)
-        {
+        for (org.bukkit.inventory.ItemStack is : fakeItems) {
             convertedFakeItems.add(SpigotConversionUtil.fromBukkitItemStack(is.clone()));
         }
 
@@ -57,8 +50,7 @@ public class PacketEventsUtils {
         PacketEvents.getAPI().getPlayerManager().sendPacket(player, windowItems);
     }
 
-    public static void sendSetSlotPacket(org.bukkit.inventory.ItemStack realItem, Player player)
-    {
+    public static void sendSetSlotPacket(org.bukkit.inventory.ItemStack realItem, Player player) {
         WrapperPlayServerSetSlot slot = new WrapperPlayServerSetSlot(-1, 0, -1, SpigotConversionUtil.fromBukkitItemStack(realItem));
         PacketEvents.getAPI().getPlayerManager().sendPacket(player, slot);
     }

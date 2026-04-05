@@ -2,14 +2,14 @@ package com.Moshu.TreasureHunt.Components.Keepers;
 
 import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
-import com.Moshu.TreasureHunt.Core.Treasure;
 import com.Moshu.TreasureHunt.Components.TreasureData;
 import com.Moshu.TreasureHunt.Core.Hunt;
+import com.Moshu.TreasureHunt.Core.Treasure;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.lumine.mythic.api.mobs.MythicMob;
 import io.lumine.mythic.bukkit.BukkitAdapter;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.mobs.ActiveMob;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -86,9 +86,8 @@ public class TreasureKeeper {
 
         List<Integer> roundsList = new ArrayList<>();
 
-        for(String s : rounds)
-        {
-            if(Utils.isInt(s)) roundsList.add(Integer.parseInt(s));
+        for (String s : rounds) {
+            if (Utils.isInt(s)) roundsList.add(Integer.parseInt(s));
         }
 
         this.rounds = roundsList;
@@ -110,18 +109,15 @@ public class TreasureKeeper {
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public TreasureData getTreasureData()
-    {
+    public TreasureData getTreasureData() {
         return t;
     }
 
-    public boolean isSpawned()
-    {
+    public boolean isSpawned() {
         return isSpawned;
     }
 
-    private void setSpawned(boolean spawned)
-    {
+    private void setSpawned(boolean spawned) {
         this.isSpawned = spawned;
     }
 
@@ -154,19 +150,16 @@ public class TreasureKeeper {
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public MythicMob getMythicMob()
-    {
+    public MythicMob getMythicMob() {
         return mythicMob;
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP2")
-    public void loadMythicMob(MythicMob mythicMob)
-    {
+    public void loadMythicMob(MythicMob mythicMob) {
         this.mythicMob = mythicMob;
     }
 
-    public void loadEntityType(EntityType type)
-    {
+    public void loadEntityType(EntityType type) {
         this.entityType = type;
     }
 
@@ -174,40 +167,33 @@ public class TreasureKeeper {
         return entityType;
     }
 
-    private MythicMob fetchMythicMob(String s)
-    {
+    private MythicMob fetchMythicMob(String s) {
         MythicMob mythicmob = MythicBukkit.inst().getMobManager().getMythicMob(s).orElse(null);
-        if(mythicmob == null && plugin != null) plugin.getLogger().warning("Mythic Mob not found: " + s);
+        if (mythicmob == null && plugin != null) plugin.getLogger().warning("Mythic Mob not found: " + s);
 
         loadMythicMob(mythicmob);
         return mythicmob;
     }
 
-    private EntityType fetchEntityType(String s)
-    {
+    private EntityType fetchEntityType(String s) {
 
-        try
-        {
+        try {
             EntityType type = EntityType.valueOf(s);
             loadEntityType(type);
             return type;
 
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             if (plugin != null) plugin.getLogger().warning("Vanilla EntityType not found: " + s);
             return EntityType.ZOMBIE;
         }
 
     }
 
-    public void addUUID(UUID uuid)
-    {
+    public void addUUID(UUID uuid) {
         uuids.add(uuid);
     }
 
-    public List<UUID> getUUIDs()
-    {
+    public List<UUID> getUUIDs() {
         return new ArrayList<>(uuids);
     }
 
@@ -256,8 +242,7 @@ public class TreasureKeeper {
         return this.keeperIdentifier;
     }
 
-    private Location getNearLocationInside(Location loc)
-    {
+    private Location getNearLocationInside(Location loc) {
         int x = Utils.randInt(-6, 6);
         int z = Utils.randInt(-6, 6);
 
@@ -268,8 +253,7 @@ public class TreasureKeeper {
         return Utils.getSafeBlock(randomLoc, world.getSpawnLocation());
     }
 
-    private Location getNearLocation(Location l)
-    {
+    private Location getNearLocation(Location l) {
         int x = Utils.randInt(-6, 6);
         int z = Utils.randInt(-6, 6);
 
@@ -278,12 +262,11 @@ public class TreasureKeeper {
         return Utils.getHighestBlock(world, l.getBlockX(), l.getBlockZ(), world.getSpawnLocation()).add(x, 0, z);
     }
 
-    private void equip(LivingEntity e)
-    {
+    private void equip(LivingEntity e) {
 
         EntityEquipment eq = e.getEquipment();
 
-        if(eq == null) return;
+        if (eq == null) return;
 
         TreasureKeeperEquipment equipmentObj = getEquipment();
         if (equipmentObj != null) {
@@ -292,26 +275,22 @@ public class TreasureKeeper {
             }
         }
 
-        for(PotionEffect p : getPotionEffects())
-        {
+        for (PotionEffect p : getPotionEffects()) {
             e.addPotionEffect(p);
         }
 
     }
 
-    public static boolean isTreasureKeeper(LivingEntity e)
-    {
+    public static boolean isTreasureKeeper(LivingEntity e) {
 
         return e.hasMetadata("treasure-mob-" + e.getWorld().getName());
 
     }
 
-    public static String getTreasureIdentifier(LivingEntity e)
-    {
+    public static String getTreasureIdentifier(LivingEntity e) {
 
-        for(String s : TreasureData.getTreasureIdentifiers())
-        {
-            if(e.hasMetadata("treasure-mob-" + s)) return s;
+        for (String s : TreasureData.getTreasureIdentifiers()) {
+            if (e.hasMetadata("treasure-mob-" + s)) return s;
         }
 
         if (plugin != null) plugin.getLogger().warning("Treasure ID not found for " + e.getName());
@@ -319,8 +298,7 @@ public class TreasureKeeper {
 
     }
 
-    public static Hunt getHunt(LivingEntity e)
-    {
+    public static Hunt getHunt(LivingEntity e) {
         if (e.hasMetadata("treasure-hunt-id")) {
             List<MetadataValue> metadata = e.getMetadata("treasure-hunt-id");
             if (metadata != null && !metadata.isEmpty()) {
@@ -335,38 +313,32 @@ public class TreasureKeeper {
         return Hunt.getHuntByIdentifier(getTreasureIdentifier(e));
     }
 
-    private Location pickLocation(boolean spawnsInside, Location originalLoc)
-    {
+    private Location pickLocation(boolean spawnsInside, Location originalLoc) {
 
-        if(spawnsInside)
-        {
+        if (spawnsInside) {
             return getNearLocationInside(originalLoc);
-        }
-        else
-        {
+        } else {
             return getNearLocation(originalLoc);
         }
 
     }
 
-    public void spawn(List<Entity> spawnedEntityRegister, Treasure t)
-    {
+    public void spawn(List<Entity> spawnedEntityRegister, Treasure t) {
 
         boolean spawnsInside = getTreasureData().isSpawnsInside() || getTreasureData().spawnToCertainCoords();
         Location loc = t.getLocation();
         Hunt h = t.getHunt();
 
-        if(Utils.chance() < chance)
-        {
+        if (Utils.chance() < chance) {
 
-            if(isMythicMob()) {
+            if (isMythicMob()) {
 
                 fetchMythicMob(getKeeperIdentifier());
                 MythicMob mob = getMythicMob();
 
                 if (mob != null) {
 
-                    for(int i = 0; i < getAmount(); i++) {
+                    for (int i = 0; i < getAmount(); i++) {
 
                         ActiveMob knight = mob.spawn(BukkitAdapter.adapt(pickLocation(spawnsInside, loc)), 1);
                         Entity entity = knight.getEntity().getBukkitEntity();
@@ -380,20 +352,17 @@ public class TreasureKeeper {
                         spawnedEntityRegister.add(entity);
 
                     }
-                }
-                else
-                {
-                    if (plugin != null) plugin.getLogger().warning("Mythic Mob not found in your configuration. Make sure if you don't use MythicMobs to set the config option to false!");
+                } else {
+                    if (plugin != null)
+                        plugin.getLogger().warning("Mythic Mob not found in your configuration. Make sure if you don't use MythicMobs to set the config option to false!");
                 }
 
 
-            }
-            else
-            {
+            } else {
 
                 fetchEntityType(getKeeperIdentifier());
 
-                for(int i = 0; i < getAmount(); i++) {
+                for (int i = 0; i < getAmount(); i++) {
 
                     World world = loc.getWorld();
                     if (world == null) continue;
@@ -434,12 +403,11 @@ public class TreasureKeeper {
      * Decodes the String into a valid (hopefully)
      * EntityType or MythicMob
      */
-    private void decodeKeeperIdentifier()
-    {
+    private void decodeKeeperIdentifier() {
 
         boolean mythicsEnabled = Utils.isEnabled("MythicMobs");
 
-        if(mythicsEnabled) {
+        if (mythicsEnabled) {
 
             if (isMythicMob()) {
 
@@ -456,6 +424,7 @@ public class TreasureKeeper {
     }
 
     private final List<Entity> spawningEntities = new ArrayList<>();
+
     private void smoothEntitySpawnFromGrave(final Entity ent) {
 
         final Location particleLocation = ent.getLocation();
@@ -463,17 +432,12 @@ public class TreasureKeeper {
         final Entity passenger = ent.getPassenger();
 
         if (!entLoc.clone().add(0.0, -1.0, 0.0).getBlock().getType().isSolid() || entLoc.getBlock().getType().toString().contains("WATER")) {
-            if (!entLoc.clone().add(0.0, -1.0, 0.0).getBlock().getType().isAir())
-            {
+            if (!entLoc.clone().add(0.0, -1.0, 0.0).getBlock().getType().isAir()) {
                 return;
-            }
-            else
-            {
+            } else {
                 entLoc.add(0.0, -3.0, 0.0);
             }
-        }
-        else
-        {
+        } else {
             entLoc.add(0.0, -2.0, 0.0);
         }
 
@@ -532,8 +496,7 @@ public class TreasureKeeper {
     private static final Particle SOUL = Settings.getCompatParticle("soul");
     private static final Particle SOUL_FIRE_FLAME = Settings.getCompatParticle("soul-fire-flame");
 
-    private void spawnGraveParticles(World w, Location entLoc, Material particleMaterial)
-    {
+    private void spawnGraveParticles(World w, Location entLoc, Material particleMaterial) {
         w.playEffect(entLoc, Effect.STEP_SOUND, particleMaterial);
         w.spawnParticle(LAVA, entLoc, 1);
         w.spawnParticle(SOUL, entLoc, 1);

@@ -2,6 +2,7 @@ package com.Moshu.Misc;
 
 import com.Moshu.Main;
 import com.Moshu.Misc.Storage.Messages;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
@@ -13,11 +14,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.io.*;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -27,8 +30,7 @@ import java.util.regex.Pattern;
 /**
  * Utilities class, lots of useful stuff
  */
-public class Utils
-{
+public class Utils {
 
     static Main plugin;
 
@@ -36,44 +38,39 @@ public class Utils
      * @hidden
      */
     @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
-    public Utils(Main plugin)
-    {
+    public Utils(Main plugin) {
 
         Utils.plugin = plugin;
     }
 
-    public static double randDouble(double min, double max)
-    {
+    public static double randDouble(double min, double max) {
         double x = ThreadLocalRandom.current().nextDouble(min, max);
 
         return x;
     }
 
-    public static double round(double value)
-    {
+    public static double round(double value) {
         String mny = new DecimalFormat("##.##").format(value);
         return Double.parseDouble(mny);
     }
 
-    public static float round(float value)
-    {
+    public static float round(float value) {
         String mny = new DecimalFormat("##.#").format(value);
         return Float.parseFloat(mny);
     }
 
-    public static void addItemFlags(ItemMeta meta)
-    {
+    public static void addItemFlags(ItemMeta meta) {
         meta.addItemFlags(ItemFlag.values());
     }
 
     /**
      * Gets the location for the particles
+     *
      * @return the location for the particles
      */
-    public static Location getParticleLocation(Location loc)
-    {
+    public static Location getParticleLocation(Location loc) {
 
-        double x,y,z;
+        double x, y, z;
 
         x = randDouble(0.1, 0.9);
         y = randDouble(1, 1.9);
@@ -84,10 +81,10 @@ public class Utils
 
     /**
      * Checks if the server is running Paper or spigot.
+     *
      * @return true/false
      */
-    public static boolean isPaper()
-    {
+    public static boolean isPaper() {
 
         boolean isPaper = false;
         try {
@@ -102,12 +99,12 @@ public class Utils
 
     /**
      * Get a list of the materials of the nearby blocks
+     *
      * @param location the location you want to seach
-     * @param radius the radius
+     * @param radius   the radius
      * @return the list containing the materials
      */
-    public static List<Material> getNearbyBlocks(Location location, int radius)
-    {
+    public static List<Material> getNearbyBlocks(Location location, int radius) {
         List<Material> blocks = new ArrayList();
         for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
             for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
@@ -121,12 +118,12 @@ public class Utils
 
     /**
      * Get a list of the nearby blocks
+     *
      * @param location the location you want to seach
-     * @param radius the radius
+     * @param radius   the radius
      * @return the list containing the blocks
      */
-    public static List<Block> getNearbyBlocks2(Location location, int radius)
-    {
+    public static List<Block> getNearbyBlocks2(Location location, int radius) {
         List<Block> blocks = new ArrayList();
         for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
             for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
@@ -140,19 +137,18 @@ public class Utils
 
     /**
      * Parse a ChatColor object from a string
+     *
      * @param s the string
      * @return a ChatColor
      */
-    public static ChatColor getColor(String s)
-    {
+    public static ChatColor getColor(String s) {
 
         char[] a = s.toCharArray();
         int i = 0;
 
-        for(char c : a)
-        {
+        for (char c : a) {
 
-            if(i + 1 < a.length) {
+            if (i + 1 < a.length) {
 
                 if (c == '&') {
 
@@ -170,11 +166,11 @@ public class Utils
 
     /**
      * Extracts an integer from a string
+     *
      * @param s the string
      * @return the found integer
      */
-    public static int extractInt(String s)
-    {
+    public static int extractInt(String s) {
 
         s = s.replaceAll("[^\\d]", " ");
         s = s.trim();
@@ -182,23 +178,21 @@ public class Utils
 
         //Main.consoleMessage("RESULT: " + s);
 
-        if(s.equals("") || s.isEmpty()) return 0;
-        if(isInt(s)) return Integer.parseInt(s);
+        if (s.equals("") || s.isEmpty()) return 0;
+        if (isInt(s)) return Integer.parseInt(s);
         return 0;
 
     }
 
-    public static ItemMeta setMeta(ItemMeta meta, String displayName, List<String> lore)
-    {
+    public static ItemMeta setMeta(ItemMeta meta, String displayName, List<String> lore) {
 
-        if(displayName.isEmpty() || lore.isEmpty()) return meta;
+        if (displayName.isEmpty() || lore.isEmpty()) return meta;
 
         meta.setDisplayName(Utils.format(displayName));
 
         ArrayList<String> coloredLore = new ArrayList<>();
 
-        for(String s : lore)
-        {
+        for (String s : lore) {
             coloredLore.add(Utils.format(s));
         }
 
@@ -210,14 +204,13 @@ public class Utils
 
     /**
      * Get a list of all the online players name
+     *
      * @return a list with all the online players namr
      */
-    public static ArrayList<String> getOnlinePlayersNames()
-    {
+    public static ArrayList<String> getOnlinePlayersNames() {
         ArrayList<String> x = new ArrayList<>();
 
-        for(Player k : Bukkit.getOnlinePlayers())
-        {
+        for (Player k : Bukkit.getOnlinePlayers()) {
             x.add(k.getName());
         }
 
@@ -226,14 +219,13 @@ public class Utils
 
     /**
      * Get a list of all the online players name
+     *
      * @return a list with all the online players namr
      */
-    public static ArrayList<String> getWorldsNames()
-    {
+    public static ArrayList<String> getWorldsNames() {
         ArrayList<String> x = new ArrayList<>();
 
-        for(World k : Bukkit.getWorlds())
-        {
+        for (World k : Bukkit.getWorlds()) {
             x.add(k.getName());
         }
 
@@ -242,12 +234,11 @@ public class Utils
 
     /**
      * Transforms the auto-message into a normal string
+     *
      * @param r the message
      * @return the formatted string
      */
-    public static String formatAutoMessage(String r)
-    {
-
+    public static String formatAutoMessage(String r) {
 
 
         return Utils.setCapitals(ChatColor.stripColor(r).trim().replace("\n", "")
@@ -257,26 +248,23 @@ public class Utils
 
     /**
      * Check if the player has at least one of the ItemStack provided
-     * @param p the player
+     *
+     * @param p  the player
      * @param is the itemstack
      * @return true/false
      */
-    public static boolean hasItem(Player p, ItemStack is)
-    {
+    public static boolean hasItem(Player p, ItemStack is) {
         if (p == null || is == null) return false;
 
-        for(ItemStack i : p.getInventory().getContents())
-        {
+        for (ItemStack i : p.getInventory().getContents()) {
 
-            if(i == null || i.getType() == Material.AIR) continue;
+            if (i == null || i.getType() == Material.AIR) continue;
 
-            if(i.getType().equals(is.getType()))
-            {
+            if (i.getType().equals(is.getType())) {
 
-                if(i.getItemMeta() == null || is.getItemMeta() == null) return true;
+                if (i.getItemMeta() == null || is.getItemMeta() == null) return true;
 
-                if(i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName()))
-                {
+                if (i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName())) {
                     return true;
                 }
 
@@ -289,30 +277,26 @@ public class Utils
     }
 
 
-
     /**
      * Removes all items of that type from the player's inventory
-     * @param p the player
+     *
+     * @param p  the player
      * @param is the item to be removed
      */
-    public static void removeItem(Player p, ItemStack is)
-    {
+    public static void removeItem(Player p, ItemStack is) {
         if (p == null || is == null) return;
-        for(ItemStack i : p.getInventory().getContents())
-        {
+        for (ItemStack i : p.getInventory().getContents()) {
 
-            if(i == null || i.getType() == Material.AIR) continue;
+            if (i == null || i.getType() == Material.AIR) continue;
 
-            if(i.getType().equals(is.getType()))
-            {
+            if (i.getType().equals(is.getType())) {
 
-                if(i.getItemMeta() == null || is.getItemMeta() == null) {
+                if (i.getItemMeta() == null || is.getItemMeta() == null) {
                     p.getInventory().remove(i);
                     break;
                 }
 
-                if(i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName()))
-                {
+                if (i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName())) {
                     p.getInventory().remove(i);
                     break;
                 }
@@ -324,35 +308,30 @@ public class Utils
     }
 
 
-
     /**
      * Substracts the amount provided of item from the player's inventory
-     * @param p the player
-     * @param is the item to be substracted
+     *
+     * @param p      the player
+     * @param is     the item to be substracted
      * @param amount the amount of item to be substracted
      */
-    public static void substractItem(Player p, ItemStack is, int amount)
-    {
+    public static void substractItem(Player p, ItemStack is, int amount) {
         if (p == null || is == null) return;
 
         ItemStack item;
         int a;
 
-        for(int i = 0; i < p.getInventory().getContents().length; i++)
-        {
+        for (int i = 0; i < p.getInventory().getContents().length; i++) {
 
-            if(p.getInventory().getContents()[i] == null) continue;
+            if (p.getInventory().getContents()[i] == null) continue;
 
             item = p.getInventory().getContents()[i];
-            if(item.getType() != is.getType()) continue;
+            if (item.getType() != is.getType()) continue;
             a = item.getAmount();
 
-            if(a - amount <= 0)
-            {
+            if (a - amount <= 0) {
                 p.getInventory().setItem(i, null);
-            }
-            else
-            {
+            } else {
                 item.setAmount(a - amount);
             }
 
@@ -364,34 +343,30 @@ public class Utils
 
     /**
      * Substracts the amount provided of item from the player's inventory
-     * @param p the player
-     * @param is the item to be substracted
+     *
+     * @param p      the player
+     * @param is     the item to be substracted
      * @param amount the amount of item to be substracted
      */
-    public static void substractItemUnlimited(Player p, ItemStack is, int amount)
-    {
+    public static void substractItemUnlimited(Player p, ItemStack is, int amount) {
 
         ItemStack item;
         int a;
 
         int remaining = amount;
 
-        for(int i = 0; i < p.getInventory().getContents().length; i++)
-        {
+        for (int i = 0; i < p.getInventory().getContents().length; i++) {
 
-            if(remaining <= 0) break;
-            if(p.getInventory().getContents()[i] == null) continue;
+            if (remaining <= 0) break;
+            if (p.getInventory().getContents()[i] == null) continue;
 
             item = p.getInventory().getContents()[i];
-            if(item.getType() != is.getType()) continue;
+            if (item.getType() != is.getType()) continue;
             a = item.getAmount();
 
-            if(a - amount <= 0)
-            {
+            if (a - amount <= 0) {
                 p.getInventory().setItem(i, null);
-            }
-            else
-            {
+            } else {
                 item.setAmount(a - remaining);
             }
 
@@ -403,32 +378,28 @@ public class Utils
 
     /**
      * Substracts the amount of the item from the inventory
-     * @param inv the inventory where the item is located
-     * @param is the item to be substracted
+     *
+     * @param inv    the inventory where the item is located
+     * @param is     the item to be substracted
      * @param amount the amount of item to be substracted
      */
-    public static void substractItem(Inventory inv, ItemStack is, int amount)
-    {
+    public static void substractItem(Inventory inv, ItemStack is, int amount) {
 
         ItemStack item;
         int a;
 
-        for(int i = 0; i < inv.getContents().length; i++)
-        {
+        for (int i = 0; i < inv.getContents().length; i++) {
 
-            if(inv.getItem(i) == null) continue;
+            if (inv.getItem(i) == null) continue;
 
             item = inv.getItem(i);
 
-            if(item.getType() != is.getType()) continue;
+            if (item.getType() != is.getType()) continue;
             a = item.getAmount();
 
-            if(a - amount <= 0)
-            {
+            if (a - amount <= 0) {
                 inv.setItem(i, null);
-            }
-            else
-            {
+            } else {
                 item.setAmount(a - amount);
             }
 
@@ -441,22 +412,20 @@ public class Utils
 
     /**
      * Counts identical items
-     * @param p the player to count the items from
+     *
+     * @param p  the player to count the items from
      * @param is the item to be counted
      * @return how many items are there
      */
-    public static int countItemsOfType(Player p, ItemStack is)
-    {
+    public static int countItemsOfType(Player p, ItemStack is) {
 
         int x = 0;
 
-        for(ItemStack i : p.getInventory().getContents())
-        {
+        for (ItemStack i : p.getInventory().getContents()) {
 
-            if(i == null || i.getType() == Material.AIR) continue;
+            if (i == null || i.getType() == Material.AIR) continue;
 
-            if(i.getType() == is.getType())
-            {
+            if (i.getType() == is.getType()) {
 
                 x += i.getAmount();
 
@@ -471,22 +440,21 @@ public class Utils
     /**
      * @return a checkmark
      */
-    public static String succesSymbol()
-    {
+    public static String succesSymbol() {
         return "&8(&a✔&8) &f";
     }
 
     /**
      * @return an x
      */
-    public static String errorSymbol()
-    {
+    public static String errorSymbol() {
         return "&8(&c❌&8) &f";
     }
 
 
     /**
      * Adds the item to the player's inventory
+     *
      * @param p the player
      * @param a the items to be added
      */
@@ -512,11 +480,11 @@ public class Utils
 
     /**
      * Adds all the items provided in the array to the player's inventory
-     * @param p the player
+     *
+     * @param p  the player
      * @param is the items to be added
      */
-    public static void addToInventory(Player p, ItemStack[] is)
-    {
+    public static void addToInventory(Player p, ItemStack[] is) {
 
         if (Utils.getFreeSlots(p.getInventory()) >= is.length) {
 
@@ -531,17 +499,13 @@ public class Utils
 
             }
 
-        }
-        else
-        {
+        } else {
 
-            for(ItemStack a : is)
-            {
+            for (ItemStack a : is) {
 
                 if (!Utils.hasFullInventory(p)) {
 
-                    if(a == null || a.getType() == Material.AIR)
-                    {
+                    if (a == null || a.getType() == Material.AIR) {
                         continue;
                     }
 
@@ -549,8 +513,7 @@ public class Utils
 
                 } else {
 
-                    if(a == null || a.getType() == Material.AIR)
-                    {
+                    if (a == null || a.getType() == Material.AIR) {
                         continue;
                     }
 
@@ -565,6 +528,7 @@ public class Utils
 
     /**
      * Calculates the milliseconds until the next sharp hour (e.g. 1:00)
+     *
      * @param calendar an instance of Calendar
      * @return how many millies until the next hour
      */
@@ -581,20 +545,17 @@ public class Utils
 
     /**
      * Fill an inventory with colored glass, based on holiday
+     *
      * @param inv the inventory to be filled
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public static void fillWithGlass(Inventory inv)
-    {
+    public static void fillWithGlass(Inventory inv) {
 
         Material mat;
 
-        try
-        {
-            mat = Material.valueOf(plugin.getConfig().getString("settings.menu.glass" , "BLACK_STAINED_GLASS_PANE"));
-        }
-        catch (Exception e)
-        {
+        try {
+            mat = Material.valueOf(plugin.getConfig().getString("settings.menu.glass", "BLACK_STAINED_GLASS_PANE"));
+        } catch (Exception e) {
             mat = Material.BLACK_STAINED_GLASS_PANE;
             plugin.getLogger().log(Level.SEVERE, "No such material for glass!");
         }
@@ -612,11 +573,9 @@ public class Utils
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
-            for(int i = 0; i < inv.getSize(); i++)
-            {
+            for (int i = 0; i < inv.getSize(); i++) {
 
-                if(inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR)
-                {
+                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
 
                     inv.setItem(i, sticlafinal);
 
@@ -628,11 +587,11 @@ public class Utils
 
     /**
      * Get the color of the glass
+     *
      * @return an ItemStack with the glass having the appropriate color for the holiday
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public static ItemStack getGlass()
-    {
+    public static ItemStack getGlass() {
 
         ItemStack sticla = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 
@@ -649,12 +608,12 @@ public class Utils
 
     /**
      * Fills the inventory with black glass
+     *
      * @param inv the inventory to be filled
      */
     @Deprecated
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public static void fillWithGlassLegacy(Inventory inv)
-    {
+    public static void fillWithGlassLegacy(Inventory inv) {
 
         ItemStack sticla = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 
@@ -667,11 +626,9 @@ public class Utils
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
-            for(int i = 0; i < inv.getSize(); i++)
-            {
+            for (int i = 0; i < inv.getSize(); i++) {
 
-                if(inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR)
-                {
+                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
 
                     inv.setItem(i, sticla);
 
@@ -684,14 +641,14 @@ public class Utils
 
     /**
      * Calculates the middle of 2 locations
+     *
      * @param l1 first location
      * @param l2 second location
      * @return the middle location
      */
-    public static Location middle(Location l1, Location l2)
-    {
+    public static Location middle(Location l1, Location l2) {
 
-        if(l1.getWorld() != l2.getWorld()) return l1;
+        if (l1.getWorld() != l2.getWorld()) return l1;
 
         double x1, x2, y1, y2, z1, z2, x, y, z;
 
@@ -713,11 +670,11 @@ public class Utils
 
     /**
      * Format time in string
+     *
      * @param minute time to be formatted
      * @return the formatted string
      */
-    public static String formatRemainingTime(long minute)
-    {
+    public static String formatRemainingTime(long minute) {
 
         long ore = minute / 60;
         long zile = ore / 24;
@@ -726,16 +683,13 @@ public class Utils
         ore = ore - (zile * 24);
 
         //Daca exista mai multe zile
-        if(zile != 0)
-        {
+        if (zile != 0) {
             return zile + " " + Messages.get("days") + ", " + ore + " " + Messages.get("hours") + ", " + minute + " " + Messages.get("minutes");
         }
         //Daca e mai putin de o zi
-        else
-        {
+        else {
             //Daca e mai mult de o ora
-            if(ore != 0)
-            {
+            if (ore != 0) {
                 return ore + " " + Messages.get("hours") + ", " + minute + " " + Messages.get("minutes");
             }
 
@@ -747,17 +701,15 @@ public class Utils
 
     /**
      * Check a string for numbers
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean containsNumbers(String s)
-    {
+    public static boolean containsNumbers(String s) {
 
-        for(char c : s.toCharArray())
-        {
+        for (char c : s.toCharArray()) {
 
-            if(isInt(c))
-            {
+            if (isInt(c)) {
                 return true;
             }
 
@@ -766,8 +718,7 @@ public class Utils
         return false;
     }
 
-    public static ItemStack addEnchants(ItemStack itemStack, List<String> enchantments)
-    {
+    public static ItemStack addEnchants(ItemStack itemStack, List<String> enchantments) {
         if (itemStack == null || enchantments == null) return itemStack;
 
         String[] args;
@@ -775,40 +726,33 @@ public class Utils
         Enchantment enchant;
         int level;
 
-        for(String s : enchantments)
-        {
+        for (String s : enchantments) {
 
             args = s.split(":");
             enchantment = args[0];
 
-            if(!Utils.isInt(args[1]))
-            {
-                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " +  s);
+            if (!Utils.isInt(args[1])) {
+                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " + s);
                 continue;
             }
 
             level = Integer.parseInt(args[1]);
             enchant = Enchantment.getByName(enchantment);
 
-            if(enchant == null)
-            {
-                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " +  s);
+            if (enchant == null) {
+                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " + s);
                 continue;
             }
 
-            if(!enchant.canEnchantItem(itemStack))
-            {
+            if (!enchant.canEnchantItem(itemStack)) {
                 plugin.getLogger().warning("Enchantment " + enchantment + " can not be used on " + itemStack.getType());
                 continue;
             }
 
-            if(level > enchant.getMaxLevel())
-            {
+            if (level > enchant.getMaxLevel()) {
                 plugin.getLogger().warning("Max level for enchantment " + enchantment + " is " + level);
                 itemStack.addEnchantment(enchant, enchant.getMaxLevel());
-            }
-            else
-            {
+            } else {
                 itemStack.addEnchantment(enchant, level);
             }
 
@@ -819,8 +763,7 @@ public class Utils
 
     }
 
-    public static ItemStack addUnsafeEnchants(ItemStack itemStack, List<String> enchants)
-    {
+    public static ItemStack addUnsafeEnchants(ItemStack itemStack, List<String> enchants) {
 
         if (itemStack == null || enchants == null) {
             return itemStack;
@@ -831,32 +774,28 @@ public class Utils
         Enchantment enchant;
         int level;
 
-        for(String s : enchants)
-        {
+        for (String s : enchants) {
 
-            if(s.isEmpty()) continue;
+            if (s.isEmpty()) continue;
             args = s.split(":");
 
-            if(args.length != 2)
-            {
-                plugin.getLogger().warning("Enchantment format is invalid! Affected enchantment: " +  s);
+            if (args.length != 2) {
+                plugin.getLogger().warning("Enchantment format is invalid! Affected enchantment: " + s);
                 continue;
             }
 
             enchantment = args[0];
 
-            if(!Utils.isInt(args[1]))
-            {
-                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " +  s);
+            if (!Utils.isInt(args[1])) {
+                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " + s);
                 continue;
             }
 
             level = Integer.parseInt(args[1]);
             enchant = Enchantment.getByName(enchantment);
 
-            if(enchant == null)
-            {
-                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " +  s);
+            if (enchant == null) {
+                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " + s);
                 continue;
             }
 
@@ -873,40 +812,38 @@ public class Utils
      * When a player clicks on an item in an inventory and an error happens,
      * the item will transform into a Material.BARRIER and the error message will be displayed
      * for a brief period of time, after which the item will reappear in the menu as before.
-     * @param is the inventory holding the item
+     *
+     * @param is    the inventory holding the item
      * @param error the error (should be as short as possible)
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public static void errorAsItem(ItemStack is, String error)
-    {
-            if (is == null) return;
-            ItemMeta im = is.getItemMeta();
-            if (im == null) return;
+    public static void errorAsItem(ItemStack is, String error) {
+        if (is == null) return;
+        ItemMeta im = is.getItemMeta();
+        if (im == null) return;
 
-            Material initialmat = is.getType();
-            String initialname = im.getDisplayName();
+        Material initialmat = is.getType();
+        String initialname = im.getDisplayName();
 
-            is.setType(Material.BARRIER);
-            im.setDisplayName(Utils.format( "&c" + error));
+        is.setType(Material.BARRIER);
+        im.setDisplayName(Utils.format("&c" + error));
+        is.setItemMeta(im);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
+        {
+            is.setType(initialmat);
+            im.setDisplayName(format(initialname));
             is.setItemMeta(im);
-
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
-            {
-                is.setType(initialmat);
-                im.setDisplayName(format(initialname));
-                is.setItemMeta(im);
-            }, 100);
+        }, 100);
 
     }
 
-    public static ArrayList<String> formatList(List<String> list)
-    {
+    public static ArrayList<String> formatList(List<String> list) {
         if (list == null) return new ArrayList<>();
 
         ArrayList<String> newList = new ArrayList<>();
 
-        for(String s : list)
-        {
+        for (String s : list) {
             newList.add(Utils.format(s));
         }
 
@@ -916,16 +853,15 @@ public class Utils
 
     /**
      * Sends a permission error like #errorAsItem(ItemStack, String)
-     * @param p the player's inventory
+     *
+     * @param p          the player's inventory
      * @param permission the permission he needs to have
-     * @param is the itemstack to affect
+     * @param is         the itemstack to affect
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public static void setBarrier(Player p, String permission, ItemStack is)
-    {
+    public static void setBarrier(Player p, String permission, ItemStack is) {
         if (p == null || permission == null || is == null) return;
-        if(!p.hasPermission(permission))
-        {
+        if (!p.hasPermission(permission)) {
             ItemMeta im = is.getItemMeta();
             if (im == null) return;
 
@@ -933,13 +869,13 @@ public class Utils
             String initialname = im.getDisplayName();
 
             is.setType(Material.BARRIER);
-            im.setDisplayName(Utils.format( "&cNo permission!"));
+            im.setDisplayName(Utils.format("&cNo permission!"));
             is.setItemMeta(im);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
             {
                 is.setType(initialmat);
-                im.setDisplayName(format( initialname));
+                im.setDisplayName(format(initialname));
                 is.setItemMeta(im);
             }, 100);
 
@@ -949,6 +885,7 @@ public class Utils
 
     /**
      * Formats a message with legacy color codes and also HEX
+     *
      * @param message the message you want to apply colors to
      * @return the formatted string
      */
@@ -974,11 +911,11 @@ public class Utils
 
     /**
      * Get a ChatColor from a message
+     *
      * @param message the message
      * @return the ChatColor, or white if the method doesn't find any colors
      */
-    public static net.md_5.bungee.api.ChatColor getColorFromHex(String message)
-    {
+    public static net.md_5.bungee.api.ChatColor getColorFromHex(String message) {
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(message);
 
@@ -994,11 +931,11 @@ public class Utils
 
     /**
      * Get a HEX code from a message
+     *
      * @param message the message
      * @return the HEX code, or white if the method doesn't find any colors
      */
-    public static String getHex(String message)
-    {
+    public static String getHex(String message) {
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(message);
 
@@ -1013,19 +950,18 @@ public class Utils
 
     /**
      * Removes all HEX colors from a string
+     *
      * @param s the string
      * @return the string without the hex code
      */
-    public static String removeHex(String s)
-    {
+    public static String removeHex(String s) {
 
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(s);
 
         String color = "";
 
-        while(matcher.find())
-        {
+        while (matcher.find()) {
             color = s.substring(matcher.start(), matcher.end());
         }
 
@@ -1035,23 +971,23 @@ public class Utils
 
     /**
      * Check if a plugin is enabled
+     *
      * @param plugin the plugin to check
      * @return true/false
      */
-   public static boolean isEnabled(String plugin)
-   {
+    public static boolean isEnabled(String plugin) {
 
-       return Bukkit.getPluginManager().getPlugin(plugin) != null && Bukkit.getPluginManager().getPlugin(plugin).isEnabled();
+        return Bukkit.getPluginManager().getPlugin(plugin) != null && Bukkit.getPluginManager().getPlugin(plugin).isEnabled();
 
-   }
+    }
 
     /**
      * Check if a plugin is loaded
+     *
      * @param plugin the plugin to check
      * @return true/false
      */
-    public static boolean isLoaded(String plugin)
-    {
+    public static boolean isLoaded(String plugin) {
 
         return Bukkit.getPluginManager().getPlugin(plugin) != null;
 
@@ -1059,13 +995,13 @@ public class Utils
 
     /**
      * Sets a capital letter on the first word of the string
+     *
      * @param s the string
      * @return the formatted string
      */
-    public static String setCapitals(String s)
-    {
+    public static String setCapitals(String s) {
 
-        if(s.length() < 1) return s;
+        if (s.length() < 1) return s;
 
         String cap = s.substring(0, 1).toUpperCase() + s.substring(1);
         return cap;
@@ -1073,57 +1009,29 @@ public class Utils
 
     /**
      * Generate a random number 0-100
+     *
      * @return a random number 0-100
      */
-    public static int chance()
-    {
+    public static int chance() {
         return ThreadLocalRandom.current().nextInt(1, 101);
     }
 
     /**
      * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getNearbyEntities(Location l, int radius)
-    {
+    public static ArrayList<Entity> getNearbyEntities(Location l, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
         double radiusSquared = (double) radius * radius;
 
-        if(l.getWorld().getEntities().size() != 0) {
+        if (l.getWorld().getEntities().size() != 0) {
 
 
             for (Entity e : l.getWorld().getEntities()) {
 
-
-                    if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
-
-                        en.add(e);
-
-                    }
-
-            }
-        }
-        return en;
-    }
-
-    /**
-     * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
-     * @param radius the radius
-     * @return the list containing all the entities
-     */
-    public static ArrayList<Entity> getNearbyEntities(Location l, EntityType et, int radius)
-    {
-        ArrayList<Entity> en = new ArrayList<>();
-        double radiusSquared = (double) radius * radius;
-
-        if(l.getWorld().getEntities().size() != 0) {
-
-            for (Entity e : l.getWorld().getEntities()) {
-
-                if(e.getType() != et) continue;
 
                 if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
@@ -1138,12 +1046,40 @@ public class Utils
 
     /**
      * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getNearbyItemsOfType(Location l, Material mat, int radius)
-    {
+    public static ArrayList<Entity> getNearbyEntities(Location l, EntityType et, int radius) {
+        ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
+
+        if (l.getWorld().getEntities().size() != 0) {
+
+            for (Entity e : l.getWorld().getEntities()) {
+
+                if (e.getType() != et) continue;
+
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
+
+                    en.add(e);
+
+                }
+
+            }
+        }
+        return en;
+    }
+
+    /**
+     * Get a list of all the entities near the location in a radius in a chunk
+     *
+     * @param l      the location
+     * @param radius the radius
+     * @return the list containing all the entities
+     */
+    public static ArrayList<Entity> getNearbyItemsOfType(Location l, Material mat, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
         double radiusSquared = (double) radius * radius;
 
@@ -1152,16 +1088,16 @@ public class Utils
 
             Item i;
 
-            if(l.getWorld().getEntities().size() != 0) {
+            if (l.getWorld().getEntities().size() != 0) {
 
 
                 for (Entity e : l.getWorld().getEntities()) {
 
-                    if(e instanceof Item) {
+                    if (e instanceof Item) {
 
                         i = (Item) e;
 
-                        if(i.getItemStack().getType() == mat) {
+                        if (i.getItemStack().getType() == mat) {
 
                             if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
@@ -1183,12 +1119,12 @@ public class Utils
 
     /**
      * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getNearbyItems(Location l, int radius)
-    {
+    public static ArrayList<Entity> getNearbyItems(Location l, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
         double radiusSquared = (double) radius * radius;
 
@@ -1212,16 +1148,16 @@ public class Utils
 
     /**
      * Get a list of all the living entities near the location in a radius
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getAllNearbyEntities(Location l, int radius)
-    {
+    public static ArrayList<Entity> getAllNearbyEntities(Location l, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
         double radiusSquared = (double) radius * radius;
 
-        if(l.getWorld().getEntities().size() != 0) {
+        if (l.getWorld().getEntities().size() != 0) {
 
 
             for (Entity e : l.getWorld().getLivingEntities()) {
@@ -1239,44 +1175,44 @@ public class Utils
 
     /**
      * Makes an ItemStack's name much nicer
+     *
      * @param is the itemstack
      * @return the formatted string
      */
-    public static String formatItemStack(ItemStack is)
-    {
+    public static String formatItemStack(ItemStack is) {
         return is.getType().toString().toLowerCase().replace("_", " ");
     }
 
     /**
      * Get all players in a radius around the location
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return a list containing all the players near that locations in the specified radius
      */
-    public static ArrayList<Player> getNearbyPlayers(Location l, int radius)
-    {
+    public static ArrayList<Player> getNearbyPlayers(Location l, int radius) {
         ArrayList<Player> en = new ArrayList<>();
         double radiusSquared = (double) radius * radius;
 
-            for (Player p : l.getWorld().getPlayers()) {
+        for (Player p : l.getWorld().getPlayers()) {
 
-                    if (l.distanceSquared(p.getLocation()) <= radiusSquared) {
-                        en.add(p);
-                    }
+            if (l.distanceSquared(p.getLocation()) <= radiusSquared) {
+                en.add(p);
+            }
 
-                }
+        }
 
         return en;
     }
 
     /**
      * Generates a random integer between two values
+     *
      * @param min the min value
      * @param max the max value
      * @return the random integer
      */
-    public static int randInt(int min, int max)
-    {
+    public static int randInt(int min, int max) {
         int x = ThreadLocalRandom.current().nextInt(min, max + 1);
 
         return x;
@@ -1284,45 +1220,44 @@ public class Utils
 
     /**
      * Gets the location in front of the player
-     * @param loc the location
+     *
+     * @param loc      the location
      * @param distance how far away the new location should be
      * @return the location in front of the player
      */
-    public static Location getPositionInFrontOfPlayer(Location loc, int distance)
-    {
+    public static Location getPositionInFrontOfPlayer(Location loc, int distance) {
         return loc.add(loc.getDirection().multiply(distance));
     }
 
     /**
      * Get the highest block at a location
+     *
      * @param world the world
-     * @param x the x coordinate
-     * @param z the z coordinate
+     * @param x     the x coordinate
+     * @param z     the z coordinate
      * @return the location with the highest block
      */
-    public static Location getHighestBlock(World world, int x, int z, Location backup)
-    {
+    public static Location getHighestBlock(World world, int x, int z, Location backup) {
 
         int i = world.getMaxHeight() - 1;
 
-            while (i >= world.getMinHeight()) {
-                if (!new Location(world, x, i, z).getBlock().isEmpty())
-                {
-                    return new Location(world, x, i, z).add(0.0D, 1.0D, 0.0D);
-                }
-                i--;
+        while (i >= world.getMinHeight()) {
+            if (!new Location(world, x, i, z).getBlock().isEmpty()) {
+                return new Location(world, x, i, z).add(0.0D, 1.0D, 0.0D);
             }
+            i--;
+        }
 
         return backup;
     }
 
     /**
      * Get the highest block at a location
+     *
      * @param originalLoc the location that could be unsafe
      * @return the location with the highest block
      */
-    public static Location getSafeBlock(Location originalLoc, Location backup)
-    {
+    public static Location getSafeBlock(Location originalLoc, Location backup) {
 
         int i = originalLoc.getBlockY();
 
@@ -1332,8 +1267,7 @@ public class Utils
 
         while (i < w.getMaxHeight()) {
 
-            if (new Location(w, x, i, z).getBlock().isEmpty())
-            {
+            if (new Location(w, x, i, z).getBlock().isEmpty()) {
                 return new Location(w, x, i, z).add(0.0D, 1.0D, 0.0D);
             }
 
@@ -1346,13 +1280,13 @@ public class Utils
 
     /**
      * Get the highest block at a location for a nether world
+     *
      * @param world the world
-     * @param x the x coordinate
-     * @param z the z coordinate
+     * @param x     the x coordinate
+     * @param z     the z coordinate
      * @return the location with the highest block
      */
-    public static Location getHighestBlockNether(World world, int x, int z, Location backup)
-    {
+    public static Location getHighestBlockNether(World world, int x, int z, Location backup) {
 
         int i = 31;
 
@@ -1368,13 +1302,13 @@ public class Utils
 
     /**
      * Get the highest block at a location for an end world
+     *
      * @param world the world
-     * @param x the x coordinate
-     * @param z the z coordinate
+     * @param x     the x coordinate
+     * @param z     the z coordinate
      * @return the location with the highest block
      */
-    public static Location getHighestBlockEnd(World world, int x, int z)
-    {
+    public static Location getHighestBlockEnd(World world, int x, int z) {
 
         int i = 15;
 
@@ -1390,11 +1324,11 @@ public class Utils
 
     /**
      * A countdown of type mm:SS
+     *
      * @param l the number of minutes
      * @return the formatted string
      */
-    public static String getCountDown(long l)
-    {
+    public static String getCountDown(long l) {
         //15:59
         int minutes = (int) TimeUnit.MILLISECONDS.toSeconds(l) / 60;
         int seconds = (int) (TimeUnit.MILLISECONDS.toSeconds(l) - TimeUnit.MINUTES.toSeconds(minutes));
@@ -1405,8 +1339,7 @@ public class Utils
     /**
      * @hidden
      */
-    public static void readClassName()
-    {
+    public static void readClassName() {
 
         String className = "com.Moshu.Main";
         String path = "/" + className.replace('.', '/') + ".class";
@@ -1430,24 +1363,21 @@ public class Utils
     /**
      * @hidden
      */
-    public static void sendNotPlayer()
-    {
-        Bukkit.getConsoleSender().sendMessage(Utils.format( "&5&lConsole > &fYou need to be a player in order to use this command."));
+    public static void sendNotPlayer() {
+        Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lConsole > &fYou need to be a player in order to use this command."));
     }
 
     /**
      * @hidden
      */
-    public static void sendSound(Player p)
-    {
+    public static void sendSound(Player p) {
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0F, 1.0F);
     }
 
     /**
      * @hidden
      */
-    public static void sendBreakSound(Player p)
-    {
+    public static void sendBreakSound(Player p) {
         if (p == null) return;
 
         String originalName = plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK");
@@ -1492,8 +1422,7 @@ public class Utils
     /**
      * @hidden
      */
-    public static void sendLevelupSound(Player p)
-    {
+    public static void sendLevelupSound(Player p) {
         if (p == null) return;
 
         String originalName = plugin.getConfig().getString("settings.positive-sound", "ENTITY_PLAYER_LEVELUP");
@@ -1521,11 +1450,11 @@ public class Utils
 
     /**
      * Check if a string contains only letters
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean validString(String s)
-    {
+    public static boolean validString(String s) {
         String regex = "^[a-zA-Z]*";
 
         Pattern pattern = Pattern.compile(regex);
@@ -1536,11 +1465,11 @@ public class Utils
 
     /**
      * Check if a string contains only alphanumerical characters
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean validAlphanumericString(String s)
-    {
+    public static boolean validAlphanumericString(String s) {
         String regex = "^[a-zA-Z0-9]+$";
 
         Pattern pattern = Pattern.compile(regex);
@@ -1551,26 +1480,25 @@ public class Utils
 
     /**
      * Checks if the player has all the slots of the inventory occupied
+     *
      * @param p the player
      * @return true/false
      */
-    public static boolean hasFullInventory(Player p)
-    {
+    public static boolean hasFullInventory(Player p) {
         return p.getInventory().firstEmpty() == -1;
     }
 
     /**
      * Checks if the player has all the slots of the inventory occupied
+     *
      * @param p the player
      * @return true/false
      */
-    public static boolean hasEmptySlot(Player p)
-    {
+    public static boolean hasEmptySlot(Player p) {
 
-        for(ItemStack is : p.getInventory().getContents())
-        {
+        for (ItemStack is : p.getInventory().getContents()) {
 
-            if(is == null || is.getType() == Material.AIR) return true;
+            if (is == null || is.getType() == Material.AIR) return true;
 
         }
 
@@ -1580,21 +1508,20 @@ public class Utils
 
     /**
      * Temporarily gives invulnerability to a player
-     * @param p the player
+     *
+     * @param p       the player
      * @param seconds how many seconds should the effect last
      */
-    public static void tempGod(Player p, int seconds)
-    {
+    public static void tempGod(Player p, int seconds) {
 
-        if(p.isInvulnerable()) return;
+        if (p.isInvulnerable()) return;
 
         p.setInvulnerable(true);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
         {
 
-            if(Bukkit.getPlayer(p.getName()) != null)
-            {
+            if (Bukkit.getPlayer(p.getName()) != null) {
                 p.setInvulnerable(false);
             }
 
@@ -1604,19 +1531,17 @@ public class Utils
 
     /**
      * Get how many free slots the inventory has
+     *
      * @param inv the inventory
      * @return how many free slots are in the inventory
      */
-    public static int getFreeSlots(Inventory inv)
-    {
+    public static int getFreeSlots(Inventory inv) {
 
         int x = 0;
 
-        for(int i = 0; i < inv.getSize(); i++)
-        {
+        for (int i = 0; i < inv.getSize(); i++) {
 
-            if(inv.getItem(i) == null || inv.getItem(i).getType().equals(Material.AIR))
-            {
+            if (inv.getItem(i) == null || inv.getItem(i).getType().equals(Material.AIR)) {
                 x++;
             }
 
@@ -1627,40 +1552,32 @@ public class Utils
 
     }
 
-    public static String setInternalPlaceholders(Player p, String s)
-    {
+    public static String setInternalPlaceholders(Player p, String s) {
 
         s = s.replace("%player%", p.getName());
         return s;
 
     }
 
-    public static void trySpawningParticle(Location location, Particle p)
-    {
+    public static void trySpawningParticle(Location location, Particle p) {
         if (location == null || location.getWorld() == null || p == null) return;
-        try
-        {
+        try {
             location.getWorld().spawnParticle(p, location.clone().add(0, 3, 0), 1);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Invalid particle for falling treasure!");
         }
     }
 
-    public static ItemStack checkMaterial(String mat)
-    {
+    public static ItemStack checkMaterial(String mat) {
 
-        if(mat == null)
-        {
+        if (mat == null) {
             plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
             return new ItemStack(Material.STONE);
         }
 
         Material m = Material.getMaterial(mat);
 
-        if(m == null)
-        {
+        if (m == null) {
             plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
             return new ItemStack(Material.STONE);
         }
@@ -1672,12 +1589,11 @@ public class Utils
     /**
      *
      * @param world, world to teleport into
-     * @param max, max coordinates to teleport
+     * @param max,   max coordinates to teleport
      * @return the highest block at a locations
      */
 
-    public static Location randomCoordonatesMoreThan(World world, double max, double min)
-    {
+    public static Location randomCoordonatesMoreThan(World world, double max, double min) {
 
         //num = (Math.random() * (2 * MAX + 1)) - MAX;
         int x = (int) ((Math.random() * 2 * max + 1) - min);
@@ -1687,8 +1603,7 @@ public class Utils
 
         double negativeMin = -1 * min;
 
-        while(x < negativeMin || z < negativeMin || x > max || z > max)
-        {
+        while (x < negativeMin || z < negativeMin || x > max || z > max) {
             //plugin.getLogger().log(Level.INFO, "Debug: Spawn location candidate - X: " + x + ", Z: " + z);
             x = (int) ((Math.random() * 2 * max + 1) - min);
             z = (int) ((Math.random() * 2 * max + 1) - min);
@@ -1700,14 +1615,13 @@ public class Utils
 
     /**
      * Check if an inventory is empty
+     *
      * @param inv the inventory
      * @return true/false
      */
-    public static boolean isEmpty(Inventory inv)
-    {
-        for(ItemStack it : inv.getContents())
-        {
-            if(it != null) return false;
+    public static boolean isEmpty(Inventory inv) {
+        for (ItemStack it : inv.getContents()) {
+            if (it != null) return false;
         }
 
         return true;
@@ -1715,11 +1629,11 @@ public class Utils
 
     /**
      * Get the last char of the string
+     *
      * @param s the string
      * @return the last character
      */
-    public static String lastChar(String s)
-    {
+    public static String lastChar(String s) {
         return s.substring(s.length() - 1);
     }
 
@@ -1728,32 +1642,23 @@ public class Utils
      * @param s The time you wish to transform, formatted. (ex: 1d, 3h, 30m)
      * @return The millies corresponding to the value, defaults at minutes
      */
-    public static long getMillies(String s)
-    {
+    public static long getMillies(String s) {
 
-        if(!s.isEmpty())
-        {
+        if (!s.isEmpty()) {
 
-            if(isInt(s)) return 0;
-            if(!containsNumbers(s)) return 0;
+            if (isInt(s)) return 0;
+            if (!containsNumbers(s)) return 0;
 
             long l = Long.parseLong(s.replaceAll("[a-zA-z]", "").trim());
 
-            if(lastChar(s).equals("d"))
-            {
+            if (lastChar(s).equals("d")) {
                 return TimeUnit.DAYS.toMillis(l);
-            }
-            else if(lastChar(s).equals("h"))
-            {
+            } else if (lastChar(s).equals("h")) {
                 return TimeUnit.HOURS.toMillis(l);
 
-            }
-            else if(lastChar(s).equals("m"))
-            {
+            } else if (lastChar(s).equals("m")) {
                 return TimeUnit.MINUTES.toMillis(l);
-            }
-            else
-            {
+            } else {
                 return 0;
             }
 
@@ -1765,103 +1670,97 @@ public class Utils
 
     /**
      * Check if a string ends with a caracter used to distinguish time (like m for minutes, h for hours, d for days, etc)
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean endsWithSpecialCharacter(String s)
-    {
+    public static boolean endsWithSpecialCharacter(String s) {
         return s.endsWith("m") || s.endsWith("h") || s.endsWith("d");
     }
 
     /**
      * Check if a String is actually an int
+     *
      * @param str the string
      * @return true/false
      */
-    public static boolean isInt(String str)
-    {
-        try
-        {
+    public static boolean isInt(String str) {
+        try {
             Integer.parseInt(str);
             return true;
+        } catch (NumberFormatException e) {
         }
-        catch (NumberFormatException e) {}
         return false;
     }
 
     /**
      * Check if a char is actually an int
+     *
      * @param c the char
      * @return true/false
      */
-    public static boolean isInt(char c)
-    {
-        try
-        {
+    public static boolean isInt(char c) {
+        try {
             Integer.parseInt(String.valueOf(c));
             return true;
+        } catch (NumberFormatException e) {
         }
-        catch (NumberFormatException e) {}
         return false;
     }
 
 
     /**
      * Check if a String is actually a double
+     *
      * @param str the string
      * @return true/false
      */
-    public static boolean isDouble(String str)
-    {
-        try
-        {
+    public static boolean isDouble(String str) {
+        try {
             Double.parseDouble(str);
             return true;
+        } catch (NumberFormatException e) {
         }
-        catch (NumberFormatException e) {}
         return false;
     }
 
 
     /**
      * Convert seconds to hours
+     *
      * @param seconds the time in seconds
      * @return the rounded hours
      */
-    public static int hoursFromSeconds(int seconds)
-    {
+    public static int hoursFromSeconds(int seconds) {
         return seconds / 3600;
     }
 
     /**
      * Get a property from server.properties file
+     *
      * @param s the string you want to get
      * @param f the file you wish to access
      * @return the value you wish to get
      */
-    public static String getProperty(String s, File f)
-    {
+    public static String getProperty(String s, File f) {
         Properties pr = new Properties();
 
         try (FileInputStream in = new FileInputStream(f);
-             InputStreamReader reader = new InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8))
-        {
+             InputStreamReader reader = new InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8)) {
             pr.load(reader);
             return pr.getProperty(s, "");
+        } catch (IOException e) {
         }
-
-        catch (IOException e)
-        { }
 
         return "";
     }
 
     /**
      * Get the main world of the server
+     *
      * @return the main world's name
      */
-    public static String getMainWorld()
-    {
+    public static String getMainWorld() {
 
         File s = new File("server.properties");
         return getProperty("level-name", s);

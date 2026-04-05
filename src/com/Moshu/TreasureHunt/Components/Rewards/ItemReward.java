@@ -3,12 +3,12 @@ package com.Moshu.TreasureHunt.Components.Rewards;
 import com.Moshu.Misc.Utils;
 import com.nexomc.nexo.api.NexoItems;
 import dev.lone.itemsadder.api.CustomStack;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.th0rgal.oraxen.api.OraxenItems;
 import io.th0rgal.oraxen.items.ItemBuilder;
 import net.Indyuce.mmoitems.MMOItems;
 import net.Indyuce.mmoitems.api.item.mmoitem.MMOItem;
 import net.Indyuce.mmoitems.manager.TypeManager;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -23,7 +23,7 @@ import java.util.List;
  * This class manages the configuration and distribution of item rewards,
  * supporting various item types including vanilla items, custom items from
  * ItemsAdder, Oraxen, Nexo, and MMOItems.
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
@@ -49,6 +49,7 @@ public class ItemReward {
     public String getIdentifier() {
         return identifier;
     }
+
     public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
@@ -61,23 +62,19 @@ public class ItemReward {
         this.itemStr = item;
     }
 
-    public int getRewardToTopX()
-    {
+    public int getRewardToTopX() {
         return rewardToTopX;
     }
 
-    public void setRewardToTopX(int rewardToTopX)
-    {
+    public void setRewardToTopX(int rewardToTopX) {
         this.rewardToTopX = rewardToTopX;
     }
 
-    public boolean isTopX(int currentTop)
-    {
+    public boolean isTopX(int currentTop) {
         return currentTop == rewardToTopX;
     }
 
-    public boolean shouldGiveOnlyToTopX()
-    {
+    public boolean shouldGiveOnlyToTopX() {
         return rewardToTopX > 0;
     }
 
@@ -91,6 +88,7 @@ public class ItemReward {
         // Utils.format() converts HEX to colors and applies & codes, then we strip them.
         return org.bukkit.ChatColor.stripColor(com.Moshu.Misc.Utils.format(name));
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -106,29 +104,45 @@ public class ItemReward {
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP2")
-    public void setEnchants(List<String> enchants) { this.enchants = enchants; }
+    public void setEnchants(List<String> enchants) {
+        this.enchants = enchants;
+    }
+
     public int getAmount() {
         return amount;
     }
+
     public void setAmount(int amount) {
         this.amount = amount;
     }
+
     public int getChance() {
         return chance;
     }
+
     public void setChance(int chance) {
         this.chance = chance;
     }
-    public String getRange() { return range; }
-    public void setRange(String range) { this.range = range; }
-    public String getMenuItem() { return menuItem; }
-    public void setMenuItem(String menuItem) { this.menuItem = menuItem; }
 
-    public boolean isMMOItem()
-    {
+    public String getRange() {
+        return range;
+    }
 
-        if(Utils.isEnabled("MMOItems"))
-        {
+    public void setRange(String range) {
+        this.range = range;
+    }
+
+    public String getMenuItem() {
+        return menuItem;
+    }
+
+    public void setMenuItem(String menuItem) {
+        this.menuItem = menuItem;
+    }
+
+    public boolean isMMOItem() {
+
+        if (Utils.isEnabled("MMOItems")) {
 
             //type:id
             String[] split = getItemId().split(":");
@@ -143,21 +157,17 @@ public class ItemReward {
 
     }
 
-    public boolean isOraxen()
-    {
-        if(Utils.isEnabled("Oraxen"))
-        {
+    public boolean isOraxen() {
+        if (Utils.isEnabled("Oraxen")) {
             return OraxenItems.exists(getItemId());
         }
 
         return false;
     }
 
-    public boolean isNexo()
-    {
+    public boolean isNexo() {
 
-        if(Utils.isEnabled("Nexo"))
-        {
+        if (Utils.isEnabled("Nexo")) {
             return NexoItems.exists(getItemId());
         }
 
@@ -165,11 +175,9 @@ public class ItemReward {
 
     }
 
-    public boolean isItemsAdder()
-    {
+    public boolean isItemsAdder() {
 
-        if(Utils.isEnabled("ItemsAdder"))
-        {
+        if (Utils.isEnabled("ItemsAdder")) {
             return CustomStack.isInRegistry(getItemId());
         }
 
@@ -177,15 +185,13 @@ public class ItemReward {
 
     }
 
-    public ItemReward build()
-    {
+    public ItemReward build() {
 
-        if(isItemsAdder() || isOraxen() || isNexo()) return this;
+        if (isItemsAdder() || isOraxen() || isNexo()) return this;
 
         item = Material.matchMaterial(itemStr);
 
-        if(item == null)
-        {
+        if (item == null) {
             Plugin p = getPlugin();
             if (p != null) p.getLogger().warning("Material '" + itemStr + "' does not exist!");
             item = Material.STONE;
@@ -203,21 +209,16 @@ public class ItemReward {
      * @return the Bukkit ItemStack for this ItemReward
      */
     @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
-    public ItemStack getItemStack()
-    {
+    public ItemStack getItemStack() {
 
-        if(isItemsAdder())
-        {
+        if (isItemsAdder()) {
             CustomStack stack = CustomStack.getInstance(getItemId());
 
-            if(stack != null)
-            {
+            if (stack != null) {
                 ItemStack is = stack.getItemStack();
                 is.setAmount(amount);
                 return is;
-            }
-            else
-            {
+            } else {
                 Plugin p = getPlugin();
                 if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
@@ -225,48 +226,38 @@ public class ItemReward {
 
         }
 
-        if(isOraxen())
-        {
+        if (isOraxen()) {
             ItemBuilder builder = OraxenItems.getItemById(getItemId());
             ItemStack stack = builder != null ? builder.build() : null;
 
-            if(stack != null)
-            {
+            if (stack != null) {
                 stack.setAmount(getAmount());
                 return stack;
-            }
-            else
-            {
+            } else {
                 Plugin p = getPlugin();
                 if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
         }
 
-        if(isNexo())
-        {
+        if (isNexo()) {
             com.nexomc.nexo.items.ItemBuilder builder = NexoItems.itemFromId(getItemId());
             ItemStack stack = builder != null ? builder.build() : null;
 
-            if(stack != null)
-            {
+            if (stack != null) {
                 stack.setAmount(getAmount());
                 return stack;
-            }
-            else
-            {
+            } else {
                 Plugin p = getPlugin();
                 if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
             }
         }
 
-        if(isMMOItem())
-        {
+        if (isMMOItem()) {
 
             String[] split = getItemId().split(":");
-            if(split.length != 2)
-            {
+            if (split.length != 2) {
                 Plugin p = getPlugin();
                 if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
@@ -277,8 +268,7 @@ public class ItemReward {
 
             MMOItem mmoitem = MMOItems.plugin.getMMOItem(MMOItems.plugin.getTypes().get(type), id);
 
-            if(mmoitem == null)
-            {
+            if (mmoitem == null) {
                 Plugin p = getPlugin();
                 if (p != null) p.getLogger().severe("Could not get ItemStack from this id: " + getItemId());
                 return new ItemStack(Material.STONE);
@@ -296,18 +286,15 @@ public class ItemReward {
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         if (itemMeta != null) {
-            if(name != null && !name.isEmpty())
-            {
+            if (name != null && !name.isEmpty()) {
                 itemMeta.setDisplayName(Utils.format(name));
             }
 
-            if(lore != null && !lore.isEmpty())
-            {
+            if (lore != null && !lore.isEmpty()) {
 
                 ArrayList<String> coloredLore = new ArrayList<>();
 
-                for(String s: lore)
-                {
+                for (String s : lore) {
                     coloredLore.add(Utils.format(s));
                 }
 
@@ -321,7 +308,7 @@ public class ItemReward {
 
     }
 
-    public ItemReward()
-    {}
+    public ItemReward() {
+    }
 
 }

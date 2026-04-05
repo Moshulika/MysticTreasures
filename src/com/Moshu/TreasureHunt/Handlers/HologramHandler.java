@@ -6,6 +6,7 @@ import com.Moshu.TreasureHunt.Core.Treasure;
 import de.oliver.fancyholograms.api.FancyHologramsPlugin;
 import de.oliver.fancyholograms.api.HologramManager;
 import de.oliver.fancyholograms.api.data.TextHologramData;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import eu.decentsoftware.holograms.api.DHAPI;
 import eu.decentsoftware.holograms.api.holograms.Hologram;
 import org.bukkit.Bukkit;
@@ -13,7 +14,6 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 
@@ -23,11 +23,9 @@ public class HologramHandler {
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public static HologramHandler getInstance()
-    {
+    public static HologramHandler getInstance() {
 
-        if(handler == null)
-        {
+        if (handler == null) {
             handler = new HologramHandler();
         }
 
@@ -35,16 +33,14 @@ public class HologramHandler {
 
     }
 
-    public void cleanup()
-    {
+    public void cleanup() {
 
         boolean decent = Utils.isEnabled("DecentHolograms");
         boolean fancy = Utils.isEnabled("FancyHolograms");
 
-        for(World world : Bukkit.getWorlds())
-        {
+        for (World world : Bukkit.getWorlds()) {
 
-            for(String id : TreasureData.getTreasureIdentifiers()) {
+            for (String id : TreasureData.getTreasureIdentifiers()) {
 
                 String hologramName = Treasure.getHologramName(world, id);
 
@@ -72,15 +68,13 @@ public class HologramHandler {
     }
 
 
-    public void createFancyHologram(Location loc, String hologramName)
-    {
+    public void createFancyHologram(Location loc, String hologramName) {
 
-        if(Utils.isEnabled("FancyHolograms"))
-        {
+        if (Utils.isEnabled("FancyHolograms")) {
             HologramManager hologramManager = FancyHologramsPlugin.get().getHologramManager();
 
-            TextHologramData data = new TextHologramData(hologramName, loc.clone().add(0.5,1.5,0.5));
-            data.setBackground(Color.fromARGB(0, 0,0,0));
+            TextHologramData data = new TextHologramData(hologramName, loc.clone().add(0.5, 1.5, 0.5));
+            data.setBackground(Color.fromARGB(0, 0, 0, 0));
             data.setVisibilityDistance(50);
             de.oliver.fancyholograms.api.hologram.Hologram h = hologramManager.create(data);
             hologramManager.addHologram(h);

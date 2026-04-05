@@ -22,8 +22,7 @@ public class TreasureRoundRegistry {
         this.roundsNumber = rounds;
     }
 
-    public TreasureRoundRegistry(TreasureData data)
-    {
+    public TreasureRoundRegistry(TreasureData data) {
         this.data = data;
     }
 
@@ -31,37 +30,32 @@ public class TreasureRoundRegistry {
 
         int roundsNumber = getRoundsNumber();
 
-        for(int i = 0; i < roundsNumber; i++)
-        {
+        for (int i = 0; i < roundsNumber; i++) {
             TreasureRound round = new TreasureRound(i, getTreasureKeepersInRound(i));
             rounds.add(round);
         }
 
     }
 
-    private List<TreasureKeeper> getTreasureKeepersInRound(int round)
-    {
+    private List<TreasureKeeper> getTreasureKeepersInRound(int round) {
 
         this.simpleRoundMode = getRoundsNumber() <= 1;
 
         List<TreasureKeeper> keepers = new ArrayList<>();
 
-        if(simpleRoundMode)
-        {
+        if (simpleRoundMode) {
             keepers.addAll(data.getTreasureKeepers());
             return keepers;
         }
 
-        for(TreasureKeeper keeper : data.getTreasureKeepers())
-        {
-            if(isMobInRound(keeper, round)) keepers.add(keeper);
+        for (TreasureKeeper keeper : data.getTreasureKeepers()) {
+            if (isMobInRound(keeper, round)) keepers.add(keeper);
         }
 
         return keepers;
     }
 
-    private boolean isMobInRound(TreasureKeeper keeper, int round)
-    {
+    private boolean isMobInRound(TreasureKeeper keeper, int round) {
         // Internal round indices are 0-based, but config uses 1-based rounds.
         return keeper.getRounds().contains(round + 1);
     }

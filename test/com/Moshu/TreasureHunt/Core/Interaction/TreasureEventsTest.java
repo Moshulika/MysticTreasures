@@ -1,7 +1,6 @@
 package com.Moshu.TreasureHunt.Core.Interaction;
 
 import com.Moshu.Main;
-import com.Moshu.TreasureHunt.Core.Treasure;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,10 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TreasureEventsTest {
     private ServerMock server;
@@ -50,7 +47,7 @@ public class TreasureEventsTest {
     public void testHandleInteractionNonTreasure() {
         PlayerMock player = server.addPlayer();
         Location loc = player.getLocation();
-        
+
         // Should return false for non-treasure location
         assertFalse(TreasureEvents.getInstance().handleInteraction(player, loc));
     }

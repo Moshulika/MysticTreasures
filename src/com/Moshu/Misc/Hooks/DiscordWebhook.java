@@ -23,8 +23,7 @@ import java.util.UUID;
 
 public class DiscordWebhook {
 
-    public enum DiscordTreasureEventType
-    {
+    public enum DiscordTreasureEventType {
         SPAWN,
         CLAIM
     }
@@ -34,12 +33,13 @@ public class DiscordWebhook {
     private JsonObject TREASURE_MESSAGES;
     private String TREASURE_SPAWN_PAYLOAD = "";
     private String TREASURE_CLAIM_PAYLOAD = "";
-    private DiscordWebhook() {}
+
+    private DiscordWebhook() {
+    }
 
     private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
-    public static DiscordWebhook getInstance()
-    {
+    public static DiscordWebhook getInstance() {
         synchronized (DiscordWebhook.class) {
             if (instance == null) {
                 instance = new DiscordWebhook();
@@ -50,26 +50,23 @@ public class DiscordWebhook {
 
     }
 
-    public void init()
-    {
+    public void init() {
 
         setURL(Settings.getString("discord-webhook-url"));
         loadPayload();
 
     }
 
-    public void setURL(String url)
-    {
+    public void setURL(String url) {
         this.url = url;
     }
 
     /**
      * Loads the Discord Webhook Payload from the config file
      */
-    public void loadPayload()
-    {
+    public void loadPayload() {
 
-        if(getURL().isEmpty()) return;
+        if (getURL().isEmpty()) return;
 
         plugin.getLogger().info("Loading Discord Webhook payload for URL: " + getURL() + "..");
 
@@ -84,8 +81,7 @@ public class DiscordWebhook {
             TREASURE_CLAIM_PAYLOAD = TREASURE_MESSAGES.get("treasure-claim").toString();
             TREASURE_SPAWN_PAYLOAD = TREASURE_MESSAGES.get("treasure-spawn").toString();
 
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
 
             plugin.getLogger().warning("Could not load Discord Webhook Payload");
             TREASURE_CLAIM_PAYLOAD = "Messages couldn't be loaded.";
@@ -97,25 +93,23 @@ public class DiscordWebhook {
 
     }
 
-    public String getURL()
-    {
+    public String getURL() {
         return this.url;
     }
 
-    public String getPayload(DiscordTreasureEventType t)
-    {
+    public String getPayload(DiscordTreasureEventType t) {
         String payload = t == DiscordTreasureEventType.SPAWN ? TREASURE_SPAWN_PAYLOAD : TREASURE_CLAIM_PAYLOAD;
         return payload != null ? payload : "";
     }
 
     /**
      * Applies placeholders to the payload
-     * @param t the treasure object
+     *
+     * @param t    the treasure object
      * @param type the type of treasure event
      * @return the payload with applied placeholders
      */
-    private String getPayloadWithAppliedPlaceholders(Treasure t, DiscordTreasureEventType type)
-    {
+    private String getPayloadWithAppliedPlaceholders(Treasure t, DiscordTreasureEventType type) {
 
         String itemRewards = sanitizeForJson(ChatColor.stripColor(t.getTreasureData().getSanitizedRewards(5)));
         String commandRewards = sanitizeForJson(ChatColor.stripColor(t.getTreasureData().getSanitizedCommandRewards(5)));
@@ -130,7 +124,7 @@ public class DiscordWebhook {
 
         List<UUID> sorted = t.getSortedPlayersByDamage();
         StringBuilder top3Builder = new StringBuilder();
-        for(int i = 0; i < Math.min(3, sorted.size()); i++) {
+        for (int i = 0; i < Math.min(3, sorted.size()); i++) {
             OfflinePlayer op = Bukkit.getOfflinePlayer(sorted.get(i));
             String name = op.getName() != null ? op.getName() : "Unknown";
             top3Builder.append(name);
@@ -168,8 +162,7 @@ public class DiscordWebhook {
         return payload;
     }
 
-    private String sanitizeForJson(String s)
-    {
+    private String sanitizeForJson(String s) {
         if (s == null) return "";
         return s.replace("\\", "\\\\")
                 .replace("\"", "\\\"")
@@ -182,12 +175,13 @@ public class DiscordWebhook {
 
     /**
      * Sends a Discord Webhook Message
+     *
      * @param type the type of treasure event
-     * @param t the treasure object
+     * @param t    the treasure object
      */
     public void sendWebhookMessage(DiscordTreasureEventType type, Treasure t) {
 
-        if(getURL().isEmpty() || getURL().contains("Error")) return;
+        if (getURL().isEmpty() || getURL().contains("Error")) return;
 
         try {
 

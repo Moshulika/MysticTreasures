@@ -7,9 +7,9 @@ import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeper;
 import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeperDrops;
 import com.Moshu.TreasureHunt.Components.TreasureKey;
+import com.Moshu.TreasureHunt.Core.API.Events.TreasureInteractEvent;
 import com.Moshu.TreasureHunt.Core.Hunt;
 import com.Moshu.TreasureHunt.Core.Treasure;
-import com.Moshu.TreasureHunt.Core.API.Events.TreasureInteractEvent;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
 import org.bukkit.Bukkit;
@@ -42,15 +42,13 @@ import java.util.HashMap;
 
 public class TreasureEvents implements Listener {
 
-    private TreasureEvents()
-    {}
+    private TreasureEvents() {
+    }
 
     private static TreasureEvents instance;
 
-    public static TreasureEvents getInstance()
-    {
-        if(instance == null)
-        {
+    public static TreasureEvents getInstance() {
+        if (instance == null) {
             instance = new TreasureEvents();
             return instance;
         }
@@ -63,10 +61,8 @@ public class TreasureEvents implements Listener {
     private static final HashMap<Player, Long> click_cooldowns = new HashMap<>();
     HashMap<Player, Long> inventoryClickCooldown = new HashMap<>();
 
-    private boolean disableBreakToAward(Player p, Treasure t)
-    {
-        if(t.getTreasureData().getClicksToOpen() > 1)
-        {
+    private boolean disableBreakToAward(Player p, Treasure t) {
+        if (t.getTreasureData().getClicksToOpen() > 1) {
             p.sendMessage(Utils.format(Messages.get("only-right-click")));
             return true;
         }
@@ -74,8 +70,7 @@ public class TreasureEvents implements Listener {
         return false;
     }
 
-    private boolean isCreative(Player p)
-    {
+    private boolean isCreative(Player p) {
         if (p.getGameMode() != GameMode.SURVIVAL) {
             p.sendMessage(Messages.get("no-creative"));
             p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
@@ -86,8 +81,7 @@ public class TreasureEvents implements Listener {
         return false;
     }
 
-    private boolean hasCooldown(Player p)
-    {
+    private boolean hasCooldown(Player p) {
         if (Cooldown.hasCooldown(p.getUniqueId(), "treasure-winner")) {
             p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
             Utils.sendBreakSound(p);
@@ -98,15 +92,12 @@ public class TreasureEvents implements Listener {
         return false;
     }
 
-    private boolean hasKey(Player p, Treasure t)
-    {
-        if(t.isLocked())
-        {
+    private boolean hasKey(Player p, Treasure t) {
+        if (t.isLocked()) {
 
             ItemStack itemInHand = p.getInventory().getItemInMainHand();
 
-            if(!t.getTreasureData().getTreasureKey().isTreasureKey(itemInHand))
-            {
+            if (!t.getTreasureData().getTreasureKey().isTreasureKey(itemInHand)) {
                 p.sendMessage(Messages.get("no-key"));
                 Utils.sendBreakSound(p);
                 p.setVelocity(p.getLocation().getDirection().multiply(-1).setY(1));
@@ -118,25 +109,21 @@ public class TreasureEvents implements Listener {
         return true;
     }
 
-    private boolean hasRequiredClicks(Player p, Treasure t)
-    {
+    private boolean hasRequiredClicks(Player p, Treasure t) {
 
         int needed_clicks = t.getTreasureData().getClicksToOpen();
 
-        if(t.getCurrentClicks() < needed_clicks) {
+        if (t.getCurrentClicks() < needed_clicks) {
 
-            if(System.currentTimeMillis() - click_cooldowns.getOrDefault(p, 0L) < t.getTreasureData().getCooldownBetweenClicks())
-            {
+            if (System.currentTimeMillis() - click_cooldowns.getOrDefault(p, 0L) < t.getTreasureData().getCooldownBetweenClicks()) {
                 return false;
             }
 
-            if(t.getCurrentClicks() == 0)
-            {
+            if (t.getCurrentClicks() == 0) {
                 p.sendMessage(Messages.get("starting-clicks")
                         .replace("{current_clicks}", "" + t.getCurrentClicks())
                         .replace("{needed_clicks}", "" + needed_clicks));
-            }
-            else {
+            } else {
 
                 p.sendMessage(Messages.get("remaining-clicks")
                         .replace("{current_clicks}", "" + t.getCurrentClicks())
@@ -154,10 +141,8 @@ public class TreasureEvents implements Listener {
         return true;
     }
 
-    private boolean canTreasureBeOpened(Player p, Treasure t)
-    {
-        if(!t.timePassedBeforePickup())
-        {
+    private boolean canTreasureBeOpened(Player p, Treasure t) {
+        if (!t.timePassedBeforePickup()) {
             p.sendMessage(Messages.get("minutes-before-pickup-not-passed").replace("{time}",
                     Utils.formatRemainingTime(t.getTreasureData().getMilliesBeforePickup() - t.getHunt().getElapsedTime())));
             Utils.sendBreakSound(p);
@@ -168,8 +153,7 @@ public class TreasureEvents implements Listener {
         return true;
     }
 
-    private void sendMobsNotCleared(Player p)
-    {
+    private void sendMobsNotCleared(Player p) {
         for (String s : Messages.getAndFormatList("messages.need-to-kill-all-mobs")) {
             p.sendMessage(s);
         }
@@ -178,36 +162,26 @@ public class TreasureEvents implements Listener {
         Utils.sendBreakSound(p);
     }
 
-    private void sendTreasureUnlocked(Player p)
-    {
+    private void sendTreasureUnlocked(Player p) {
         for (String s : Messages.getAndFormatList("messages.unlocked-treasure")) {
             p.sendMessage(s);
         }
     }
 
-    private void awardAndRemove(Player p, Treasure t)
-    {
+    private void awardAndRemove(Player p, Treasure t) {
         if (t.getTreasureData().rewardAllPlayersWhoParticipated()) {
             t.awardPrizes();
-        }
-        else if(t.getTreasureData().rewardMostDamageGiven())
-        {
+        } else if (t.getTreasureData().rewardMostDamageGiven()) {
 
-            if(t.wereTreasureKeepersDamaged())
-            {
+            if (t.wereTreasureKeepersDamaged()) {
                 t.awardPrize(t.getPlayerWithMostDamage());
-            }
-            else
-            {
+            } else {
                 t.awardPrize(p);
             }
 
-        }
-        else if(t.getTreasureData().shouldOnlyRewardTopX())
-        {
+        } else if (t.getTreasureData().shouldOnlyRewardTopX()) {
             t.awardPrizesToTop(t.getTreasureData().getRewardTopX());
-        }
-        else {
+        } else {
             t.awardPrize(p);
         }
 
@@ -216,18 +190,15 @@ public class TreasureEvents implements Listener {
 
     }
 
-    private void rewardHandler(Player p, Treasure t)
-    {
-        if(t.getTreasureData().canOpenChest()) {
+    private void rewardHandler(Player p, Treasure t) {
+        if (t.getTreasureData().canOpenChest()) {
 
-            if(t.getRewardInventory().getViewers().size() >= Settings.getMaxPlayersLooting())
-            {
+            if (t.getRewardInventory().getViewers().size() >= Settings.getMaxPlayersLooting()) {
                 p.sendMessage(Messages.get("max-players-looting"));
                 return;
             }
 
-            if(Utils.hasFullInventory(p))
-            {
+            if (Utils.hasFullInventory(p)) {
                 p.sendMessage(Messages.get("full-inventory-opening-treasure"));
                 return;
             }
@@ -237,27 +208,22 @@ public class TreasureEvents implements Listener {
                 return;
             }
 
-            if(t.isFirstOpen())
-            {
+            if (t.isFirstOpen()) {
                 t.announceWinner(p);
                 t.setFirstOpen(false);
             }
 
-            if(!t.receivedCommandRewards(p))
-            {
+            if (!t.receivedCommandRewards(p)) {
                 t.runCommandPrizes(p);
             }
 
             p.openInventory(t.getRewardInventory());
-        }
-        else
-        {
+        } else {
             awardAndRemove(p, t);
         }
     }
 
-    private void openTreasure(Player p, Treasure t)
-    {
+    private void openTreasure(Player p, Treasure t) {
 
         if (t.isLocked()) {
             Utils.substractItem(p, t.getTreasureData().getTreasureKey().getItemStack(1), 1);
@@ -342,12 +308,10 @@ public class TreasureEvents implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent e) {
 
-        if(e.getEntity() instanceof Player)
-        {
+        if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
 
-            if(Treasure.isNearTreasure(p))
-            {
+            if (Treasure.isNearTreasure(p)) {
                 p.closeInventory();
             }
 
@@ -401,7 +365,7 @@ public class TreasureEvents implements Listener {
                     if (TreasureKeeper.isTreasureKeeper(victim)) {
 
                         Hunt h = TreasureKeeper.getHunt(victim);
-                        if(h == null) return;
+                        if (h == null) return;
 
                         Treasure t = h.getTreasure();
                         if (t == null) return;
@@ -431,10 +395,9 @@ public class TreasureEvents implements Listener {
         if (e.getDamager() instanceof Projectile) {
 
             Projectile projectile = (Projectile) e.getDamager();
-            if(projectile.getShooter() == null) return;
+            if (projectile.getShooter() == null) return;
 
-            if(projectile.getShooter() instanceof Player)
-            {
+            if (projectile.getShooter() instanceof Player) {
 
                 Player p = (Player) projectile.getShooter();
 
@@ -468,7 +431,7 @@ public class TreasureEvents implements Listener {
 
                             Hunt h = TreasureKeeper.getHunt(victim);
 
-                            if(h == null) return;
+                            if (h == null) return;
                             Treasure t = h.getTreasure();
                             if (t == null) return;
 
@@ -504,8 +467,7 @@ public class TreasureEvents implements Listener {
 
         if (e.getTo() == null) return;
 
-        if (Hunt.huntActiveInWorld(e.getPlayer().getWorld()))
-        {
+        if (Hunt.huntActiveInWorld(e.getPlayer().getWorld())) {
 
             if (e.getFrom().getX() != e.getTo().getX() || e.getFrom().getZ() != e.getTo().getZ()) {
 
@@ -513,7 +475,7 @@ public class TreasureEvents implements Listener {
 
                     if (e.getPlayer().isFlying() && !e.getPlayer().hasPermission("mystictreasures.bypass")) {
 
-                        if(!Settings.getBoolean("allow-flight-near-treasure")) {
+                        if (!Settings.getBoolean("allow-flight-near-treasure")) {
 
                             e.getPlayer().setFlying(false);
                             e.getPlayer().setAllowFlight(false);
@@ -526,17 +488,16 @@ public class TreasureEvents implements Listener {
 
                     if (e.getPlayer().isInvulnerable() && !e.getPlayer().hasPermission("mystictreasures.bypass")) {
 
-                        if(!Settings.getBoolean("allow-god-near-treasure")) {
+                        if (!Settings.getBoolean("allow-god-near-treasure")) {
 
                             e.getPlayer().setInvulnerable(false);
 
                         }
                     }
 
-                    if(e.getPlayer().isGliding() && !e.getPlayer().hasPermission("mystictreasures.bypass"))
-                    {
+                    if (e.getPlayer().isGliding() && !e.getPlayer().hasPermission("mystictreasures.bypass")) {
 
-                        if(!Settings.getBoolean("allow-elytra-near-treasure")) {
+                        if (!Settings.getBoolean("allow-elytra-near-treasure")) {
 
                             e.getPlayer().setGliding(false);
                             e.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
@@ -556,14 +517,13 @@ public class TreasureEvents implements Listener {
     }
 
     @EventHandler
-    public void onCommand(PlayerCommandPreprocessEvent e)
-    {
+    public void onCommand(PlayerCommandPreprocessEvent e) {
 
         Player p = e.getPlayer();
 
-        if(p.hasPermission("mystictreasures.bypass")) return;
+        if (p.hasPermission("mystictreasures.bypass")) return;
 
-        if(Treasure.isNearTreasure(p)) {
+        if (Treasure.isNearTreasure(p)) {
 
             String[] words = e.getMessage().split(" ");
             String command = words[0].trim().toLowerCase().substring(1);
@@ -600,8 +560,7 @@ public class TreasureEvents implements Listener {
                     p.sendMessage(" - On ground: " + as.isOnGround());
                     p.sendMessage(" - Velocity: " + as.getVelocity());
 
-                    if(Utils.isPaper())
-                    {
+                    if (Utils.isPaper()) {
                         p.sendMessage(" - Physics: " + as.hasNoPhysics());
                         p.sendMessage(" - Can move: " + as.canMove());
                         p.sendMessage(" - Can tick: " + as.canMove());
@@ -610,7 +569,7 @@ public class TreasureEvents implements Listener {
                     p.sendMessage(" ");
                     p.sendMessage(" *The ArmorStand will be removed in 1 minute");
 
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, ()->
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
                     {
                         as.remove();
                     }, 1200);
@@ -626,10 +585,9 @@ public class TreasureEvents implements Listener {
     @EventHandler
     public void onCombust(EntityCombustEvent e) {
 
-        if(Hunt.huntActiveInWorld(e.getEntity().getWorld())) {
+        if (Hunt.huntActiveInWorld(e.getEntity().getWorld())) {
 
-            if(e.getEntity() instanceof LivingEntity)
-            {
+            if (e.getEntity() instanceof LivingEntity) {
 
                 LivingEntity en = (LivingEntity) e.getEntity();
 
@@ -652,18 +610,15 @@ public class TreasureEvents implements Listener {
 
                     }
 
-                }
-                catch (NoSuchMethodError err)
-                {
+                } catch (NoSuchMethodError err) {
                 }
 
 
-
-                if(TreasureKeeper.isTreasureKeeper(en)) {
+                if (TreasureKeeper.isTreasureKeeper(en)) {
 
                     boolean combust = Settings.getBoolean("protect-mobs-from-sun");
 
-                    if(combust) {
+                    if (combust) {
 
                         e.setCancelled(true);
                         en.setFireTicks(0);
@@ -679,45 +634,39 @@ public class TreasureEvents implements Listener {
     }
 
     @EventHandler
-    public void onDeath(EntityDeathEvent e)
-    {
+    public void onDeath(EntityDeathEvent e) {
 
-        if(TreasureKeeper.isTreasureKeeper(e.getEntity()))
-        {
+        if (TreasureKeeper.isTreasureKeeper(e.getEntity())) {
 
-                LivingEntity entity = e.getEntity();
-                Hunt h = TreasureKeeper.getHunt(entity);
+            LivingEntity entity = e.getEntity();
+            Hunt h = TreasureKeeper.getHunt(entity);
 
-                if(h == null)
-                {
-                    plugin.getLogger().warning("Entity drops couldn't be handled - the hunt is null");
-                    return;
-                }
+            if (h == null) {
+                plugin.getLogger().warning("Entity drops couldn't be handled - the hunt is null");
+                return;
+            }
 
-                TreasureKeeper t = h.getTreasure().getTreasureKeeper(entity);
-                if(t == null) return;
+            TreasureKeeper t = h.getTreasure().getTreasureKeeper(entity);
+            if (t == null) return;
 
-                TreasureKeeperDrops d = t.getDrops();
-                e.getDrops().clear();
+            TreasureKeeperDrops d = t.getDrops();
+            e.getDrops().clear();
 
-                for(TreasureKeeperDrops.DropData data : d.getAllDrops().values())
-                {
+            for (TreasureKeeperDrops.DropData data : d.getAllDrops().values()) {
 
-                    if(Utils.chance() < data.getChance())
-                    {
-                        Item i = entity.getWorld().dropItemNaturally(entity.getLocation(), data.getItemStack());
+                if (Utils.chance() < data.getChance()) {
+                    Item i = entity.getWorld().dropItemNaturally(entity.getLocation(), data.getItemStack());
 
-                        if(!data.getName().equalsIgnoreCase("none"))
-                        {
-                            i.setCustomName(Utils.format(data.getName()));
-                            i.setCustomNameVisible(true);
-                        }
-
+                    if (!data.getName().equalsIgnoreCase("none")) {
+                        i.setCustomName(Utils.format(data.getName()));
+                        i.setCustomNameVisible(true);
                     }
 
                 }
 
             }
+
+        }
 
     }
 
@@ -763,11 +712,9 @@ public class TreasureEvents implements Listener {
                 e.setCancelled(true);
             }
 
-            if(title.equals(Messages.get("treasure-reward-menu-title")))
-            {
+            if (title.equals(Messages.get("treasure-reward-menu-title"))) {
 
-                if(System.currentTimeMillis() - inventoryClickCooldown.getOrDefault(p, 0L) < Settings.getInventoryClickCooldown())
-                {
+                if (System.currentTimeMillis() - inventoryClickCooldown.getOrDefault(p, 0L) < Settings.getInventoryClickCooldown()) {
                     p.sendMessage(Messages.get("clicking-too-fast"));
                     e.setCancelled(true);
                     return;
@@ -787,7 +734,7 @@ public class TreasureEvents implements Listener {
                 boolean isTaking = actionName.startsWith("PICKUP") || actionName.equals("MOVE_TO_OTHER_INVENTORY");
 
                 if (!isTaking && clickedInventory.equals(topInventory)) {
-                   e.setCancelled(true);
+                    e.setCancelled(true);
                 }
 
                 boolean isShiftClickIntoTop = actionName.equals("MOVE_TO_OTHER_INVENTORY") && e.getRawSlot() >= 54;
@@ -807,11 +754,11 @@ public class TreasureEvents implements Listener {
     /**
      * Handler for interaction with the treasure in oreder to generalize this interaction
      * with external plugins too.
+     *
      * @param o the location of the block or entity that the player interacts with
      * @return true or false depending if the interaction was actually with a treasure or not
      */
-    public boolean handleInteraction(Player p, Location o)
-    {
+    public boolean handleInteraction(Player p, Location o) {
         if (o == null || o.getWorld() == null) return false;
         Location l = new Location(o.getWorld(), o.getBlockX(), o.getBlockY(), o.getBlockZ());
 
@@ -872,8 +819,7 @@ public class TreasureEvents implements Listener {
 
         }
 
-        if(TreasureKey.isKey(e.getPlayer().getInventory().getItemInMainHand()))
-        {
+        if (TreasureKey.isKey(e.getPlayer().getInventory().getItemInMainHand())) {
             e.getPlayer().sendMessage(Messages.get("interact-with-key"));
             e.setCancelled(true);
         }
@@ -898,12 +844,12 @@ public class TreasureEvents implements Listener {
 
             if (claimEvent.isCancelled()) return;
 
-            if(isCreative(p)) return;
+            if (isCreative(p)) return;
 
-            if(disableBreakToAward(p, t)) return;
-            if(hasCooldown(p)) return;
-            if(!canTreasureBeOpened(p, t)) return;
-            if(!hasKey(p, t)) return;
+            if (disableBreakToAward(p, t)) return;
+            if (hasCooldown(p)) return;
+            if (!canTreasureBeOpened(p, t)) return;
+            if (!hasKey(p, t)) return;
 
             openTreasure(p, t);
 

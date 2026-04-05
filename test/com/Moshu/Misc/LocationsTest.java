@@ -39,7 +39,7 @@ public class LocationsTest {
     public void testDistanceSquaredToDifferentWorlds() {
         World world1 = Mockito.mock(World.class);
         when(world1.getName()).thenReturn("world1");
-        
+
         World world2 = Mockito.mock(World.class);
         when(world2.getName()).thenReturn("world2");
 
@@ -53,7 +53,7 @@ public class LocationsTest {
     public void testIsInBorderVanilla() {
         World world = Mockito.mock(World.class);
         when(world.getName()).thenReturn("world");
-        
+
         WorldBorder border = Mockito.mock(WorldBorder.class);
         when(border.getSize()).thenReturn(200.0); // Size is diameter, so radius is 100
         when(world.getWorldBorder()).thenReturn(border);
@@ -63,7 +63,7 @@ public class LocationsTest {
 
         // Inside border (radius 100 - 10 safety = 90)
         assertTrue(Locations.isInBorder(new Location(world, 50, 64, 50), maxTreasureDistance));
-        
+
         // Outside border
         assertFalse(Locations.isInBorder(new Location(world, 150, 64, 150), maxTreasureDistance));
     }

@@ -6,6 +6,7 @@ import com.Moshu.TreasureHunt.Components.Keepers.TreasureKeeper;
 import com.Moshu.TreasureHunt.Components.Rewards.CommandReward;
 import com.Moshu.TreasureHunt.Components.Rewards.ItemReward;
 import com.Moshu.TreasureHunt.Components.TreasureData;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,7 +15,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -25,8 +25,7 @@ public class TreasureMenu implements Listener {
 
     private static final HashMap<Player, TreasureData> treasureData = new HashMap<>();
 
-    private static ArrayList<String> applyPlaceholders(ArrayList<String> lore, TreasureData d)
-    {
+    private static ArrayList<String> applyPlaceholders(ArrayList<String> lore, TreasureData d) {
         ArrayList<String> newList = new ArrayList<>();
 
         int treasureKeepers = d.getTreasureKeepers().size();
@@ -39,8 +38,7 @@ public class TreasureMenu implements Listener {
         String world = d.getWorldName();
         String requiresKey = d.getTreasureKey().requiresKey() ? yes : no;
 
-        for(String s : lore)
-        {
+        for (String s : lore) {
 
             newList.add(s.replace("{keepers}", treasureKeepers + "")
                     .replace("{rewards}", rewards + "")
@@ -55,12 +53,10 @@ public class TreasureMenu implements Listener {
         return newList;
     }
 
-    private static ArrayList<String> applyPlaceholdersToItemRewards(ArrayList<String> lore, ItemReward i)
-    {
+    private static ArrayList<String> applyPlaceholdersToItemRewards(ArrayList<String> lore, ItemReward i) {
         ArrayList<String> newList = new ArrayList<>();
 
-        for(String s : lore)
-        {
+        for (String s : lore) {
 
             newList.add(s.replace("{item}", Utils.setCapitals(Utils.format(i.getName())))
                     .replace("{amount}", i.getRange())
@@ -71,12 +67,10 @@ public class TreasureMenu implements Listener {
         return newList;
     }
 
-    private static ArrayList<String> applyPlaceholdersToCommandRewards(ArrayList<String> lore, CommandReward i)
-    {
+    private static ArrayList<String> applyPlaceholdersToCommandRewards(ArrayList<String> lore, CommandReward i) {
         ArrayList<String> newList = new ArrayList<>();
 
-        for(String s : lore)
-        {
+        for (String s : lore) {
 
             newList.add(s.replace("{command}", i.getCommand())
                     .replace("{chance}", i.getChance() + "%"));
@@ -86,8 +80,7 @@ public class TreasureMenu implements Listener {
         return newList;
     }
 
-    private static ArrayList<String> applyPlaceholdersToTreasureKeepers(ArrayList<String> lore, TreasureKeeper i)
-    {
+    private static ArrayList<String> applyPlaceholdersToTreasureKeepers(ArrayList<String> lore, TreasureKeeper i) {
         ArrayList<String> newList = new ArrayList<>();
 
         String yes = Messages.get("menu-yes");
@@ -96,16 +89,15 @@ public class TreasureMenu implements Listener {
         String entity = i.isMythicMob() ? i.getMobId() : i.getEntityType().name();
         String mythic = i.isMythicMob() ? yes : no;
 
-        for(String s : lore)
-        {
+        for (String s : lore) {
 
             newList.add(s.replace("{entity}", Utils.setCapitals(entity.toLowerCase()
                             .replace("_", " ")))
-                            .replace("{mythic}", mythic)
-                            .replace("{buffed}", i.getPotionEffects().isEmpty() ? no : yes)
-                            .replace("{range}", i.getRange())
-                            .replace("{health}", i.getMaxHealth() + "")
-                    );
+                    .replace("{mythic}", mythic)
+                    .replace("{buffed}", i.getPotionEffects().isEmpty() ? no : yes)
+                    .replace("{range}", i.getRange())
+                    .replace("{health}", i.getMaxHealth() + "")
+            );
 
 
         }
@@ -113,20 +105,18 @@ public class TreasureMenu implements Listener {
         return newList;
     }
 
-    public static void showcase(Player p)
-    {
+    public static void showcase(Player p) {
 
         Inventory inv = Bukkit.createInventory(null, 27, Messages.get("showcase-hunts-menu.title"));
         ItemMeta im;
 
         String name = Utils.format(Messages.get("showcase-hunts-menu.name"));
 
-        for(TreasureData d : TreasureData.getTreasureData())
-        {
+        for (TreasureData d : TreasureData.getTreasureData()) {
             ItemStack is = Utils.checkMaterial(d.getMenuItem());
             im = is.getItemMeta();
 
-            if(im == null) continue;
+            if (im == null) continue;
 
             im.setDisplayName(Utils.format(name.replace("{treasure_name}", d.getTreasureName())));
 
@@ -143,10 +133,9 @@ public class TreasureMenu implements Listener {
 
     }
 
-    public static void keyMenu(Player p, TreasureData d)
-    {
+    public static void keyMenu(Player p, TreasureData d) {
 
-        if(!d.getTreasureKey().requiresKey()) return;
+        if (!d.getTreasureKey().requiresKey()) return;
 
         Inventory inv = Bukkit.createInventory(null, 54, Messages.get("showcase-key-menu-title"));
         ItemStack is = d.getTreasureKey().getItemStack(1);
@@ -186,8 +175,7 @@ public class TreasureMenu implements Listener {
 
         for (ItemReward i : data.getItemRewards().subList(0, Math.min(data.getItemRewards().size(), 46))) {
 
-            if(i.isOraxen() || i.isNexo() || i.isItemsAdder() || i.isMMOItem())
-            {
+            if (i.isOraxen() || i.isNexo() || i.isItemsAdder() || i.isMMOItem()) {
                 inv.addItem(i.getItemStack());
                 continue;
             }
@@ -237,15 +225,14 @@ public class TreasureMenu implements Listener {
         keepers.setItemMeta(keepersMeta);
         inv.setItem(50, keepers);
 
-        if(data.getTreasureKey().requiresKey())
-        {
+        if (data.getTreasureKey().requiresKey()) {
             ItemStack key = new ItemStack(Utils.checkMaterial(Messages.get("showcase-hunts-menu.other-buttons.key.item")));
             ItemMeta keyMeta = key.getItemMeta();
             keyMeta.setDisplayName(Utils.format(Messages.get("showcase-hunts-menu.other-buttons.key.name")));
             key.setItemMeta(keyMeta);
             inv.setItem(48, key);
         }
-        
+
         Utils.fillWithGlass(inv);
         p.openInventory(inv);
 
@@ -291,8 +278,7 @@ public class TreasureMenu implements Listener {
         rewards.setItemMeta(rewardsMeta);
         inv.setItem(48, rewards);
 
-        if(data.getTreasureKey().requiresKey())
-        {
+        if (data.getTreasureKey().requiresKey()) {
             ItemStack key = new ItemStack(Utils.checkMaterial(Messages.get("showcase-hunts-menu.other-buttons.key.item")));
             ItemMeta keyMeta = key.getItemMeta();
             keyMeta.setDisplayName(Utils.format(Messages.get("showcase-hunts-menu.other-buttons.key.name")));
@@ -324,62 +310,50 @@ public class TreasureMenu implements Listener {
                 e.setCancelled(true);
 
                 ArrayList<TreasureData> data = TreasureData.getTreasureData();
-                if(e.getSlot() >= data.size()) return;
+                if (e.getSlot() >= data.size()) return;
 
-                if(e.isLeftClick())
-                {
+                if (e.isLeftClick()) {
                     treasureData.put(p, data.get(e.getSlot()));
                     rewardMenu(data.get(e.getSlot()), p);
-                }
-                else if(e.isRightClick())
-                {
+                } else if (e.isRightClick()) {
                     treasureData.put(p, data.get(e.getSlot()));
                     keepersMenu(data.get(e.getSlot()), p);
                 }
 
-            }
-            else if(title.equals(Messages.get("showcase-rewards-menu.title")))
-            {
+            } else if (title.equals(Messages.get("showcase-rewards-menu.title"))) {
                 e.setCancelled(true);
 
-                if(!treasureData.containsKey(p) || treasureData.get(p) == null)
-                {
+                if (!treasureData.containsKey(p) || treasureData.get(p) == null) {
                     p.closeInventory();
                     return;
                 }
 
-                if(e.getSlot() == 48) keyMenu(p, treasureData.get(p));
-                if(e.getSlot() == 49) showcase(p);
-                if(e.getSlot() == 50) keepersMenu(treasureData.get(p), p);
+                if (e.getSlot() == 48) keyMenu(p, treasureData.get(p));
+                if (e.getSlot() == 49) showcase(p);
+                if (e.getSlot() == 50) keepersMenu(treasureData.get(p), p);
 
-            }
-            else if(title.equals(Messages.get("showcase-keepers-menu.title")))
-            {
+            } else if (title.equals(Messages.get("showcase-keepers-menu.title"))) {
                 e.setCancelled(true);
 
-                if(!treasureData.containsKey(p) || treasureData.get(p) == null)
-                {
+                if (!treasureData.containsKey(p) || treasureData.get(p) == null) {
                     p.closeInventory();
                     return;
                 }
 
-                if(e.getSlot() == 49) showcase(p);
-                if(e.getSlot() == 48) rewardMenu(treasureData.get(p), p);
-                if(e.getSlot() == 50) keyMenu(p, treasureData.get(p));
-            }
-            else if(title.equals(Messages.get("showcase-key-menu-title")))
-            {
+                if (e.getSlot() == 49) showcase(p);
+                if (e.getSlot() == 48) rewardMenu(treasureData.get(p), p);
+                if (e.getSlot() == 50) keyMenu(p, treasureData.get(p));
+            } else if (title.equals(Messages.get("showcase-key-menu-title"))) {
                 e.setCancelled(true);
 
-                if(!treasureData.containsKey(p) || treasureData.get(p) == null)
-                {
+                if (!treasureData.containsKey(p) || treasureData.get(p) == null) {
                     p.closeInventory();
                     return;
                 }
 
-                if(e.getSlot() == 49) showcase(p);
-                if(e.getSlot() == 48) rewardMenu(treasureData.get(p), p);
-                if(e.getSlot() == 50) keepersMenu(treasureData.get(p), p);
+                if (e.getSlot() == 49) showcase(p);
+                if (e.getSlot() == 48) rewardMenu(treasureData.get(p), p);
+                if (e.getSlot() == 50) keepersMenu(treasureData.get(p), p);
             }
 
         } catch (Exception ex) {

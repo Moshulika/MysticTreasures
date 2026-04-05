@@ -20,6 +20,7 @@ public class TreasureKeeperEquipment {
 
     /**
      * TODO: Handle null equipmentSection well
+     *
      * @param equipmentSection
      */
     public TreasureKeeperEquipment(ConfigurationSection equipmentSection) {
@@ -33,12 +34,11 @@ public class TreasureKeeperEquipment {
                 if (equipConfig != null) {
 
                     String itemStr = equipConfig.getString("item", "STONE");
-                    if(itemStr == null || itemStr.equals("none")) continue;
+                    if (itemStr == null || itemStr.equals("none")) continue;
 
-                    Material item =  Material.matchMaterial(itemStr);
+                    Material item = Material.matchMaterial(itemStr);
 
-                    if(item == null)
-                    {
+                    if (item == null) {
                         if (plugin != null) plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
                         item = Material.STONE;
                     }
@@ -46,17 +46,16 @@ public class TreasureKeeperEquipment {
                     String slot = equipConfig.getString("slot", "HAND");
                     if (slot == null) slot = "HAND";
 
-                    if(!validSlot(slot))
-                    {
+                    if (!validSlot(slot)) {
                         if (plugin != null) plugin.getLogger().warning("Equipment slot '" + slot + "' does not exist!");
                         continue;
                     }
 
                     EquipmentSlot eSlot = matchEquipmentSlot(slot);
 
-                    if(!isValidEquipment(item, eSlot))
-                    {
-                        if (plugin != null) plugin.getLogger().warning("Invalid item for slot: " + item.name() + " in " + eSlot.name());
+                    if (!isValidEquipment(item, eSlot)) {
+                        if (plugin != null)
+                            plugin.getLogger().warning("Invalid item for slot: " + item.name() + " in " + eSlot.name());
                         item = getDefaultForSlot(slot);
                     }
 
@@ -67,22 +66,18 @@ public class TreasureKeeperEquipment {
                         equipmentMap.put(key, data);
                     }
 
-                }
-                else
-                {
-                    if (plugin != null) plugin.getLogger().warning("Configuration section '" + key + "' does not exist!");
+                } else {
+                    if (plugin != null)
+                        plugin.getLogger().warning("Configuration section '" + key + "' does not exist!");
                 }
             }
 
-        }
-        else
-        {
+        } else {
             if (plugin != null) plugin.getLogger().warning("Configuration section 'equipment' does not exist!");
         }
     }
 
-    private boolean validSlot(String str)
-    {
+    private boolean validSlot(String str) {
 
         return str.equalsIgnoreCase("HEAD") || str.equalsIgnoreCase("CHEST")
                 || str.equalsIgnoreCase("LEGS") || str.equalsIgnoreCase("FEET")
@@ -90,46 +85,29 @@ public class TreasureKeeperEquipment {
 
     }
 
-    private Material getDefaultForSlot(String slot)
-    {
+    private Material getDefaultForSlot(String slot) {
 
-        if(slot.equalsIgnoreCase("HEAD"))
-        {
+        if (slot.equalsIgnoreCase("HEAD")) {
             return Material.IRON_HELMET;
-        }
-        else if(slot.equalsIgnoreCase("CHEST"))
-        {
+        } else if (slot.equalsIgnoreCase("CHEST")) {
             return Material.IRON_CHESTPLATE;
-        }
-        else if(slot.equalsIgnoreCase("LEGS"))
-        {
+        } else if (slot.equalsIgnoreCase("LEGS")) {
             return Material.IRON_LEGGINGS;
-        }
-        else if(slot.equalsIgnoreCase("FEET"))
-        {
+        } else if (slot.equalsIgnoreCase("FEET")) {
             return Material.IRON_BOOTS;
-        }
-        else if(slot.equalsIgnoreCase("HAND"))
-        {
+        } else if (slot.equalsIgnoreCase("HAND")) {
             return Material.IRON_SWORD;
-        }
-        else if(slot.equalsIgnoreCase("OFF_HAND"))
-        {
+        } else if (slot.equalsIgnoreCase("OFF_HAND")) {
             return Material.IRON_SWORD;
-        }
-        else return Material.STONE;
+        } else return Material.STONE;
 
     }
 
-    private EquipmentSlot matchEquipmentSlot(String slot)
-    {
+    private EquipmentSlot matchEquipmentSlot(String slot) {
 
-        try
-        {
+        try {
             return EquipmentSlot.valueOf(slot.toUpperCase());
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             if (plugin != null) plugin.getLogger().warning("Equipment slot " + slot + " does not exist!");
             return EquipmentSlot.HAND;
         }
@@ -216,8 +194,7 @@ public class TreasureKeeperEquipment {
             return enchantments;
         }
 
-        public ItemStack getItemStack()
-        {
+        public ItemStack getItemStack() {
 
             ItemStack itemStack = new ItemStack(item);
             return Utils.addEnchants(itemStack, enchantments);

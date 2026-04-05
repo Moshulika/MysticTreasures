@@ -14,8 +14,8 @@ import com.nexomc.nexo.api.NexoFurniture;
 import dev.lone.itemsadder.api.CustomBlock;
 import dev.lone.itemsadder.api.CustomEntity;
 import dev.lone.itemsadder.api.CustomFurniture;
-import io.th0rgal.oraxen.api.OraxenFurniture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.th0rgal.oraxen.api.OraxenFurniture;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
@@ -34,10 +34,10 @@ import java.util.logging.Level;
  * Represents the configuration data for a treasure hunt.
  * This class contains all the settings and properties that define how a treasure hunt behaves,
  * including spawn conditions, rewards, keepers, and various gameplay mechanics.
- * 
+ * <p>
  * TreasureData objects are loaded from configuration files and used to create
  * Treasure instances when hunts are initiated.
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
@@ -47,8 +47,7 @@ public class TreasureData {
      * Enumeration of different treasure types supported by the plugin.
      * Defines the various ways treasures can be implemented and spawned.
      */
-    public enum TreasureType
-    {
+    public enum TreasureType {
 
         VANILLA,
         ITEMSADDER_ENTITY,
@@ -121,26 +120,22 @@ public class TreasureData {
 
     private TreasureRoundRegistry roundRegistry;
 
-    public static void load()
-    {
+    public static void load() {
         FileHandler h = FileHandler.getInstance();
         treasureData = h.setup();
 
         fetchTreasuresIdentifiers();
     }
 
-    public static void reload()
-    {
+    public static void reload() {
         FileHandler h = FileHandler.getInstance();
         treasureData = h.reload();
 
         fetchTreasuresIdentifiers();
     }
 
-    private static void fetchTreasuresIdentifiers()
-    {
-        for(TreasureData d : getTreasureData())
-        {
+    private static void fetchTreasuresIdentifiers() {
+        for (TreasureData d : getTreasureData()) {
             String id = d.getIdentifier();
             if (id != null) {
                 treasureIdentifiers.add(id);
@@ -149,26 +144,25 @@ public class TreasureData {
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public TreasureRoundRegistry getRoundRegistry() { return roundRegistry; }
+    public TreasureRoundRegistry getRoundRegistry() {
+        return roundRegistry;
+    }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
     public ConfigurationSection getDefaultSection() {
         return defaultSection;
     }
 
-    public String getTreasureBlockString()
-    {
+    public String getTreasureBlockString() {
         return this.treasureBlockString;
     }
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public static List<String> getTreasureIdentifiers()
-    {
+    public static List<String> getTreasureIdentifiers() {
         return Collections.unmodifiableList(treasureIdentifiers);
     }
 
-    public static synchronized ArrayList<TreasureData> getTreasureData()
-    {
+    public static synchronized ArrayList<TreasureData> getTreasureData() {
         // Always return a non-null, mutable list to simplify callers and avoid NPEs in tests
         if (treasureData == null) {
             treasureData = new ArrayList<>();
@@ -176,49 +170,44 @@ public class TreasureData {
         return treasureData;
     }
 
-    public List<TreasureScheduler> getOwnTreasureSchedulers()
-    {
+    public List<TreasureScheduler> getOwnTreasureSchedulers() {
         return Collections.unmodifiableList(ownTreasureSchedulers);
     }
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public static List<TreasureScheduler> getAllTreasureSchedulers()
-    {
+    public static List<TreasureScheduler> getAllTreasureSchedulers() {
         return Collections.unmodifiableList(allTreasureSchedulers);
     }
 
-    public boolean canOpenChest()
-    {
+    public boolean canOpenChest() {
         return openChest;
     }
 
-    public int getCooldownBetweenClicks()
-    {
+    public int getCooldownBetweenClicks() {
         return cooldownBetweenClicks;
     }
 
-    public String getMenuItem()
-    {
+    public String getMenuItem() {
         return menuItem;
     }
 
-    public boolean isSpawnsInside() { return spawnsInside; }
+    public boolean isSpawnsInside() {
+        return spawnsInside;
+    }
 
-    public int getRewardTopX() { return rewardTopX; }
+    public int getRewardTopX() {
+        return rewardTopX;
+    }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public TreasureDebuff getDebuff()
-    {
+    public TreasureDebuff getDebuff() {
         return debuff;
     }
 
-    public static TreasureData getByIdentifier(String id)
-    {
+    public static TreasureData getByIdentifier(String id) {
 
-        for(TreasureData d : getTreasureData())
-        {
-            if(d.getIdentifier().equals(id))
-            {
+        for (TreasureData d : getTreasureData()) {
+            if (d.getIdentifier().equals(id)) {
                 return d;
             }
         }
@@ -227,13 +216,11 @@ public class TreasureData {
 
     }
 
-    public boolean shouldOnlyRewardTopX()
-    {
+    public boolean shouldOnlyRewardTopX() {
         return rewardTopX > 0;
     }
 
-    public boolean rewardMostDamageGiven()
-    {
+    public boolean rewardMostDamageGiven() {
         return this.rewardMostDamageGiven;
     }
 
@@ -241,8 +228,7 @@ public class TreasureData {
         return identifier;
     }
 
-    public void setIdentifier(String identifier)
-    {
+    public void setIdentifier(String identifier) {
         this.identifier = identifier;
     }
 
@@ -263,23 +249,19 @@ public class TreasureData {
         return Collections.unmodifiableList(commandRewards);
     }
 
-    public TreasureType getTreasureType()
-    {
+    public TreasureType getTreasureType() {
         return treasureType;
     }
 
-    public void setTreasureType(TreasureType type)
-    {
+    public void setTreasureType(TreasureType type) {
         this.treasureType = type;
     }
 
-    public World getWorld()
-    {
-        return Bukkit.getWorld(worldName) == null ?  Bukkit.getWorlds().get(0) : Bukkit.getWorld(worldName);
+    public World getWorld() {
+        return Bukkit.getWorld(worldName) == null ? Bukkit.getWorlds().get(0) : Bukkit.getWorld(worldName);
     }
 
-    private TreasureType fetchTreasureBlockType()
-    {
+    private TreasureType fetchTreasureBlockType() {
 
         String name = treasureBlockString;
         boolean itemsAdder = Utils.isEnabled("ItemsAdder");
@@ -315,9 +297,7 @@ public class TreasureData {
                 return TreasureType.VANILLA;
             }
 
-        }
-        else if(oraxen)
-        {
+        } else if (oraxen) {
 
             try {
 
@@ -335,20 +315,15 @@ public class TreasureData {
                 return TreasureType.VANILLA;
             }
 
-        }
-        else if(nexo)
-        {
+        } else if (nexo) {
 
             try {
 
                 if (NexoFurniture.isFurniture(name)) {
                     return TreasureType.NEXO_FURNITURE;
-                }
-                else if(NexoBlocks.isCustomBlock(name))
-                {
+                } else if (NexoBlocks.isCustomBlock(name)) {
                     return TreasureType.NEXO_BLOCK;
-                }
-                else {
+                } else {
                     return TreasureType.VANILLA;
                 }
 
@@ -360,36 +335,31 @@ public class TreasureData {
                 return TreasureType.VANILLA;
             }
 
-        }
-        else return TreasureType.VANILLA;
+        } else return TreasureType.VANILLA;
 
     }
 
-    private int getAmountFromRange(String s)
-    {
+    private int getAmountFromRange(String s) {
 
         String[] arr = s.split("-");
-        if(arr.length == 0) return 0;
+        if (arr.length == 0) return 0;
 
-        for(String x : arr)
-        {
-            if(!Utils.isInt(x))
-            {
+        for (String x : arr) {
+            if (!Utils.isInt(x)) {
                 plugin.getLogger().warning("Invalid amount of item-reward: " + x);
             }
         }
 
-        if(arr.length == 1) return Integer.parseInt(arr[0]);
+        if (arr.length == 1) return Integer.parseInt(arr[0]);
         else return Utils.randInt(Integer.parseInt(arr[0]), Integer.parseInt(arr[1]));
 
     }
 
 
-    private ArrayList<PotionEffect> deserializeEffects(List<String> potionEffects)
-    {
+    private ArrayList<PotionEffect> deserializeEffects(List<String> potionEffects) {
 
         ArrayList<PotionEffect> potionEffectsList = new ArrayList<>();
-        if(potionEffects.isEmpty()) return potionEffectsList;
+        if (potionEffects.isEmpty()) return potionEffectsList;
 
 
         PotionEffectType t;
@@ -398,32 +368,28 @@ public class TreasureData {
         String name;
         int level;
 
-        for(String s : potionEffects)
-        {
+        for (String s : potionEffects) {
 
-            if(s.isEmpty()) continue;
+            if (s.isEmpty()) continue;
 
             arr = s.split(":");
 
-            if(arr.length != 2)
-            {
+            if (arr.length != 2) {
                 plugin.getLogger().warning("Invalid potion effect: " + s);
                 continue;
             }
 
-            if(!Utils.isInt(arr[1]))
-            {
+            if (!Utils.isInt(arr[1])) {
                 plugin.getLogger().warning("Invalid potion effect: " + s);
                 continue;
             }
 
-            name =  arr[0];
+            name = arr[0];
             level = Integer.parseInt(arr[1]);
 
             t = PotionEffectType.getByName(name);
 
-            if(t == null)
-            {
+            if (t == null) {
                 plugin.getLogger().warning("Invalid potion effect: " + s);
                 continue;
             }
@@ -436,11 +402,10 @@ public class TreasureData {
         return potionEffectsList;
     }
 
-    private ArrayList<PotionEffect> deserializeEffectsWithDuration(List<String> potionEffects)
-    {
+    private ArrayList<PotionEffect> deserializeEffectsWithDuration(List<String> potionEffects) {
 
         ArrayList<PotionEffect> potionEffectsList = new ArrayList<>();
-        if(potionEffects.isEmpty()) return potionEffectsList;
+        if (potionEffects.isEmpty()) return potionEffectsList;
 
         PotionEffectType t;
 
@@ -449,23 +414,20 @@ public class TreasureData {
         int level;
         int duration;
 
-        for(String s : potionEffects)
-        {
+        for (String s : potionEffects) {
 
-            if(s.isEmpty()) continue;
+            if (s.isEmpty()) continue;
 
             arr = s.split(":");
 
-            if(arr.length != 3)
-            {
+            if (arr.length != 3) {
                 plugin.getLogger().warning("Invalid potion effect: " + s);
                 continue;
             }
 
-            name =  arr[0];
+            name = arr[0];
 
-            if(!Utils.isInt(arr[1]) || !Utils.isInt(arr[2]))
-            {
+            if (!Utils.isInt(arr[1]) || !Utils.isInt(arr[2])) {
                 plugin.getLogger().warning("Invalid potion effect: " + s);
                 continue;
             }
@@ -475,8 +437,7 @@ public class TreasureData {
 
             t = PotionEffectType.getByName(name);
 
-            if(t == null)
-            {
+            if (t == null) {
                 plugin.getLogger().warning("Invalid potion effect: " + s);
                 continue;
             }
@@ -492,19 +453,17 @@ public class TreasureData {
     /**
      * Does not check if the coords are in the border.
      * User's responsability for now
+     *
      * @param s the encoded string
      * @return if the coords are valid integers
      */
-    private boolean validCoords(String s)
-    {
+    private boolean validCoords(String s) {
 
         String[] arr = s.split(":");
 
-        for(String x : arr)
-        {
+        for (String x : arr) {
 
-            if(!Utils.isInt(x))
-            {
+            if (!Utils.isInt(x)) {
                 plugin.getLogger().warning("Invalid location: " + s);
                 return false;
             }
@@ -515,13 +474,11 @@ public class TreasureData {
 
     }
 
-    private ArrayList<Location> deserializeLocations(List<String> coords)
-    {
+    private ArrayList<Location> deserializeLocations(List<String> coords) {
 
         ArrayList<Location> locations = new ArrayList<>();
 
-        if(Bukkit.getWorld(getWorldName()) == null)
-        {
+        if (Bukkit.getWorld(getWorldName()) == null) {
             plugin.getLogger().warning("World '" + getWorldName() + "' does not exist!");
             return locations;
         }
@@ -530,11 +487,9 @@ public class TreasureData {
         int x, y, z;
         World w = Bukkit.getWorld(getWorldName());
 
-        for(String c : coords)
-        {
+        for (String c : coords) {
 
-            if(validCoords(c))
-            {
+            if (validCoords(c)) {
                 arr = c.split(":");
                 x = Integer.parseInt(arr[0]);
                 y = Integer.parseInt(arr[1]);
@@ -552,8 +507,7 @@ public class TreasureData {
     /**
      * Backward compatibility with ex-settings
      */
-    private void parseAwardMethod()
-    {
+    private void parseAwardMethod() {
 
         awardMethod = Treasure.AwardMethod.fromString(awardMethodString);
 
@@ -583,18 +537,15 @@ public class TreasureData {
                 this.openChest = true;
             }
 
-            case ALL_PLAYERS:
-            {
+            case ALL_PLAYERS: {
                 this.rewardAllPlayersWhoParticipated = true;
             }
 
-            case HIGHEST_DAMAGE:
-            {
+            case HIGHEST_DAMAGE: {
                 this.rewardMostDamageGiven = true;
             }
 
-            case DROP_ON_GROUND:
-            {
+            case DROP_ON_GROUND: {
                 this.dropItemsOnGround = true;
             }
 
@@ -602,19 +553,17 @@ public class TreasureData {
 
     }
 
-    public void addSpawnpoint(Location loc)
-    {
+    public void addSpawnpoint(Location loc) {
 
         ArrayList<String> encoded = new ArrayList<>();
         spawnCoords.add(loc);
 
         String s;
 
-        for(Location l : spawnCoords)
-        {
+        for (Location l : spawnCoords) {
             s = l.getBlockX() + ":" + l.getBlockY() + ":" + l.getBlockZ();
 
-            if(encoded.contains(s)) continue;
+            if (encoded.contains(s)) continue;
             encoded.add(s);
         }
 
@@ -624,6 +573,7 @@ public class TreasureData {
 
     /**
      * Fetches all the data from the treasure file
+     *
      * @param defaultSection the treasure's path
      */
     @SuppressFBWarnings({"CT_CONSTRUCTOR_THROW", "EI_EXPOSE_REP2"})
@@ -679,16 +629,13 @@ public class TreasureData {
         this.roundRegistry.setRounds(defaultSection.getInt("rounds", 1));
         this.roundRegistry.load();
 
-        try
-        {
+        try {
             String particleStr = defaultSection.getString("treasure-particles", "COMPOSTER");
             this.treasureParticles = Particle.valueOf(particleStr);
 
             String flareParticle = defaultSection.getString("flare.particle", "COMPOSTER");
             this.flareParticle = Particle.valueOf(flareParticle);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             plugin.getLogger().warning("Invalid treasure particles or flare particles: " + e.getMessage());
         }
 
@@ -702,16 +649,14 @@ public class TreasureData {
         if (waypointSection != null) {
 
             this.waypoint = new TreasureWaypoint(
-              waypointSection.getBoolean("enabled", false),
-              waypointSection.getString("color", "GOLD"),
-              waypointSection.getInt("range", 1000)
+                    waypointSection.getBoolean("enabled", false),
+                    waypointSection.getString("color", "GOLD"),
+                    waypointSection.getInt("range", 1000)
             );
 
             plugin.getLogger().log(Level.INFO, "Fetched waypoint, enabled: " + waypoint.isEnabled());
 
-        }
-        else
-        {
+        } else {
             plugin.getLogger().warning("Configuration section 'waypoint' does not exist for treasure " + treasureName);
             this.waypoint = new TreasureWaypoint(false, "GOLD", 1000);
         }
@@ -734,9 +679,7 @@ public class TreasureData {
 
             plugin.getLogger().log(Level.INFO, "Fetched treasure key, enabled: " + treasureKey.requiresKey());
 
-        }
-        else
-        {
+        } else {
             plugin.getLogger().warning("Configuration section 'treasure-key' does not exist for treasure " + treasureName);
         }
 
@@ -755,9 +698,7 @@ public class TreasureData {
             plugin.getLogger().log(Level.INFO, "Fetched treasure debuff, enabled: " + debuff.isEnabled() + ", shockwave: " + debuff.isShockwave() +
                     ", respawn-mobs: " + debuff.isRespawnMobs() + ", clicks-to-debuff: " + debuff.getClicksToDebuff());
 
-        }
-        else
-        {
+        } else {
             plugin.getLogger().warning("Configuration section 'debuff' does not exist for treasure " + treasureName);
         }
 
@@ -797,9 +738,7 @@ public class TreasureData {
                     mob.setEquipment(equipment);
 
                     treasureKeepers.add(mob);
-                }
-                else
-                {
+                } else {
                     plugin.getLogger().warning("Configuration section for mob '" + mobId + "' does not exist!");
                 }
             }
@@ -838,18 +777,14 @@ public class TreasureData {
                     reward.build();
                     itemRewards.add(reward);
 
-                }
-                else
-                {
+                } else {
                     plugin.getLogger().warning("Configuration section for reward '" + rewardId + "' does not exist!");
                 }
             }
 
             plugin.getLogger().log(Level.INFO, "Fetched " + itemRewards.size() + " item rewards");
 
-        }
-        else
-        {
+        } else {
             plugin.getLogger().warning("Configuration section 'item-rewards' does not exist for treasure " + treasureName);
         }
 
@@ -873,18 +808,14 @@ public class TreasureData {
 
                     commandRewards.add(cr);
 
-                }
-                else
-                {
+                } else {
                     plugin.getLogger().warning("Configuration section for command reward '" + commandId + "' does not exist!");
                 }
             }
 
             plugin.getLogger().log(Level.INFO, "Fetched " + commandRewards.size() + " command rewards");
 
-        }
-        else
-        {
+        } else {
             plugin.getLogger().warning("Configuration section 'command-rewards' does not exist!");
         }
 
@@ -912,20 +843,16 @@ public class TreasureData {
                     ownTreasureSchedulers.add(treasureScheduler);
 
                     plugin.getLogger().log(Level.INFO, "Fetched scheduler `" + treasureScheduler.getId() + "` with settings: " + treasureScheduler.getDay()
-                    + " at " + treasureScheduler.getTime() + " @ " + treasureScheduler.getWorld() + " " + treasureScheduler.getEncodedCoords());
+                            + " at " + treasureScheduler.getTime() + " @ " + treasureScheduler.getWorld() + " " + treasureScheduler.getEncodedCoords());
 
-                }
-                else
-                {
+                } else {
                     plugin.getLogger().warning("Configuration section '" + schSection + "' does not exist!");
                 }
             }
 
             allTreasureSchedulers.addAll(ownTreasureSchedulers);
 
-        }
-        else
-        {
+        } else {
             plugin.getLogger().warning("Configuration section 'scheduler' does not exist!");
         }
 
@@ -938,10 +865,9 @@ public class TreasureData {
 
     }
 
-    public String getSanitizedRewards(int max)
-    {
+    public String getSanitizedRewards(int max) {
 
-        if(max <= 0) max = 3;
+        if (max <= 0) max = 3;
 
         StringBuilder rewards = new StringBuilder();
         List<ItemReward> rewardsList = getItemRewards();
@@ -950,8 +876,7 @@ public class TreasureData {
 
         max = Math.min(max, rewardsList.size());
 
-        for(int i = 0; i < max; i++)
-        {
+        for (int i = 0; i < max; i++) {
 
             currentReward = rewardsList.get(i);
             rewards.append(currentReward.getAmount()).append("x ").append(currentReward.getName());
@@ -963,10 +888,9 @@ public class TreasureData {
         return s.substring(0, s.length() - 2);
     }
 
-    public String getSanitizedCommandRewards(int max)
-    {
+    public String getSanitizedCommandRewards(int max) {
 
-        if(max <= 0) max = 3;
+        if (max <= 0) max = 3;
 
         StringBuilder rewards = new StringBuilder();
         List<CommandReward> rewardsList = getCommandRewards();
@@ -975,8 +899,7 @@ public class TreasureData {
 
         max = Math.min(max, rewardsList.size());
 
-        for(int i = 0; i < max; i++)
-        {
+        for (int i = 0; i < max; i++) {
 
             currentReward = rewardsList.get(i);
             rewards.append(currentReward.getIdentifier());
@@ -988,10 +911,9 @@ public class TreasureData {
         return s.substring(0, s.length() - 2);
     }
 
-    public String getSanitizedTreasureKeepers(int max)
-    {
+    public String getSanitizedTreasureKeepers(int max) {
 
-        if(max <= 0) max = 3;
+        if (max <= 0) max = 3;
 
         StringBuilder keepers = new StringBuilder();
         List<TreasureKeeper> keepersList = getTreasureKeepers();
@@ -1000,8 +922,7 @@ public class TreasureData {
 
         max = Math.min(max, keepersList.size());
 
-        for(int i = 0; i < max; i++)
-        {
+        for (int i = 0; i < max; i++) {
 
             currentKeeper = keepersList.get(i);
             keepers.append(currentKeeper.getAmount()).append("x ");
@@ -1079,8 +1000,7 @@ public class TreasureData {
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public TreasureWaypoint getWaypoint()
-    {
+    public TreasureWaypoint getWaypoint() {
         return waypoint;
     }
 
@@ -1114,13 +1034,11 @@ public class TreasureData {
         return cooldown;
     }
 
-    public int getMinutesBeforePickup()
-    {
+    public int getMinutesBeforePickup() {
         return minutesBeforePickup;
     }
 
-    public long getMilliesBeforePickup()
-    {
+    public long getMilliesBeforePickup() {
         return TimeUnit.MINUTES.toMillis(minutesBeforePickup);
     }
 

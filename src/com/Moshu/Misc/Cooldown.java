@@ -20,8 +20,7 @@ public class Cooldown {
     static Main plugin;
 
     @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
-    public Cooldown(Main plugin)
-    {
+    public Cooldown(Main plugin) {
         Cooldown.plugin = plugin;
     }
 
@@ -31,12 +30,12 @@ public class Cooldown {
 
     /**
      * Easily set cooldowns for anything
-     * @param uuid, the player's uuid
-     * @param name, the cooldown's name
+     *
+     * @param uuid,    the player's uuid
+     * @param name,    the cooldown's name
      * @param seconds, the time in seconds for the cooldown
      */
-    public Cooldown(UUID uuid, String name, int seconds)
-    {
+    public Cooldown(UUID uuid, String name, int seconds) {
         this.uuid = uuid;
         this.name = name;
         this.seconds = seconds;
@@ -46,35 +45,31 @@ public class Cooldown {
     /**
      * Sets the cooldown as active
      */
-    public void set()
-    {
-       setCooldowns(uuid, name, seconds);
+    public void set() {
+        setCooldowns(uuid, name, seconds);
     }
 
     /**
      * Checks if the player has an active cooldown of this type
+     *
      * @return true/false
      */
-    public boolean has()
-    {
+    public boolean has() {
         return hasCooldown(uuid, name);
     }
 
     /**
      * Removes the cooldown if the time ran up
      */
-    public void remove()
-    {
+    public void remove() {
 
         String code = uuid.toString() + name;
 
-        if(plugin.getCooldownsFile().get(uuid.toString()) == null)
-        {
+        if (plugin.getCooldownsFile().get(uuid.toString()) == null) {
             return;
         }
 
-        if(plugin.getCooldownsFile().get(uuid.toString() + "." + code) != null)
-        {
+        if (plugin.getCooldownsFile().get(uuid.toString() + "." + code) != null) {
             plugin.getCooldownsFile().set(uuid.toString() + "." + code, null);
         }
 
@@ -87,56 +82,48 @@ public class Cooldown {
 
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public Player getPlayer()
-    {
+    public Player getPlayer() {
         return Bukkit.getPlayer(uuid);
     }
 
-    public UUID getUUID()
-    {
+    public UUID getUUID() {
         return uuid;
     }
 
-    public int getSeconds()
-    {
+    public int getSeconds() {
         return seconds;
     }
 
-    public int getMinutes()
-    {
+    public int getMinutes() {
         return (int) TimeUnit.SECONDS.toMinutes(seconds);
     }
 
-    public int getHours()
-    {
+    public int getHours() {
         return (int) TimeUnit.SECONDS.toHours(seconds);
     }
 
-    public int getDays()
-    {
+    public int getDays() {
         return (int) TimeUnit.SECONDS.toDays(seconds);
     }
 
     /**
      * Get remaining time
+     *
      * @return remaining time in minutes
      */
-    public int remainingTime()
-    {
+    public int remainingTime() {
         return getRemainingTimeMinutes(uuid, name);
     }
 
     /**
      * Sends an error message to the player.
      */
-    public void error()
-    {
-        getPlayer().sendMessage(Utils.format( "&c&lHey! &fMai ai de asteptat &c" + remainingTime() + "&f minute."));
+    public void error() {
+        getPlayer().sendMessage(Utils.format("&c&lHey! &fMai ai de asteptat &c" + remainingTime() + "&f minute."));
         Utils.sendSound(getPlayer());
     }
 
@@ -144,13 +131,13 @@ public class Cooldown {
     /**
      * This can be used for every case, while
      * the old method works only for Kits.
-     * @param uuid player's uuid
-     * @param name cooldown name
+     *
+     * @param uuid    player's uuid
+     * @param name    cooldown name
      * @param seconds the cooldown time in seconds
      */
 
-    public static void setCooldowns(UUID uuid, String name, int seconds)
-    {
+    public static void setCooldowns(UUID uuid, String name, int seconds) {
 
         String id = uuid.toString();
         long time = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(seconds);
@@ -159,14 +146,12 @@ public class Cooldown {
 
         //cooldowns.put(code, time);
 
-        if(plugin.getCooldownsFile().get(id) == null) {
+        if (plugin.getCooldownsFile().get(id) == null) {
 
             plugin.getCooldownsFile().addDefault(id, "");
             plugin.getCooldownsFile().set(id + "." + code, time);
 
-        }
-        else
-        {
+        } else {
             plugin.getCooldownsFile().set(id + "." + code, time);
         }
 
@@ -187,22 +172,18 @@ public class Cooldown {
      * and false if he doesn't
      */
 
-    public static boolean hasCooldown(UUID uuid, String name)
-    {
+    public static boolean hasCooldown(UUID uuid, String name) {
 
         String id = uuid.toString();
         String code = id + name;
 
-        if(plugin.getCooldownsFile().get(id) == null) {
+        if (plugin.getCooldownsFile().get(id) == null) {
             return false;
         }
 
-        if(plugin.getCooldownsFile().get(id + "." + code) == null)
-        {
+        if (plugin.getCooldownsFile().get(id + "." + code) == null) {
             return false;
-        }
-        else
-        {
+        } else {
             long l = plugin.getCooldownsFile().getLong(id + "." + code);
             return System.currentTimeMillis() < l;
         }
@@ -213,17 +194,15 @@ public class Cooldown {
     /**
      *
      * @param uuid player's uuid
-     * @param kit the kit you want to get the cooldown of
+     * @param kit  the kit you want to get the cooldown of
      * @return the remaining cooldown in hours
      */
 
-    public static double getRemainingTime(UUID uuid, String kit)
-    {
+    public static double getRemainingTime(UUID uuid, String kit) {
         String code = uuid.toString() + kit;
         //return (double) TimeUnit.MILLISECONDS.toHours(cooldowns.get(code) - System.currentTimeMillis());
         return (double) TimeUnit.MILLISECONDS.toHours(plugin.getCooldownsFile().getLong(uuid + "." + code) - System.currentTimeMillis());
     }
-
 
 
     /**
@@ -233,15 +212,13 @@ public class Cooldown {
      * @return the remaining cooldown in minutes
      */
 
-    public static int getRemainingTimeMinutes(UUID uuid, String name)
-    {
+    public static int getRemainingTimeMinutes(UUID uuid, String name) {
         String code = uuid.toString() + name;
         //return (int) TimeUnit.MILLISECONDS.toMinutes(cooldowns.get(code) - System.currentTimeMillis());
         return (int) TimeUnit.MILLISECONDS.toMinutes(plugin.getCooldownsFile().getLong(uuid + "." + code) - System.currentTimeMillis());
     }
 
-    public static int getRemainingTimeSeconds(UUID uuid, String name)
-    {
+    public static int getRemainingTimeSeconds(UUID uuid, String name) {
         String code = uuid.toString() + name;
         //return (int) TimeUnit.MILLISECONDS.toMinutes(cooldowns.get(code) - System.currentTimeMillis());
         return (int) TimeUnit.MILLISECONDS.toSeconds(plugin.getCooldownsFile().getLong(uuid + "." + code) - System.currentTimeMillis());

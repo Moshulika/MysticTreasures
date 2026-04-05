@@ -7,7 +7,6 @@ import com.Moshu.Misc.Utils;
 import com.Moshu.TreasureHunt.Components.TreasureData;
 import com.Moshu.TreasureHunt.Core.Hunt;
 import com.Moshu.TreasureHunt.Core.Treasure;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -16,7 +15,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 
 public class TreasureCommands implements CommandExecutor {
 
@@ -92,29 +90,23 @@ public class TreasureCommands implements CommandExecutor {
 
                     sender.sendMessage(Messages.get("wrong-command"));
 
-                }
-                else if(args[0].equalsIgnoreCase("showcase"))
-                {
+                } else if (args[0].equalsIgnoreCase("showcase")) {
 
                     if (sender instanceof Player) {
 
                         Player p = (Player) sender;
                         TreasureMenu.showcase(p);
-                    }
-                    else
-                    {
+                    } else {
                         Utils.sendNotPlayer();
                     }
 
-                }
-                else if (args[0].equalsIgnoreCase("debug")) {
+                } else if (args[0].equalsIgnoreCase("debug")) {
 
                     if (sender instanceof Player) {
 
                         Player p = (Player) sender;
 
-                        if(!p.hasPermission("mystictreasures.admin"))
-                        {
+                        if (!p.hasPermission("mystictreasures.admin")) {
                             p.sendMessage(Messages.get("no-permission"));
                             return true;
                         }
@@ -133,18 +125,16 @@ public class TreasureCommands implements CommandExecutor {
 
                 } else if (args[0].equalsIgnoreCase("reload")) {
 
-                    if(sender instanceof Player) {
+                    if (sender instanceof Player) {
 
-                        if(!sender.hasPermission("mystictreasures.admin"))
-                        {
+                        if (!sender.hasPermission("mystictreasures.admin")) {
                             sender.sendMessage(Messages.get("no-permission"));
                             return true;
                         }
 
                     }
 
-                    if(!Hunt.getHunts().isEmpty())
-                    {
+                    if (!Hunt.getHunts().isEmpty()) {
                         sender.sendMessage(Messages.get("reload-with-hunt-active"));
                         return true;
                     }
@@ -223,12 +213,9 @@ public class TreasureCommands implements CommandExecutor {
                         h.stop();
                         sender.sendMessage(Messages.get("hunt-stopped"));
 
-                    }
-                    else if(args[1].equalsIgnoreCase("all"))
-                    {
+                    } else if (args[1].equalsIgnoreCase("all")) {
 
-                        for(Hunt h : Hunt.getActiveTreasures())
-                        {
+                        for (Hunt h : Hunt.getActiveTreasures()) {
                             h.stop();
                         }
 
@@ -298,15 +285,12 @@ public class TreasureCommands implements CommandExecutor {
                     sender.sendMessage(Messages.get("wrong-command"));
                 }
 
-            }
-            else if (args.length == 4) {
+            } else if (args.length == 4) {
 
                 if (args[0].equalsIgnoreCase("key")) {
 
-                    if(sender instanceof Player)
-                    {
-                        if(!sender.hasPermission("mystictreasures.admin"))
-                        {
+                    if (sender instanceof Player) {
+                        if (!sender.hasPermission("mystictreasures.admin")) {
                             sender.sendMessage(Messages.get("no-permission"));
                             return true;
                         }

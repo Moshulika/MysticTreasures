@@ -17,8 +17,7 @@ public class Updater implements Listener {
 
     private final Main plugin;
 
-    public Updater(Main plugin)
-    {
+    public Updater(Main plugin) {
         this.plugin = plugin;
     }
 
@@ -52,8 +51,7 @@ public class Updater implements Listener {
 
     private boolean checkUpdate() {
 
-        if(!plugin.getConfigFile().getBoolean("settings.updater", true))
-        {
+        if (!plugin.getConfigFile().getBoolean("settings.updater", true)) {
             return false;
         }
 
@@ -63,7 +61,7 @@ public class Updater implements Listener {
             String localVersion = plugin.getDescription().getVersion();
             HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_BASE + RESOURCE_ID).openConnection();
             connection.setRequestMethod("GET");
-            
+
             String raw;
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
                 raw = reader.readLine();
@@ -74,34 +72,28 @@ public class Updater implements Listener {
             }
 
             String remoteVersion;
-            if(raw.contains("-")) {
+            if (raw.contains("-")) {
                 remoteVersion = raw.split("-")[0].trim();
             } else {
                 remoteVersion = raw;
             }
 
-            if(!localVersion.equalsIgnoreCase(remoteVersion))
-            {
+            if (!localVersion.equalsIgnoreCase(remoteVersion)) {
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fAn update is ready for you:"));
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&fhttps://www.spigotmc.org/resources/mystic-treasures-animated-feature-packed-and-lightweight.118535/updates"));
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5Your version: &f" + localVersion + "&5, remote version: &f" + remoteVersion));
 
                 return true;
-            }
-            else
-            {
+            } else {
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fYour version is up to date"));
                 return false;
             }
 
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fThere was a problem checking the updates."));
             return false;
         }
     }
-
-
 
 
 }

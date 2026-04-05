@@ -25,13 +25,11 @@ public class Effects {
     private static final Particle FLAME = Settings.getCompatParticle("flame");
     private static final Particle CRIT = Settings.getCompatParticle("crit");
 
-    private static Location getGroundParticleLocation(Location loc)
-    {
+    private static Location getGroundParticleLocation(Location loc) {
         return loc.add(ThreadLocalRandom.current().nextDouble(-1.2, 1.2), 0, ThreadLocalRandom.current().nextDouble(-1.2, 1.2));
     }
 
-    public static void runCircle(Treasure t)
-    {
+    public static void runCircle(Treasure t) {
 
         Location base_loc = t.getLocation();
 
@@ -48,17 +46,13 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!t.isActive())
-                {
+                if (!t.isActive()) {
                     this.cancel();
                     return;
-                }
-                else
-                {
+                } else {
                     h = t.getHunt();
 
-                    if(h.getTreasure() != null && h.getTreasure().isActive() && h.getTreasure().mobsCleared())
-                    {
+                    if (h.getTreasure() != null && h.getTreasure().isActive() && h.getTreasure().mobsCleared()) {
                         this.cancel();
                         return;
                     }
@@ -69,24 +63,20 @@ public class Effects {
 
                 step += rev ? -1 : 1;
 
-                if(step >= 30)
-                {
+                if (step >= 30) {
                     rev = true;
-                }
-                else if(step <= 0)
-                {
+                } else if (step <= 0) {
                     rev = false;
                 }
 
                 y = loc.getY() + (step / 10D) - 0.5;
 
-                for(int s = 0; s < 18; s++)
-                {
+                for (int s = 0; s < 18; s++) {
 
                     x = Math.cos(s);
                     z = Math.sin(s);
 
-                    loc.getWorld().spawnParticle(CRIT, loc.getX() + x + 0.5, y , loc.getZ() + 0.5 + z, 0, 0,0,0, 0.0001);
+                    loc.getWorld().spawnParticle(CRIT, loc.getX() + x + 0.5, y, loc.getZ() + 0.5 + z, 0, 0, 0, 0, 0.0001);
 
                 }
 
@@ -98,11 +88,9 @@ public class Effects {
         run.runTaskTimerAsynchronously(plugin, 0, 2);
 
 
-
     }
 
-    public static void runOrbs(Treasure t)
-    {
+    public static void runOrbs(Treasure t) {
 
         Location base_loc = t.getLocation();
         BukkitRunnable run = new BukkitRunnable() {
@@ -119,8 +107,7 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!t.isActive())
-                {
+                if (!t.isActive()) {
                     this.cancel();
                     return;
                 }
@@ -133,22 +120,17 @@ public class Effects {
                 x2 = -x;
                 z2 = -z;
 
-                if(i <= 0)
-                {
+                if (i <= 0) {
                     rev = false;
                 }
 
-                if(i >= 0.3)
-                {
+                if (i >= 0.3) {
                     rev = true;
                 }
 
-                if(rev)
-                {
+                if (rev) {
                     i -= 0.01;
-                }
-                else
-                {
+                } else {
                     i += 0.01;
                 }
 
@@ -157,10 +139,10 @@ public class Effects {
 
                 c += 0.18;
 
-                loc.getWorld().spawnParticle(SOUL, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(SOUL, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
 
-                loc.getWorld().spawnParticle(SOUL_FIRE_FLAME, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
-                loc.getWorld().spawnParticle(WARPED_SPORE, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(SOUL_FIRE_FLAME, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
+                loc.getWorld().spawnParticle(WARPED_SPORE, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
 
             }
         };
@@ -187,8 +169,7 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!t.isActive())
-                {
+                if (!t.isActive()) {
                     this.cancel();
                     return;
                 }
@@ -203,25 +184,22 @@ public class Effects {
 
                 step += rev ? -1 : 1;
 
-                if(step >= 30)
-                {
+                if (step >= 30) {
                     rev = true;
                     loc.getWorld().spawnParticle(LAVA, loc, 3);
-                }
-                else if(step <= 0)
-                {
+                } else if (step <= 0) {
                     rev = false;
                     loc.getWorld().spawnParticle(LAVA, loc, 3);
                 }
 
                 y = loc.getY() + (step / 10D) - 0.5;
 
-                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x + 0.5, y , loc.getZ() + z + 0.5, 0, 0,0,0, 0.0001);
-                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x2 + 0.5, y , loc.getZ() + z2 + 0.5, 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x + 0.5, y, loc.getZ() + z + 0.5, 0, 0, 0, 0, 0.0001);
+                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x2 + 0.5, y, loc.getZ() + z2 + 0.5, 0, 0, 0, 0, 0.0001);
 
                 c += 0.2;
 
-                loc.getWorld().spawnParticle(FLAME, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(FLAME, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
 
 
                 //i += 0.03;

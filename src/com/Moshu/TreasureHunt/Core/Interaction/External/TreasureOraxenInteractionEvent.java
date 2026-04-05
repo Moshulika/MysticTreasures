@@ -9,8 +9,7 @@ import org.bukkit.event.Listener;
 public class TreasureOraxenInteractionEvent implements Listener {
 
     @EventHandler
-    public void onInteract(OraxenFurnitureInteractEvent e)
-    {
+    public void onInteract(OraxenFurnitureInteractEvent e) {
 
         Location loc = e.getBaseEntity().getLocation();
         TreasureEvents treasureEvents = TreasureEvents.getInstance();

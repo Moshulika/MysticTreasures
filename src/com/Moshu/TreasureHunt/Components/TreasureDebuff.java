@@ -14,19 +14,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents a debuff system that can be applied to players during treasure hunts.
  * This class manages negative effects that can be triggered when players interact
  * with treasures, including potion effects, shockwaves, and mob respawning.
- * 
+ *
  * @author Moshu
  * @version 1.0
  */
 public class TreasureDebuff {
-    
+
     private boolean enabled;
     private int clicksToDebuff;
     private boolean shockwave;
@@ -42,17 +41,15 @@ public class TreasureDebuff {
 
     /**
      * Creates a new treasure debuff with the specified treasure data.
-     * 
+     *
      * @param d The treasure data configuration
      */
-    public TreasureDebuff(TreasureData d)
-    {
+    public TreasureDebuff(TreasureData d) {
         this.d = d;
     }
 
     @SuppressFBWarnings("EI_EXPOSE_REP")
-    public TreasureData getTreasureData()
-    {
+    public TreasureData getTreasureData() {
         return d;
     }
 
@@ -100,7 +97,7 @@ public class TreasureDebuff {
 
     /**
      * Applies debuff effects to players near the treasure when triggered.
-     * 
+     *
      * @param t The treasure instance to apply debuffs for
      */
     public void debuff(Treasure t) {
@@ -109,7 +106,8 @@ public class TreasureDebuff {
         if (t.alreadyDebuffed()) return;
 
         if (clicksToDebuff >= getTreasureData().getClicksToOpen()) {
-            if (plugin != null) plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
+            if (plugin != null)
+                plugin.getLogger().severe("Clicks to debuff is greater than or equal to clicks to open! Change this in order to use it.");
             return;
         }
 

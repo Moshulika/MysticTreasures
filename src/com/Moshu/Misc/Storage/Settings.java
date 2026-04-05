@@ -2,9 +2,9 @@ package com.Moshu.Misc.Storage;
 
 
 import com.Moshu.Main;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.Particle;
 import org.bukkit.configuration.file.FileConfiguration;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,8 +16,7 @@ public class Settings {
 
     //TODO: Replace the getInt, etc. methods with cached setting values
     @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
-    public Settings(Main plugin)
-    {
+    public Settings(Main plugin) {
         Settings.plugin = plugin;
     }
 
@@ -29,18 +28,15 @@ public class Settings {
     private static int MAX_CONCURRENT_PLAYERS_IN_INV = 3;
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public static List<String> getAllowedWorlds()
-    {
+    public static List<String> getAllowedWorlds() {
         return plugin.getConfig().getStringList("settings.allowed-worlds");
     }
 
-    public static boolean actionbar()
-    {
+    public static boolean actionbar() {
         return plugin.getConfig().getBoolean("settings.actionbar.enabled", true);
     }
 
-    public static int actionbarRefresh()
-    {
+    public static int actionbarRefresh() {
         return plugin.getConfig().getInt("settings.actionbar.refresh", 2);
     }
 
@@ -57,8 +53,7 @@ public class Settings {
 
     }
 
-    public static void recacheSettings()
-    {
+    public static void recacheSettings() {
         FileConfiguration config = plugin.getConfig();
         SLOW_FALLING_DURATION = config.getInt("settings.fall-protection.duration", 1200);
         SLOW_FALLING_LEVEL = config.getInt("settings.fall-protection.level", 2);
@@ -73,14 +68,13 @@ public class Settings {
         return INVENTORY_CLICK_COOLDOWN;
     }
 
-    public static int getMaxPlayersLooting()
-    {
-        if(MAX_CONCURRENT_PLAYERS_IN_INV <= 0) return 1;
+    public static int getMaxPlayersLooting() {
+        if (MAX_CONCURRENT_PLAYERS_IN_INV <= 0) return 1;
         return MAX_CONCURRENT_PLAYERS_IN_INV;
     }
 
     public static int getProtectionRadius() {
-        if(PROTECTION_RADIUS <= 5) return 5;
+        if (PROTECTION_RADIUS <= 5) return 5;
         return PROTECTION_RADIUS;
     }
 
@@ -97,14 +91,11 @@ public class Settings {
         return BLACKLISTED_COMMANDS;
     }
 
-    public static int getInt(String path)
-    {
+    public static int getInt(String path) {
         try {
             return plugin.getConfig().getInt("settings." + path);
 
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
         }
 
@@ -112,12 +103,10 @@ public class Settings {
 
     }
 
-    public static boolean getBoolean(String path)
-    {
+    public static boolean getBoolean(String path) {
         try {
             return plugin.getConfig().getBoolean("settings." + path);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
         }
 
@@ -125,14 +114,10 @@ public class Settings {
 
     }
 
-    public static String getString(String path)
-    {
-        try
-        {
+    public static String getString(String path) {
+        try {
             return plugin.getConfig().getString("settings." + path, "Error loading string " + path);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
         }
 
@@ -141,14 +126,10 @@ public class Settings {
     }
 
     @SuppressFBWarnings("MS_EXPOSE_REP")
-    public static List<String> getStringList(String path)
-    {
-        try
-        {
+    public static List<String> getStringList(String path) {
+        try {
             return plugin.getConfig().getStringList("settings." + path);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Could not get value: " + path);
         }
 
@@ -156,14 +137,10 @@ public class Settings {
 
     }
 
-    public static int getCooldown()
-    {
-        try
-        {
+    public static int getCooldown() {
+        try {
             return plugin.getConfig().getInt("settings.winner-cooldown");
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Could not get value: winner-cooldown");
         }
 

@@ -10,8 +10,7 @@ import org.bukkit.event.Listener;
 public class TreasureItemsAdderInteractionEvent implements Listener {
 
     @EventHandler
-    public void onInteract(FurnitureInteractEvent e)
-    {
+    public void onInteract(FurnitureInteractEvent e) {
 
         Location loc = e.getBukkitEntity().getLocation();
         TreasureEvents treasureEvents = TreasureEvents.getInstance();
@@ -21,8 +20,7 @@ public class TreasureItemsAdderInteractionEvent implements Listener {
     }
 
     @EventHandler
-    public void onInteract(CustomBlockInteractEvent e)
-    {
+    public void onInteract(CustomBlockInteractEvent e) {
         Location loc = e.getBlockClicked().getLocation();
         TreasureEvents treasureEvents = TreasureEvents.getInstance();
         boolean isTreasure = treasureEvents.handleInteraction(e.getPlayer(), loc);
