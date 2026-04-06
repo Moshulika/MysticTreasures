@@ -282,7 +282,6 @@ public class FileHandler {
             if (treasureSection == null) continue;
 
             TreasureData m = new TreasureData(treasureSection);
-            m.setIdentifier(treasureId);
 
             boolean repeated = false;
             for (TreasureData x : treasures) {

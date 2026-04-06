@@ -29,46 +29,62 @@ public class TreasureKeeperEquipment {
 
             for (String key : equipmentSection.getKeys(false)) {
 
-                ConfigurationSection equipConfig = equipmentSection.getConfigurationSection(key);
+                if (equipmentSection.isConfigurationSection(key)) {
+                    ConfigurationSection equipConfig = equipmentSection.getConfigurationSection(key);
 
-                if (equipConfig != null) {
+                    if (equipConfig != null) {
 
-                    String itemStr = equipConfig.getString("item", "STONE");
-                    if (itemStr == null || itemStr.equals("none")) continue;
+                        String itemStr = equipConfig.getString("item", "STONE");
+                        if (itemStr == null || itemStr.equals("none")) continue;
+
+                        Material item = Material.matchMaterial(itemStr);
+
+                        if (item == null) {
+                            if (plugin != null) plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
+                            item = Material.STONE;
+                        }
+
+                        String slot = equipConfig.getString("slot", "HAND");
+                        if (slot == null) slot = "HAND";
+
+                        if (!validSlot(slot)) {
+                            if (plugin != null) plugin.getLogger().warning("Equipment slot '" + slot + "' does not exist!");
+                            continue;
+                        }
+
+                        EquipmentSlot eSlot = matchEquipmentSlot(slot);
+
+                        if (!isValidEquipment(item, eSlot)) {
+                            if (plugin != null)
+                                plugin.getLogger().warning("Invalid item for slot: " + item.name() + " in " + eSlot.name());
+                            item = getDefaultForSlot(slot);
+                        }
+
+                        List<String> enchantments = equipConfig.getStringList("enchantments");
+
+                        if (item != null) {
+                            EquipmentData data = new EquipmentData(item, eSlot, enchantments);
+                            equipmentMap.put(key, data);
+                        }
+                    }
+                } else if (equipmentSection.isString(key)) {
+                    String itemStr = equipmentSection.getString(key);
+                    if (itemStr == null || itemStr.equalsIgnoreCase("none")) continue;
 
                     Material item = Material.matchMaterial(itemStr);
-
                     if (item == null) {
-                        if (plugin != null) plugin.getLogger().warning("Material '" + itemStr + "' does not exist!");
-                        item = Material.STONE;
-                    }
-
-                    String slot = equipConfig.getString("slot", "HAND");
-                    if (slot == null) slot = "HAND";
-
-                    if (!validSlot(slot)) {
-                        if (plugin != null) plugin.getLogger().warning("Equipment slot '" + slot + "' does not exist!");
+                        if (plugin != null) plugin.getLogger().warning("Material '" + itemStr + "' does not exist for slot '" + key + "'!");
                         continue;
                     }
 
-                    EquipmentSlot eSlot = matchEquipmentSlot(slot);
-
-                    if (!isValidEquipment(item, eSlot)) {
-                        if (plugin != null)
-                            plugin.getLogger().warning("Invalid item for slot: " + item.name() + " in " + eSlot.name());
-                        item = getDefaultForSlot(slot);
+                    EquipmentSlot eSlot = matchEquipmentSlot(key);
+                    if (eSlot == null) {
+                         if (plugin != null) plugin.getLogger().warning("Unknown equipment slot: " + key);
+                         continue;
                     }
 
-                    List<String> enchantments = equipConfig.getStringList("enchantments");
-
-                    if (item != null) {
-                        EquipmentData data = new EquipmentData(item, eSlot, enchantments);
-                        equipmentMap.put(key, data);
-                    }
-
-                } else {
-                    if (plugin != null)
-                        plugin.getLogger().warning("Configuration section '" + key + "' does not exist!");
+                    EquipmentData data = new EquipmentData(item, eSlot, null);
+                    equipmentMap.put(key, data);
                 }
             }
 
@@ -81,23 +97,26 @@ public class TreasureKeeperEquipment {
 
         return str.equalsIgnoreCase("HEAD") || str.equalsIgnoreCase("CHEST")
                 || str.equalsIgnoreCase("LEGS") || str.equalsIgnoreCase("FEET")
-                || str.equalsIgnoreCase("HAND") || str.equalsIgnoreCase("OFF_HAND");
+                || str.equalsIgnoreCase("HAND") || str.equalsIgnoreCase("OFF_HAND")
+                || str.equalsIgnoreCase("HELMET") || str.equalsIgnoreCase("CHESTPLATE")
+                || str.equalsIgnoreCase("LEGGINGS") || str.equalsIgnoreCase("BOOTS")
+                || str.equalsIgnoreCase("MAIN-HAND") || str.equalsIgnoreCase("OFF-HAND");
 
     }
 
     private Material getDefaultForSlot(String slot) {
 
-        if (slot.equalsIgnoreCase("HEAD")) {
+        if (slot.equalsIgnoreCase("HEAD") || slot.equalsIgnoreCase("HELMET")) {
             return Material.IRON_HELMET;
-        } else if (slot.equalsIgnoreCase("CHEST")) {
+        } else if (slot.equalsIgnoreCase("CHEST") || slot.equalsIgnoreCase("CHESTPLATE")) {
             return Material.IRON_CHESTPLATE;
-        } else if (slot.equalsIgnoreCase("LEGS")) {
+        } else if (slot.equalsIgnoreCase("LEGS") || slot.equalsIgnoreCase("LEGGINGS")) {
             return Material.IRON_LEGGINGS;
-        } else if (slot.equalsIgnoreCase("FEET")) {
+        } else if (slot.equalsIgnoreCase("FEET") || slot.equalsIgnoreCase("BOOTS")) {
             return Material.IRON_BOOTS;
-        } else if (slot.equalsIgnoreCase("HAND")) {
+        } else if (slot.equalsIgnoreCase("HAND") || slot.equalsIgnoreCase("MAIN-HAND")) {
             return Material.IRON_SWORD;
-        } else if (slot.equalsIgnoreCase("OFF_HAND")) {
+        } else if (slot.equalsIgnoreCase("OFF_HAND") || slot.equalsIgnoreCase("OFF-HAND")) {
             return Material.IRON_SWORD;
         } else return Material.STONE;
 
@@ -105,9 +124,24 @@ public class TreasureKeeperEquipment {
 
     private EquipmentSlot matchEquipmentSlot(String slot) {
 
+        if (slot.equalsIgnoreCase("HELMET")) slot = "HEAD";
+        if (slot.equalsIgnoreCase("CHESTPLATE")) slot = "CHEST";
+        if (slot.equalsIgnoreCase("LEGGINGS")) slot = "LEGS";
+        if (slot.equalsIgnoreCase("BOOTS")) slot = "FEET";
+        if (slot.equalsIgnoreCase("MAIN-HAND")) slot = "HAND";
+        if (slot.equalsIgnoreCase("OFF-HAND")) slot = "OFF_HAND";
+
         try {
             return EquipmentSlot.valueOf(slot.toUpperCase());
         } catch (IllegalArgumentException e) {
+            // Check for additional mappings if needed
+            if (slot.equalsIgnoreCase("HEAD")) return EquipmentSlot.HEAD;
+            if (slot.equalsIgnoreCase("CHEST")) return EquipmentSlot.CHEST;
+            if (slot.equalsIgnoreCase("LEGS")) return EquipmentSlot.LEGS;
+            if (slot.equalsIgnoreCase("FEET")) return EquipmentSlot.FEET;
+            if (slot.equalsIgnoreCase("HAND")) return EquipmentSlot.HAND;
+            if (slot.equalsIgnoreCase("OFF_HAND")) return EquipmentSlot.OFF_HAND;
+            
             if (plugin != null) plugin.getLogger().warning("Equipment slot " + slot + " does not exist!");
             return EquipmentSlot.HAND;
         }

@@ -317,21 +317,34 @@ public class Treasure {
         String title = Messages.get("treasure-reward-menu-title");
         rewardInventory = Bukkit.createInventory(null, 54, title != null ? title : "Treasure Rewards");
 
+        List<ItemReward> allPossibleRewards = new ArrayList<>();
         for(TreasureRound round : treasureData.getRoundRegistry().getRounds()) {
+            allPossibleRewards.addAll(round.getRoundData().getItemRewards());
+        }
 
-            for (ItemReward i : round.getRoundData().getItemRewards()) {
-                if (Utils.chance() > i.getChance()) continue;
-                ItemStack is = i.getItemStack();
-                if (is == null || is.getType() == Material.AIR) continue;
+        if (allPossibleRewards.isEmpty() && getTreasureData().canOpenChest()) {
+             // If NO rewards are configured at all, we might have an issue if the user expects a loot chest
+             return;
+        }
 
-                int slot = Utils.randInt(0, 53);
-                if (rewardInventory.getItem(slot) != null && rewardInventory.getItem(slot).getType() != Material.AIR) {
-                    slot = rewardInventory.firstEmpty();
-                    if (slot == -1) break;
-                }
-                rewardInventory.setItem(slot, is);
+        for (ItemReward i : allPossibleRewards) {
+            if (Utils.chance() > i.getChance()) continue;
+            ItemStack is = i.getItemStack();
+            if (is == null || is.getType() == Material.AIR) continue;
+
+            int slot = Utils.randInt(0, 53);
+            if (rewardInventory.getItem(slot) != null && rewardInventory.getItem(slot).getType() != Material.AIR) {
+                slot = rewardInventory.firstEmpty();
+                if (slot == -1) break;
             }
+            rewardInventory.setItem(slot, is);
+        }
 
+        // If after rolling chances we have an empty inventory, but chest is required,
+        // force at least one reward if possible to prevent tickTreasure from removing it
+        if (rewardInventory.isEmpty() && getTreasureData().canOpenChest() && !allPossibleRewards.isEmpty()) {
+            ItemReward guaranteed = allPossibleRewards.get(Utils.randInt(0, allPossibleRewards.size() - 1));
+            rewardInventory.setItem(Utils.randInt(0, 53), guaranteed.getItemStack());
         }
     }
 

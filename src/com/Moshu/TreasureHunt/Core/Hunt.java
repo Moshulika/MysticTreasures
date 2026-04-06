@@ -267,6 +267,7 @@ public class Hunt {
         treasure.create();
 
         Bukkit.getConsoleSender().sendMessage(Messages.get("treasure-generated-confirmation")
+                .replace("{treasure}", getTreasureData().getTreasureName())
                 .replace("{x}", getLocation().getBlockX() + "")
                 .replace("{z}", getLocation().getBlockZ() + "")
                 .replace("{alias}", getTreasureData().getTreasureName())

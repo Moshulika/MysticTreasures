@@ -30,6 +30,12 @@ public class TreasureRoundRegistry {
 
     public void load() {
         rounds.clear();
+
+        if (data == null) {
+             if (plugin != null) plugin.getLogger().severe("TreasureRoundRegistry has NULL TreasureData!");
+             return;
+        }
+
         if (roundIds.isEmpty()) {
             if (plugin != null) {
                 plugin.getLogger().severe("Treasure '" + data.getIdentifier() + "' has NO rounds configured! This will cause errors.");

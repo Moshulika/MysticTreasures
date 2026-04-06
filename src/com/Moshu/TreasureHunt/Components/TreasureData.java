@@ -625,6 +625,7 @@ public class TreasureData {
             throw new IllegalStateException("Default treasure configuration not found.");
         }
 
+        this.identifier = defaultSection.getName();
         this.defaultSection = defaultSection;
         this.worldName = defaultSection.getString("world-name", "world");
         this.treasureName = defaultSection.getString("treasure-name", "Mysterious Treasure");

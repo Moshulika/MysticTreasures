@@ -215,7 +215,7 @@ public class TreasureCommands implements CommandExecutor {
 
                     } else if (args[1].equalsIgnoreCase("all")) {
 
-                        for (Hunt h : Hunt.getActiveTreasures()) {
+                        for (Hunt h : new ArrayList<>(Hunt.getActiveTreasures())) {
                             h.stop();
                         }
 

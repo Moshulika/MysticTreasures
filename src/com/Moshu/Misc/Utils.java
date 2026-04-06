@@ -1609,10 +1609,10 @@ public class Utils {
             return new ItemStack(Material.STONE);
         }
 
-        Material m = Material.getMaterial(mat);
+        Material m = Material.matchMaterial(mat);
 
         if (m == null) {
-            plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
+            plugin.getLogger().severe("Material '" + mat + "' not found! Falling back to STONE.");
             return new ItemStack(Material.STONE);
         }
 

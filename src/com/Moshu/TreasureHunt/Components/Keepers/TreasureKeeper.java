@@ -307,7 +307,7 @@ public class TreasureKeeper {
 
     public void spawn(List<Entity> spawnedEntityRegister, Treasure t) {
 
-        boolean spawnsInside = getTreasureData().isSpawnsInside() || getTreasureData().spawnToCertainCoords();
+        boolean spawnsInside = t.getTreasureData().isSpawnsInside() || t.getTreasureData().spawnToCertainCoords();
         Location loc = t.getLocation();
         Hunt h = t.getHunt();
 
@@ -322,10 +322,10 @@ public class TreasureKeeper {
 
                     for (int i = 0; i < getAmount(); i++) {
 
-                        ActiveMob knight = mob.spawn(BukkitAdapter.adapt(pickLocation(spawnsInside, loc, getTreasureData().getMobWanderingDistance())), 1);
+                        ActiveMob knight = mob.spawn(BukkitAdapter.adapt(pickLocation(spawnsInside, loc, t.getTreasureData().getMobWanderingDistance())), 1);
                         Entity entity = knight.getEntity().getBukkitEntity();
                         entity.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
-                        entity.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
+                        entity.setMetadata("treasure-mob-" + t.getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + t.getTreasureData().getIdentifier()));
                         entity.setMetadata("treasure-hunt-id", new FixedMetadataValue(plugin, h.getHuntId().toString()));
 
                         if (isAnimatedSpawn()) smoothEntitySpawnFromGrave(entity);
@@ -349,10 +349,10 @@ public class TreasureKeeper {
                     World world = loc.getWorld();
                     if (world == null) continue;
 
-                    LivingEntity e = (LivingEntity) world.spawnEntity(pickLocation(spawnsInside, loc, getTreasureData().getMobWanderingDistance()), getEntityType());
+                    LivingEntity e = (LivingEntity) world.spawnEntity(pickLocation(spawnsInside, loc, t.getTreasureData().getMobWanderingDistance()), getEntityType());
                     e.setMetadata("treasure-mob-" + loc.getWorld().getName(), new FixedMetadataValue(plugin, "treasure-mob-" + loc.getWorld().getName()));
                     e.setMetadata("treasure-keeper-" + getMobId(), new FixedMetadataValue(plugin, "treasure-keeper-" + getMobId()));
-                    e.setMetadata("treasure-mob-" + getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + getTreasureData().getIdentifier()));
+                    e.setMetadata("treasure-mob-" + t.getTreasureData().getIdentifier(), new FixedMetadataValue(plugin, "treasure-mob-" + t.getTreasureData().getIdentifier()));
                     e.setMetadata("treasure-hunt-id", new FixedMetadataValue(plugin, h.getHuntId().toString()));
 
                     e.addScoreboardTag("treasureKeeper");
