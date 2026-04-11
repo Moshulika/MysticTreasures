@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This software is licensed under the PolyForm Noncommercial License 1.0.0.
  * You may obtain a copy of the License at:
  * https://polyformproject.org/licenses/noncommercial/1.0.0
@@ -50,7 +50,6 @@ import java.util.logging.Level;
  * Main plugin class for MysticTreasures.
  * This is the primary entry point for the treasure hunting plugin that manages
  * scheduled treasure hunts, player interactions, and all plugin functionality.
- * <p>
  * The plugin provides a comprehensive treasure hunting system with:
  * - Scheduled treasure spawns
  * - Player interaction and rewards

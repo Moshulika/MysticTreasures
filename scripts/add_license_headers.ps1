@@ -12,10 +12,10 @@ $header = @"
 "@
 
 Get-ChildItem -Path "src" -Filter "*.java" -Recurse | ForEach-Object {
-    $content = Get-Content $_.FullName -Raw
+    $content = [System.IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)
     if ($content -notlike "*PolyForm Noncommercial License 1.0.0*") {
         $newContent = $header + "`r`n" + $content
-        Set-Content $_.FullName -Value $newContent -Encoding UTF8
+        [System.IO.File]::WriteAllText($_.FullName, $newContent, (New-Object System.Text.UTF8Encoding($false)))
         Write-Host "Added header to $($_.FullName)"
     } else {
         Write-Host "Skipping $($_.FullName), header already exists."

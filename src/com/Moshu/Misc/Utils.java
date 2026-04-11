@@ -1,4 +1,4 @@
-﻿/*
+/*
  * This software is licensed under the PolyForm Noncommercial License 1.0.0.
  * You may obtain a copy of the License at:
  * https://polyformproject.org/licenses/noncommercial/1.0.0
@@ -451,14 +451,14 @@ public class Utils {
      * @return a checkmark
      */
     public static String succesSymbol() {
-        return "&8(&aâœ”&8) &f";
+        return "&8(&a✔&8) &f";
     }
 
     /**
      * @return an x
      */
     public static String errorSymbol() {
-        return "&8(&câŒ&8) &f";
+        return "&8(&c❌&8) &f";
     }
 
 
