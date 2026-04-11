@@ -1,22 +1,21 @@
-##########################################
-#                                        #
-#                HEADER                  #
-#                                        #
-##########################################
-
+###############################################################################
+#
+# 💎 MYSTIC TREASURES
+#       BY MOSHULIKA
+#
+###############################################################################
 main: com.Moshu.Main
 name: MysticTreasures
-version: 1.39
+version: 3.1
 description: The world is full of treasures!
 author: Moshu
 website: mc.b-zone.ro
-softdepend: [Vault, WorldGuard, ChunkyBorder, EssentialsX, Citizens, LuckPerms, MythicMobs, ItemsAdder, Oraxen]
+softdepend: [Vault, WorldGuard, ChunkyBorder, EssentialsX, Citizens, LuckPerms, MythicMobs, ItemsAdder, Oraxen, DecentHolograms, FancyHolograms, Nexo, ProtocolLib, MMOItems, packetevents, Lands]
 api-version: "1.13"
 
 commands:
   hunt:
     description: "Interact with the plugin"
-
 
 permissions:
   mystictreasures.hunt:

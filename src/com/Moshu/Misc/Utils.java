@@ -1,36 +1,36 @@
+/*
+ * This software is licensed under the PolyForm Noncommercial License 1.0.0.
+ * You may obtain a copy of the License at:
+ * https://polyformproject.org/licenses/noncommercial/1.0.0
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ */
+
 package com.Moshu.Misc;
 
 import com.Moshu.Main;
+import com.Moshu.Misc.Storage.Messages;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.ShulkerBox;
-import org.bukkit.entity.*;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-import javax.annotation.Nullable;
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.*;
-import java.lang.management.ManagementFactory;
-import java.lang.reflect.Field;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -40,55 +40,47 @@ import java.util.regex.Pattern;
 /**
  * Utilities class, lots of useful stuff
  */
-public class Utils
-{
+public class Utils {
 
-    public static Main plugin;
-    public static File kitsf;
+    static Main plugin;
 
     /**
      * @hidden
      */
-    public Utils(Main plugin)
-    {
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
+    public Utils(Main plugin) {
 
         Utils.plugin = plugin;
     }
 
-    public static double randDouble(double min, double max)
-    {
+    public static double randDouble(double min, double max) {
         double x = ThreadLocalRandom.current().nextDouble(min, max);
 
         return x;
     }
 
-    public static double round(double value)
-    {
+    public static double round(double value) {
         String mny = new DecimalFormat("##.##").format(value);
-        double d = Double.parseDouble(mny);
-        return d;
+        return Double.parseDouble(mny);
     }
 
-    public static float round(float value)
-    {
+    public static float round(float value) {
         String mny = new DecimalFormat("##.#").format(value);
-        float d = Float.parseFloat(mny);
-        return d;
+        return Float.parseFloat(mny);
     }
 
-    public static void addItemFlags(ItemMeta meta)
-    {
+    public static void addItemFlags(ItemMeta meta) {
         meta.addItemFlags(ItemFlag.values());
     }
 
     /**
      * Gets the location for the particles
+     *
      * @return the location for the particles
      */
-    public static Location getParticleLocation(Location loc)
-    {
+    public static Location getParticleLocation(Location loc) {
 
-        double x,y,z;
+        double x, y, z;
 
         x = randDouble(0.1, 0.9);
         y = randDouble(1, 1.9);
@@ -99,10 +91,10 @@ public class Utils
 
     /**
      * Checks if the server is running Paper or spigot.
+     *
      * @return true/false
      */
-    public static boolean isPaper()
-    {
+    public static boolean isPaper() {
 
         boolean isPaper = false;
         try {
@@ -117,12 +109,12 @@ public class Utils
 
     /**
      * Get a list of the materials of the nearby blocks
+     *
      * @param location the location you want to seach
-     * @param radius the radius
+     * @param radius   the radius
      * @return the list containing the materials
      */
-    public static List<Material> getNearbyBlocks(Location location, int radius)
-    {
+    public static List<Material> getNearbyBlocks(Location location, int radius) {
         List<Material> blocks = new ArrayList();
         for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
             for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
@@ -135,45 +127,13 @@ public class Utils
     }
 
     /**
-     * Check if ip is a true IPv4 adress
-     * @param ip
-     * @return
-     */
-    public static boolean validIP (String ip) {
-        try {
-            if ( ip == null || ip.isEmpty() ) {
-                return false;
-            }
-
-            String[] parts = ip.split( "\\." );
-            if ( parts.length != 4 ) {
-                return false;
-            }
-
-            for ( String s : parts ) {
-                int i = Integer.parseInt( s );
-                if ( (i < 0) || (i > 255) ) {
-                    return false;
-                }
-            }
-            if ( ip.endsWith(".") ) {
-                return false;
-            }
-
-            return true;
-        } catch (NumberFormatException nfe) {
-            return false;
-        }
-    }
-
-    /**
      * Get a list of the nearby blocks
+     *
      * @param location the location you want to seach
-     * @param radius the radius
+     * @param radius   the radius
      * @return the list containing the blocks
      */
-    public static List<Block> getNearbyBlocks2(Location location, int radius)
-    {
+    public static List<Block> getNearbyBlocks2(Location location, int radius) {
         List<Block> blocks = new ArrayList();
         for (int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
             for (int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
@@ -187,19 +147,18 @@ public class Utils
 
     /**
      * Parse a ChatColor object from a string
+     *
      * @param s the string
      * @return a ChatColor
      */
-    public static ChatColor getColor(String s)
-    {
+    public static ChatColor getColor(String s) {
 
         char[] a = s.toCharArray();
         int i = 0;
 
-        for(char c : a)
-        {
+        for (char c : a) {
 
-            if(i + 1 < a.length) {
+            if (i + 1 < a.length) {
 
                 if (c == '&') {
 
@@ -217,11 +176,11 @@ public class Utils
 
     /**
      * Extracts an integer from a string
+     *
      * @param s the string
      * @return the found integer
      */
-    public static int extractInt(String s)
-    {
+    public static int extractInt(String s) {
 
         s = s.replaceAll("[^\\d]", " ");
         s = s.trim();
@@ -229,22 +188,54 @@ public class Utils
 
         //Main.consoleMessage("RESULT: " + s);
 
-        if(s.equals("") || s.isEmpty()) return 0;
-        if(isInt(s)) return Integer.parseInt(s);
+        if (s.equals("") || s.isEmpty()) return 0;
+        if (isInt(s)) return Integer.parseInt(s);
         return 0;
+
+    }
+
+    public static ItemMeta setMeta(ItemMeta meta, String displayName, List<String> lore) {
+
+        if (displayName.isEmpty() || lore.isEmpty()) return meta;
+
+        meta.setDisplayName(Utils.format(displayName));
+
+        ArrayList<String> coloredLore = new ArrayList<>();
+
+        for (String s : lore) {
+            coloredLore.add(Utils.format(s));
+        }
+
+        meta.setLore(coloredLore);
+
+        return meta;
 
     }
 
     /**
      * Get a list of all the online players name
+     *
      * @return a list with all the online players namr
      */
-    public static ArrayList<String> getOnlinePlayersNames()
-    {
+    public static ArrayList<String> getOnlinePlayersNames() {
         ArrayList<String> x = new ArrayList<>();
 
-        for(Player k : Bukkit.getOnlinePlayers())
-        {
+        for (Player k : Bukkit.getOnlinePlayers()) {
+            x.add(k.getName());
+        }
+
+        return x;
+    }
+
+    /**
+     * Get a list of all the online players name
+     *
+     * @return a list with all the online players namr
+     */
+    public static ArrayList<String> getWorldsNames() {
+        ArrayList<String> x = new ArrayList<>();
+
+        for (World k : Bukkit.getWorlds()) {
             x.add(k.getName());
         }
 
@@ -253,12 +244,11 @@ public class Utils
 
     /**
      * Transforms the auto-message into a normal string
+     *
      * @param r the message
      * @return the formatted string
      */
-    public static String formatAutoMessage(String r)
-    {
-
+    public static String formatAutoMessage(String r) {
 
 
         return Utils.setCapitals(ChatColor.stripColor(r).trim().replace("\n", "")
@@ -268,25 +258,23 @@ public class Utils
 
     /**
      * Check if the player has at least one of the ItemStack provided
-     * @param p the player
+     *
+     * @param p  the player
      * @param is the itemstack
      * @return true/false
      */
-    public static boolean hasItem(Player p, ItemStack is)
-    {
+    public static boolean hasItem(Player p, ItemStack is) {
+        if (p == null || is == null) return false;
 
-        for(ItemStack i : p.getInventory().getContents())
-        {
+        for (ItemStack i : p.getInventory().getContents()) {
 
-            if(i == null || i.getType() == Material.AIR) continue;
+            if (i == null || i.getType() == Material.AIR) continue;
 
-            if(i.getType().equals(is.getType()))
-            {
+            if (i.getType().equals(is.getType())) {
 
-                if(i.getItemMeta() == null || is.getItemMeta() == null) return true;
+                if (i.getItemMeta() == null || is.getItemMeta() == null) return true;
 
-                if(i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName()))
-                {
+                if (i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName())) {
                     return true;
                 }
 
@@ -299,29 +287,26 @@ public class Utils
     }
 
 
-
     /**
      * Removes all items of that type from the player's inventory
-     * @param p the player
+     *
+     * @param p  the player
      * @param is the item to be removed
      */
-    public static void removeItem(Player p, ItemStack is)
-    {
-        for(ItemStack i : p.getInventory().getContents())
-        {
+    public static void removeItem(Player p, ItemStack is) {
+        if (p == null || is == null) return;
+        for (ItemStack i : p.getInventory().getContents()) {
 
-            if(i == null || i.getType() == Material.AIR) continue;
+            if (i == null || i.getType() == Material.AIR) continue;
 
-            if(i.getType().equals(is.getType()))
-            {
+            if (i.getType().equals(is.getType())) {
 
-                if(i.getItemMeta() == null || is.getItemMeta() == null) {
+                if (i.getItemMeta() == null || is.getItemMeta() == null) {
                     p.getInventory().remove(i);
                     break;
                 }
 
-                if(i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName()))
-                {
+                if (i.getItemMeta().getDisplayName().equals(is.getItemMeta().getDisplayName())) {
                     p.getInventory().remove(i);
                     break;
                 }
@@ -333,34 +318,30 @@ public class Utils
     }
 
 
-
     /**
      * Substracts the amount provided of item from the player's inventory
-     * @param p the player
-     * @param is the item to be substracted
+     *
+     * @param p      the player
+     * @param is     the item to be substracted
      * @param amount the amount of item to be substracted
      */
-    public static void substractItem(Player p, ItemStack is, int amount)
-    {
+    public static void substractItem(Player p, ItemStack is, int amount) {
+        if (p == null || is == null) return;
 
         ItemStack item;
         int a;
 
-        for(int i = 0; i < p.getInventory().getContents().length; i++)
-        {
+        for (int i = 0; i < p.getInventory().getContents().length; i++) {
 
-            if(p.getInventory().getContents()[i] == null) continue;
+            if (p.getInventory().getContents()[i] == null) continue;
 
             item = p.getInventory().getContents()[i];
-            if(item.getType() != is.getType()) continue;
+            if (item.getType() != is.getType()) continue;
             a = item.getAmount();
 
-            if(a - amount <= 0)
-            {
+            if (a - amount <= 0) {
                 p.getInventory().setItem(i, null);
-            }
-            else
-            {
+            } else {
                 item.setAmount(a - amount);
             }
 
@@ -372,34 +353,30 @@ public class Utils
 
     /**
      * Substracts the amount provided of item from the player's inventory
-     * @param p the player
-     * @param is the item to be substracted
+     *
+     * @param p      the player
+     * @param is     the item to be substracted
      * @param amount the amount of item to be substracted
      */
-    public static void substractItemUnlimited(Player p, ItemStack is, int amount)
-    {
+    public static void substractItemUnlimited(Player p, ItemStack is, int amount) {
 
         ItemStack item;
         int a;
 
         int remaining = amount;
 
-        for(int i = 0; i < p.getInventory().getContents().length; i++)
-        {
+        for (int i = 0; i < p.getInventory().getContents().length; i++) {
 
-            if(remaining <= 0) break;
-            if(p.getInventory().getContents()[i] == null) continue;
+            if (remaining <= 0) break;
+            if (p.getInventory().getContents()[i] == null) continue;
 
             item = p.getInventory().getContents()[i];
-            if(item.getType() != is.getType()) continue;
+            if (item.getType() != is.getType()) continue;
             a = item.getAmount();
 
-            if(a - amount <= 0)
-            {
+            if (a - amount <= 0) {
                 p.getInventory().setItem(i, null);
-            }
-            else
-            {
+            } else {
                 item.setAmount(a - remaining);
             }
 
@@ -411,32 +388,28 @@ public class Utils
 
     /**
      * Substracts the amount of the item from the inventory
-     * @param inv the inventory where the item is located
-     * @param is the item to be substracted
+     *
+     * @param inv    the inventory where the item is located
+     * @param is     the item to be substracted
      * @param amount the amount of item to be substracted
      */
-    public static void substractItem(Inventory inv, ItemStack is, int amount)
-    {
+    public static void substractItem(Inventory inv, ItemStack is, int amount) {
 
         ItemStack item;
         int a;
 
-        for(int i = 0; i < inv.getContents().length; i++)
-        {
+        for (int i = 0; i < inv.getContents().length; i++) {
 
-            if(inv.getItem(i) == null) continue;
+            if (inv.getItem(i) == null) continue;
 
             item = inv.getItem(i);
 
-            if(item.getType() != is.getType()) continue;
+            if (item.getType() != is.getType()) continue;
             a = item.getAmount();
 
-            if(a - amount <= 0)
-            {
+            if (a - amount <= 0) {
                 inv.setItem(i, null);
-            }
-            else
-            {
+            } else {
                 item.setAmount(a - amount);
             }
 
@@ -449,22 +422,20 @@ public class Utils
 
     /**
      * Counts identical items
-     * @param p the player to count the items from
+     *
+     * @param p  the player to count the items from
      * @param is the item to be counted
      * @return how many items are there
      */
-    public static int countItemsOfType(Player p, ItemStack is)
-    {
+    public static int countItemsOfType(Player p, ItemStack is) {
 
         int x = 0;
 
-        for(ItemStack i : p.getInventory().getContents())
-        {
+        for (ItemStack i : p.getInventory().getContents()) {
 
-            if(i == null || i.getType() == Material.AIR) continue;
+            if (i == null || i.getType() == Material.AIR) continue;
 
-            if(i.getType() == is.getType())
-            {
+            if (i.getType() == is.getType()) {
 
                 x += i.getAmount();
 
@@ -479,22 +450,21 @@ public class Utils
     /**
      * @return a checkmark
      */
-    public static String succesSymbol()
-    {
+    public static String succesSymbol() {
         return "&8(&a✔&8) &f";
     }
 
     /**
      * @return an x
      */
-    public static String errorSymbol()
-    {
+    public static String errorSymbol() {
         return "&8(&c❌&8) &f";
     }
 
 
     /**
      * Adds the item to the player's inventory
+     *
      * @param p the player
      * @param a the items to be added
      */
@@ -520,11 +490,11 @@ public class Utils
 
     /**
      * Adds all the items provided in the array to the player's inventory
-     * @param p the player
+     *
+     * @param p  the player
      * @param is the items to be added
      */
-    public static void addToInventory(Player p, ItemStack[] is)
-    {
+    public static void addToInventory(Player p, ItemStack[] is) {
 
         if (Utils.getFreeSlots(p.getInventory()) >= is.length) {
 
@@ -539,19 +509,13 @@ public class Utils
 
             }
 
-            return;
+        } else {
 
-        }
-        else
-        {
-
-            for(ItemStack a : is)
-            {
+            for (ItemStack a : is) {
 
                 if (!Utils.hasFullInventory(p)) {
 
-                    if(a == null || a.getType() == Material.AIR)
-                    {
+                    if (a == null || a.getType() == Material.AIR) {
                         continue;
                     }
 
@@ -559,8 +523,7 @@ public class Utils
 
                 } else {
 
-                    if(a == null || a.getType() == Material.AIR)
-                    {
+                    if (a == null || a.getType() == Material.AIR) {
                         continue;
                     }
 
@@ -575,6 +538,7 @@ public class Utils
 
     /**
      * Calculates the milliseconds until the next sharp hour (e.g. 1:00)
+     *
      * @param calendar an instance of Calendar
      * @return how many millies until the next hour
      */
@@ -591,19 +555,17 @@ public class Utils
 
     /**
      * Fill an inventory with colored glass, based on holiday
+     *
      * @param inv the inventory to be filled
      */
-    public static void fillWithGlass(Inventory inv)
-    {
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    public static void fillWithGlass(Inventory inv) {
 
         Material mat;
 
-        try
-        {
-            mat = Material.valueOf(plugin.getConfig().getString("settings.menu.glass" , "BLACK_STAINED_GLASS_PANE"));
-        }
-        catch (Exception e)
-        {
+        try {
+            mat = Material.valueOf(plugin.getConfig().getString("settings.menu.glass", "BLACK_STAINED_GLASS_PANE"));
+        } catch (Exception e) {
             mat = Material.BLACK_STAINED_GLASS_PANE;
             plugin.getLogger().log(Level.SEVERE, "No such material for glass!");
         }
@@ -611,19 +573,19 @@ public class Utils
         ItemStack sticla = new ItemStack(mat);
 
         ItemMeta sticlam = sticla.getItemMeta();
-        sticlam.setDisplayName(" ");
-        sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
-        sticla.setItemMeta(sticlam);
+        if (sticlam != null) {
+            sticlam.setDisplayName(" ");
+            sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
+            sticla.setItemMeta(sticlam);
+        }
 
         ItemStack sticlafinal = sticla;
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
-            for(int i = 0; i < inv.getSize(); i++)
-            {
+            for (int i = 0; i < inv.getSize(); i++) {
 
-                if(inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR)
-                {
+                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
 
                     inv.setItem(i, sticlafinal);
 
@@ -635,17 +597,20 @@ public class Utils
 
     /**
      * Get the color of the glass
+     *
      * @return an ItemStack with the glass having the appropriate color for the holiday
      */
-    public static ItemStack getGlass()
-    {
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    public static ItemStack getGlass() {
 
         ItemStack sticla = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 
         ItemMeta sticlam = sticla.getItemMeta();
-        sticlam.setDisplayName(" ");
-        sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
-        sticla.setItemMeta(sticlam);
+        if (sticlam != null) {
+            sticlam.setDisplayName(" ");
+            sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
+            sticla.setItemMeta(sticlam);
+        }
 
         return sticla;
 
@@ -653,26 +618,27 @@ public class Utils
 
     /**
      * Fills the inventory with black glass
+     *
      * @param inv the inventory to be filled
      */
     @Deprecated
-    public static void fillWithGlassLegacy(Inventory inv)
-    {
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    public static void fillWithGlassLegacy(Inventory inv) {
 
         ItemStack sticla = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
 
         ItemMeta sticlam = sticla.getItemMeta();
-        sticlam.setDisplayName(" ");
-        sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
-        sticla.setItemMeta(sticlam);
+        if (sticlam != null) {
+            sticlam.setDisplayName(" ");
+            sticlam.getItemFlags().add(ItemFlag.HIDE_ATTRIBUTES);
+            sticla.setItemMeta(sticlam);
+        }
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
         {
-            for(int i = 0; i < inv.getSize(); i++)
-            {
+            for (int i = 0; i < inv.getSize(); i++) {
 
-                if(inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR)
-                {
+                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
 
                     inv.setItem(i, sticla);
 
@@ -685,14 +651,14 @@ public class Utils
 
     /**
      * Calculates the middle of 2 locations
+     *
      * @param l1 first location
      * @param l2 second location
      * @return the middle location
      */
-    public static Location middle(Location l1, Location l2)
-    {
+    public static Location middle(Location l1, Location l2) {
 
-        if(l1.getWorld() != l2.getWorld()) return l1;
+        if (l1.getWorld() != l2.getWorld()) return l1;
 
         double x1, x2, y1, y2, z1, z2, x, y, z;
 
@@ -714,11 +680,11 @@ public class Utils
 
     /**
      * Format time in string
+     *
      * @param minute time to be formatted
      * @return the formatted string
      */
-    public static String formatRemainingTime(long minute)
-    {
+    public static String formatRemainingTime(long minute) {
 
         long ore = minute / 60;
         long zile = ore / 24;
@@ -727,20 +693,17 @@ public class Utils
         ore = ore - (zile * 24);
 
         //Daca exista mai multe zile
-        if(zile != 0)
-        {
-            return zile + " day(s), " + ore + " hour(s), " + minute + " minutes";
+        if (zile != 0) {
+            return zile + " " + Messages.get("days") + ", " + ore + " " + Messages.get("hours") + ", " + minute + " " + Messages.get("minutes");
         }
         //Daca e mai putin de o zi
-        else
-        {
+        else {
             //Daca e mai mult de o ora
-            if(ore != 0)
-            {
-                return ore + " hour(s), " + minute + " minutes";
+            if (ore != 0) {
+                return ore + " " + Messages.get("hours") + ", " + minute + " " + Messages.get("minutes");
             }
 
-            return minute + " minutes";
+            return minute + " " + Messages.get("minutes");
 
         }
 
@@ -748,17 +711,15 @@ public class Utils
 
     /**
      * Check a string for numbers
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean containsNumbers(String s)
-    {
+    public static boolean containsNumbers(String s) {
 
-        for(char c : s.toCharArray())
-        {
+        for (char c : s.toCharArray()) {
 
-            if(isInt(c))
-            {
+            if (isInt(c)) {
                 return true;
             }
 
@@ -767,25 +728,158 @@ public class Utils
         return false;
     }
 
+    public static ItemStack addEnchants(ItemStack itemStack, List<String> enchantments) {
+        if (itemStack == null || enchantments == null) return itemStack;
+
+        String[] args;
+        String enchantment;
+        Enchantment enchant;
+        int level;
+
+        for (String s : enchantments) {
+
+            args = s.split(":");
+            enchantment = args[0];
+
+            if (!Utils.isInt(args[1])) {
+                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " + s);
+                continue;
+            }
+
+            level = Integer.parseInt(args[1]);
+            enchant = Enchantment.getByName(enchantment);
+
+            if (enchant == null) {
+                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " + s);
+                continue;
+            }
+
+            if (!enchant.canEnchantItem(itemStack)) {
+                plugin.getLogger().warning("Enchantment " + enchantment + " can not be used on " + itemStack.getType());
+                continue;
+            }
+
+            if (level > enchant.getMaxLevel()) {
+                plugin.getLogger().warning("Max level for enchantment " + enchantment + " is " + level);
+                itemStack.addEnchantment(enchant, enchant.getMaxLevel());
+            } else {
+                itemStack.addEnchantment(enchant, level);
+            }
+
+
+        }
+
+        return itemStack;
+
+    }
+
+    public static ItemStack addUnsafeEnchants(ItemStack itemStack, List<String> enchants) {
+
+        if (itemStack == null || enchants == null) {
+            return itemStack;
+        }
+
+        String[] args;
+        String enchantment;
+        Enchantment enchant;
+        int level;
+
+        for (String s : enchants) {
+
+            if (s.isEmpty()) continue;
+            args = s.split(":");
+
+            if (args.length != 2) {
+                plugin.getLogger().warning("Enchantment format is invalid! Affected enchantment: " + s);
+                continue;
+            }
+
+            enchantment = args[0];
+
+            if (!Utils.isInt(args[1])) {
+                plugin.getLogger().warning("Enchantment level needs to be a number! Affected enchantment: " + s);
+                continue;
+            }
+
+            level = Integer.parseInt(args[1]);
+            enchant = Enchantment.getByName(enchantment);
+
+            if (enchant == null) {
+                plugin.getLogger().warning("Enchantment is invalid! Affected enchantment: " + s);
+                continue;
+            }
+
+            itemStack.addUnsafeEnchantment(enchant, level);
+
+        }
+
+        return itemStack;
+    }
+
 
     /**
      * Send an error as an item with custom display name.
      * When a player clicks on an item in an inventory and an error happens,
      * the item will transform into a Material.BARRIER and the error message will be displayed
      * for a brief period of time, after which the item will reappear in the menu as before.
-     * @param is the inventory holding the item
+     *
+     * @param is    the inventory holding the item
      * @param error the error (should be as short as possible)
      */
-    public static void errorAsItem(ItemStack is, String error)
-    {
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    public static void errorAsItem(ItemStack is, String error) {
+        if (is == null) return;
+        ItemMeta im = is.getItemMeta();
+        if (im == null) return;
+
+        Material initialmat = is.getType();
+        String initialname = im.getDisplayName();
+
+        is.setType(Material.BARRIER);
+        im.setDisplayName(Utils.format("&c" + error));
+        is.setItemMeta(im);
+
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
+        {
+            is.setType(initialmat);
+            im.setDisplayName(format(initialname));
+            is.setItemMeta(im);
+        }, 100);
+
+    }
+
+    public static ArrayList<String> formatList(List<String> list) {
+        if (list == null) return new ArrayList<>();
+
+        ArrayList<String> newList = new ArrayList<>();
+
+        for (String s : list) {
+            newList.add(Utils.format(s));
+        }
+
+        return newList;
+
+    }
+
+    /**
+     * Sends a permission error like #errorAsItem(ItemStack, String)
+     *
+     * @param p          the player's inventory
+     * @param permission the permission he needs to have
+     * @param is         the itemstack to affect
+     */
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT")
+    public static void setBarrier(Player p, String permission, ItemStack is) {
+        if (p == null || permission == null || is == null) return;
+        if (!p.hasPermission(permission)) {
+            ItemMeta im = is.getItemMeta();
+            if (im == null) return;
 
             Material initialmat = is.getType();
-            String initialname = is.getItemMeta().getDisplayName();
-
-            ItemMeta im = is.getItemMeta();
+            String initialname = im.getDisplayName();
 
             is.setType(Material.BARRIER);
-            im.setDisplayName(Utils.format( "&c" + error));
+            im.setDisplayName(Utils.format("&cNo permission!"));
             is.setItemMeta(im);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
@@ -795,204 +889,13 @@ public class Utils
                 is.setItemMeta(im);
             }, 100);
 
-    }
-
-    /**
-     * Sends a permission error like #errorAsItem(ItemStack, String)
-     * @param p the player's inventory
-     * @param permission the permission he needs to have
-     * @param is the itemstack to affect
-     */
-    public static void setBarrier(Player p, String permission, ItemStack is)
-    {
-        if(!p.hasPermission(permission))
-        {
-            Material initialmat = is.getType();
-            String initialname = is.getItemMeta().getDisplayName();
-
-            ItemMeta im = is.getItemMeta();
-
-            is.setType(Material.BARRIER);
-            im.setDisplayName(Utils.format( "&cNo permission!"));
-            is.setItemMeta(im);
-
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
-            {
-                is.setType(initialmat);
-                im.setDisplayName(format( initialname));
-                is.setItemMeta(im);
-            }, 100);
-
-            return;
-
         }
     }
 
-    /**
-     * Check if an entity is spawned by a mob spawner
-     * @param e the entity
-     * @return true/false
-     */
-    public static boolean isSpawnedBySpawner(Entity e)
-    {
-        return e.hasMetadata("SpawnedBySpawner");
-    }
-
-    /**
-     * Gets how used the CPU is
-     * @return the percentage of the CPU load
-     */
-    public static double getUsedCPU() {
-        try {
-            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-            ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
-            AttributeList list = mbs.getAttributes(name, new String[]{"ProcessCpuLoad"});
-            Attribute att = (Attribute) list.get(0);
-            Double value = (Double) att.getValue();
-
-            return (int) (value.doubleValue() * 1000.0D) / 10.0D;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0.0D;
-    }
-
-
-
-    public static Map<Player, String> playerjobs = new HashMap<>();
-
-    /**
-     * A list containing all the players and their jobs
-     * @return
-     */
-    public static Map<Player, String> getPlayersJobs()
-    {
-        return playerjobs;
-    }
-
-    /**
-     * Get the player's current job name
-     * @param p the player
-     * @return the job name, returns "none" if he has no job
-     */
-    public static String getCurrentJob(Player p)
-    {
-        if(playerjobs.containsKey(p))
-        {
-            if(playerjobs.get(p) == null)
-            {
-                return "none";
-            }
-            else {
-                return playerjobs.get(p);
-            }
-        }
-
-        return "none";
-    }
-
-
-    /**
-     * Get the number of entities present in that world
-     * @param w the world
-     * @return the number of entities present in that world
-     */
-    public static int getEntities(World w)
-    {
-        return w.getEntities().size();
-    }
-
-    /**
-     * Get the number of loaded chunks in the world
-     * @param w the world
-     * @return number of loaded chunks in the world
-     */
-    public static int getChunks(World w)
-    {
-        return w.getLoadedChunks().length;
-    }
-
-    /**
-     * Get max available memory for the JVM
-     * @return the maximum available memory for the JVM
-     */
-    public static long getMaxMemory()
-    {
-        try
-        {
-            Runtime r = Runtime.getRuntime();
-            return r.maxMemory() / 1048576L;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return 0L;
-    }
-
-    /**
-     * Get how much memory is used in the JVM
-     * @return how much memory is used
-     */
-    public static long getMemoryUsed()
-    {
-        try
-        {
-            Runtime r = Runtime.getRuntime();
-            return (r.totalMemory() - r.freeMemory()) / 1048576L;
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return 0L;
-    }
-
-    /**
-     * Check if a block is a shulker
-     * @param b the block
-     * @return true/false
-     */
-    public static boolean isShulker(Block b)
-    {
-
-        return b instanceof ShulkerBox;
-
-    }
-
-    /**
-     * Check if a day has passed since the last time we looked
-     * @return true/false
-     */
-    public static boolean passedDay()
-    {
-        Date now = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
-
-        return !sdf.format(now).equals(plugin.getConfig().getString("day"));
-
-    }
-
-
-    /**
-     * Sets the dat value in the config to the current day
-     */
-    public static void setConfigDay()
-    {
-
-        Date now = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE");
-
-        plugin.getConfig().set("day", sdf.format(now));
-
-        plugin.saveConfig();
-
-    }
-
-    //private static final Pattern pattern = Pattern.compile("(?<!\\\\)(#[a-fA-F0-9]{6})");
 
     /**
      * Formats a message with legacy color codes and also HEX
+     *
      * @param message the message you want to apply colors to
      * @return the formatted string
      */
@@ -1018,11 +921,11 @@ public class Utils
 
     /**
      * Get a ChatColor from a message
+     *
      * @param message the message
      * @return the ChatColor, or white if the method doesn't find any colors
      */
-    public static net.md_5.bungee.api.ChatColor getColorFromHex(String message)
-    {
+    public static net.md_5.bungee.api.ChatColor getColorFromHex(String message) {
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(message);
 
@@ -1038,15 +941,13 @@ public class Utils
 
     /**
      * Get a HEX code from a message
+     *
      * @param message the message
      * @return the HEX code, or white if the method doesn't find any colors
      */
-    public static String getHex(String message)
-    {
+    public static String getHex(String message) {
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(message);
-
-        net.md_5.bungee.api.ChatColor x = net.md_5.bungee.api.ChatColor.WHITE;
 
         String color = "";
 
@@ -1059,19 +960,18 @@ public class Utils
 
     /**
      * Removes all HEX colors from a string
+     *
      * @param s the string
      * @return the string without the hex code
      */
-    public static String removeHex(String s)
-    {
+    public static String removeHex(String s) {
 
         Pattern pattern = Pattern.compile("#[a-fA-F0-9]{6}");
         Matcher matcher = pattern.matcher(s);
 
         String color = "";
 
-        while(matcher.find())
-        {
+        while (matcher.find()) {
             color = s.substring(matcher.start(), matcher.end());
         }
 
@@ -1080,130 +980,70 @@ public class Utils
     }
 
     /**
-     * Loads the chunk at the specified location
-     * @param loc the location
-     */
-    public static void loadNearChunks(Location loc)
-    {
-        //loc.getWorld().getChunkAtAsync(loc.getChunk().getX(), loc.getChunk().getZ());
-        loc.getWorld().getChunkAt(loc.getChunk().getX(), loc.getChunk().getZ());
-    }
-
-    /**
      * Check if a plugin is enabled
+     *
      * @param plugin the plugin to check
      * @return true/false
      */
-   public static boolean isEnabled(String plugin)
-   {
+    public static boolean isEnabled(String plugin) {
 
-       return Bukkit.getPluginManager().getPlugin(plugin) != null && Bukkit.getPluginManager().getPlugin(plugin).isEnabled();
+        return Bukkit.getPluginManager().getPlugin(plugin) != null && Bukkit.getPluginManager().getPlugin(plugin).isEnabled();
 
-   }
+    }
+
+    /**
+     * Check if a plugin is loaded
+     *
+     * @param plugin the plugin to check
+     * @return true/false
+     */
+    public static boolean isLoaded(String plugin) {
+
+        return Bukkit.getPluginManager().getPlugin(plugin) != null;
+
+    }
 
     /**
      * Sets a capital letter on the first word of the string
+     *
      * @param s the string
      * @return the formatted string
      */
-    public static String setCapitals(String s)
-    {
+    public static String setCapitals(String s) {
 
-        if(s.length() < 1) return s;
+        if (s.length() < 1) return s;
 
         String cap = s.substring(0, 1).toUpperCase() + s.substring(1);
         return cap;
     }
 
     /**
-     * Reset unslept nights
-     * @param p the player
+     * Generate a random number 0-100
+     *
+     * @return a random number 0-100
      */
-    public static void resetPhantoms(Player p)
-    {
-        p.setStatistic(Statistic.TIME_SINCE_REST, 0);
-    }
-
-    /**
-     * Generate a random number 1-100
-     * @return a random number 1-100
-     */
-    public static int chance()
-    {
-
-        Random r = new Random();
-        return r.nextInt(101);
-
-    }
-
-    /**
-     * Gets a player head with the player's skin applied
-     * @param name the player's name
-     * @return the head
-     */
-    public static ItemStack getPlayerHead(String name)
-    {
-        ItemStack itm = new ItemStack(Material.LEGACY_SKULL_ITEM, 1, (short)3);
-        SkullMeta meta = (SkullMeta)itm.getItemMeta();
-        meta.setDisplayName(Utils.format( "&c" + name));
-        meta.setOwner(name);
-        itm.setItemMeta(meta);
-        return itm;
-    }
-
-    /**
-     * Get the time the process has started
-     * @return
-     */
-    public static long getStarttime()
-    {
-        return ManagementFactory.getRuntimeMXBean().getStartTime();
+    public static int chance() {
+        return ThreadLocalRandom.current().nextInt(1, 101);
     }
 
     /**
      * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getNearbyEntities(Location l, int radius)
-    {
+    public static ArrayList<Entity> getNearbyEntities(Location l, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
-        if(l.getWorld().getEntities().size() != 0) {
+        if (l.getWorld().getEntities().size() != 0) {
 
 
             for (Entity e : l.getWorld().getEntities()) {
 
 
-                    if (l.distance(e.getLocation()) <= radius) {
-
-                        en.add(e);
-
-                    }
-
-            }
-        }
-        return en;
-    }
-
-    /**
-     * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
-     * @param radius the radius
-     * @return the list containing all the entities
-     */
-    public static ArrayList<Entity> getNearbyEntities(Location l, EntityType et, int radius)
-    {
-        ArrayList<Entity> en = new ArrayList<>();
-
-        if(l.getWorld().getEntities().size() != 0) {
-
-            for (Entity e : l.getWorld().getEntities()) {
-
-                if(e.getType() != et) continue;
-
-                if (l.distance(e.getLocation()) <= radius) {
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                     en.add(e);
 
@@ -1216,31 +1056,60 @@ public class Utils
 
     /**
      * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getNearbyItemsOfType(Location l, Material mat, int radius)
-    {
+    public static ArrayList<Entity> getNearbyEntities(Location l, EntityType et, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
+
+        if (l.getWorld().getEntities().size() != 0) {
+
+            for (Entity e : l.getWorld().getEntities()) {
+
+                if (e.getType() != et) continue;
+
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
+
+                    en.add(e);
+
+                }
+
+            }
+        }
+        return en;
+    }
+
+    /**
+     * Get a list of all the entities near the location in a radius in a chunk
+     *
+     * @param l      the location
+     * @param radius the radius
+     * @return the list containing all the entities
+     */
+    public static ArrayList<Entity> getNearbyItemsOfType(Location l, Material mat, int radius) {
+        ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
         Bukkit.getScheduler().runTask(plugin, () ->
         {
 
             Item i;
 
-            if(l.getWorld().getEntities().size() != 0) {
+            if (l.getWorld().getEntities().size() != 0) {
 
 
                 for (Entity e : l.getWorld().getEntities()) {
 
-                    if(e instanceof Item) {
+                    if (e instanceof Item) {
 
                         i = (Item) e;
 
-                        if(i.getItemStack().getType() == mat) {
+                        if (i.getItemStack().getType() == mat) {
 
-                            if (l.distance(e.getLocation()) <= radius) {
+                            if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                                 en.add(e);
 
@@ -1260,78 +1129,50 @@ public class Utils
 
     /**
      * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getNearbyItems(Location l, int radius)
-    {
+    public static ArrayList<Entity> getNearbyItems(Location l, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
-        if(l.getChunk().getEntities().length != 0) {
+        l.getChunk().getEntities();
+        for (Entity e : l.getChunk().getEntities()) {
 
+            if (e instanceof Item) {
 
-            for (Entity e : l.getChunk().getEntities()) {
-
-                if(e instanceof Item) {
-
-                    if (l.distance(e.getLocation()) <= radius) {
-
-                        en.add(e);
-
-                    }
-
-                }
-
-            }
-        }
-        return en;
-    }
-
-    /**
-     * Get a list of all the entities near the location in a radius in a chunk
-     * @param l the location
-     * @param radius the radius
-     * @return the list containing all the entities
-     */
-    public static ArrayList<Entity> getNearbyRaiders(Location l, int radius)
-    {
-        ArrayList<Entity> en = new ArrayList<>();
-
-        if(l.getWorld().getEntities().size() != 0) {
-
-
-            for (Entity e : l.getWorld().getEntities()) {
-
-                if(!(e instanceof Raider)) continue;
-
-                if (l.distance(e.getLocation()) <= radius) {
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                     en.add(e);
 
                 }
 
             }
+
         }
         return en;
     }
 
+
     /**
      * Get a list of all the living entities near the location in a radius
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return the list containing all the entities
      */
-    public static ArrayList<Entity> getAllNearbyEntities(Location l, int radius)
-    {
+    public static ArrayList<Entity> getAllNearbyEntities(Location l, int radius) {
         ArrayList<Entity> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
-        if(l.getWorld().getEntities().size() != 0) {
+        if (l.getWorld().getEntities().size() != 0) {
 
 
             for (Entity e : l.getWorld().getLivingEntities()) {
 
-                if (l.distance(e.getLocation()) <= radius) {
+                if (l.distanceSquared(e.getLocation()) <= radiusSquared) {
 
                     en.add(e);
 
@@ -1344,51 +1185,78 @@ public class Utils
 
     /**
      * Makes an ItemStack's name much nicer
+     *
      * @param is the itemstack
      * @return the formatted string
      */
-    public static String formatItemStack(ItemStack is)
-    {
+    public static String formatItemStack(ItemStack is) {
         return is.getType().toString().toLowerCase().replace("_", " ");
-    }
-
-    public static String formatBigInt(int i)
-    {
-
-        if(i < 1000) return "" + i;
-        else return (int) i/1000 + "k";
-
     }
 
     /**
      * Get all players in a radius around the location
-     * @param l the location
+     *
+     * @param l      the location
      * @param radius the radius
      * @return a list containing all the players near that locations in the specified radius
      */
-    public static ArrayList<Player> getNearbyPlayers(Location l, int radius)
-    {
+    public static ArrayList<Player> getNearbyPlayers(Location l, int radius) {
         ArrayList<Player> en = new ArrayList<>();
+        double radiusSquared = (double) radius * radius;
 
-            for (Player p : l.getWorld().getPlayers()) {
+        for (Player p : l.getWorld().getPlayers()) {
 
-                    if (l.distance(p.getLocation()) <= radius) {
-                        en.add(p);
-                    }
+            if (l.distanceSquared(p.getLocation()) <= radiusSquared) {
+                en.add(p);
+            }
 
-                }
+        }
 
         return en;
     }
 
     /**
+     * Finds a safe location near the specified base location, suitable for indoor spawning.
+     *
+     * @param loc The base location
+     * @param radius The maximum distance from the base location
+     * @return A safe Location
+     */
+    public static Location getNearLocationInside(Location loc, int radius) {
+        int x = randInt(-radius, radius);
+        int z = randInt(-radius, radius);
+
+        Location randomLoc = loc.clone().add(x, 0, z);
+
+        World world = loc.getWorld();
+        if (world == null) return loc;
+        return getSafeBlock(randomLoc, world.getSpawnLocation());
+    }
+
+    /**
+     * Finds a safe location near the specified base location, suitable for outdoor spawning.
+     *
+     * @param l The base location
+     * @param radius The maximum distance from the base location
+     * @return A safe Location
+     */
+    public static Location getNearLocation(Location l, int radius) {
+        int x = randInt(-radius, radius);
+        int z = randInt(-radius, radius);
+
+        World world = l.getWorld();
+        if (world == null) return l;
+        return getHighestBlock(world, l.getBlockX() + x, l.getBlockZ() + z, world.getSpawnLocation());
+    }
+
+    /**
      * Generates a random integer between two values
+     *
      * @param min the min value
      * @param max the max value
      * @return the random integer
      */
-    public static int randInt(int min, int max)
-    {
+    public static int randInt(int min, int max) {
         int x = ThreadLocalRandom.current().nextInt(min, max + 1);
 
         return x;
@@ -1396,51 +1264,77 @@ public class Utils
 
     /**
      * Gets the location in front of the player
-     * @param loc the location
+     *
+     * @param loc      the location
      * @param distance how far away the new location should be
      * @return the location in front of the player
      */
-    public static Location getPositionInFrontOfPlayer(Location loc, int distance)
-    {
+    public static Location getPositionInFrontOfPlayer(Location loc, int distance) {
         return loc.add(loc.getDirection().multiply(distance));
     }
 
     /**
      * Get the highest block at a location
+     *
      * @param world the world
-     * @param x the x coordinate
-     * @param z the z coordinate
+     * @param x     the x coordinate
+     * @param z     the z coordinate
      * @return the location with the highest block
      */
-    public static Location getHighestBlock(World world, int x, int z, Location backup)
-    {
+    public static Location getHighestBlock(World world, int x, int z, Location backup) {
 
-        int i = 255;
+        int i = world.getMaxHeight() - 1;
 
-            while (i >= 0) {
-                if (!new Location(world, x, i, z).getBlock().isEmpty())
-                {
-                    return new Location(world, x, i, z).add(0.0D, 1.0D, 0.0D);
-                }
-                i--;
+        while (i >= world.getMinHeight()) {
+            if (!new Location(world, x, i, z).getBlock().isEmpty()) {
+                return new Location(world, x, i, z).add(0.0D, 1.0D, 0.0D);
             }
+            i--;
+        }
+
+        return backup;
+    }
+
+    /**
+     * Get the highest block at a location
+     *
+     * @param originalLoc the location that could be unsafe
+     * @return the location with the highest block
+     */
+    public static Location getSafeBlock(Location originalLoc, Location backup) {
+
+        int i = originalLoc.getBlockY();
+
+        int x = originalLoc.getBlockX();
+        int z = originalLoc.getBlockZ();
+        World w = originalLoc.getWorld();
+
+        while (i < w.getMaxHeight()) {
+
+            if (new Location(w, x, i, z).getBlock().isEmpty()) {
+                return new Location(w, x, i, z).add(0.0D, 1.0D, 0.0D);
+            }
+
+            i++;
+
+        }
 
         return backup;
     }
 
     /**
      * Get the highest block at a location for a nether world
+     *
      * @param world the world
-     * @param x the x coordinate
-     * @param z the z coordinate
+     * @param x     the x coordinate
+     * @param z     the z coordinate
      * @return the location with the highest block
      */
-    public static Location getHighestBlockNether(World world, int x, int z, Location backup)
-    {
+    public static Location getHighestBlockNether(World world, int x, int z, Location backup) {
 
         int i = 31;
 
-        while (i <= 120) {
+        while (i < world.getMaxHeight()) {
             if (new Location(world, x, i, z).getBlock().isEmpty()) {
                 return new Location(world, x, i, z);
             }
@@ -1452,17 +1346,17 @@ public class Utils
 
     /**
      * Get the highest block at a location for an end world
+     *
      * @param world the world
-     * @param x the x coordinate
-     * @param z the z coordinate
+     * @param x     the x coordinate
+     * @param z     the z coordinate
      * @return the location with the highest block
      */
-    public static Location getHighestBlockEnd(World world, int x, int z)
-    {
+    public static Location getHighestBlockEnd(World world, int x, int z) {
 
         int i = 15;
 
-        while (i <= 255) {
+        while (i < world.getMaxHeight()) {
             if (new Location(world, x, i, z).getBlock().isEmpty()) {
                 return new Location(world, x, i, z);
             }
@@ -1474,11 +1368,11 @@ public class Utils
 
     /**
      * A countdown of type mm:SS
+     *
      * @param l the number of minutes
      * @return the formatted string
      */
-    public static String getCountDown(long l)
-    {
+    public static String getCountDown(long l) {
         //15:59
         int minutes = (int) TimeUnit.MILLISECONDS.toSeconds(l) / 60;
         int seconds = (int) (TimeUnit.MILLISECONDS.toSeconds(l) - TimeUnit.MINUTES.toSeconds(minutes));
@@ -1489,96 +1383,75 @@ public class Utils
     /**
      * @hidden
      */
-    public static void setMaxStackSize(Item item, int i){
-        try {
+    public static void readClassName() {
 
-            Field field = Item.class.getDeclaredField("maxStackSize");
-            field.setAccessible(true);
-            field.setInt(item, i);
+        String className = "com.Moshu.Main";
+        String path = "/" + className.replace('.', '/') + ".class";
 
-        } catch (Exception e) {}
-}
+        try (InputStream in = Main.class.getResourceAsStream(path);
 
-    /**
-     * @hidden
-     */
-    public static void sendNoAccess(Player p)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( "&fYou don't have permission");
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
-    }
+             DataInputStream dis = new DataInputStream(in)) {
 
-    public static void sendBuy(Player p, String command)
-    {
+            int magic = dis.readInt(); // 0xCAFEBABE
+            int minor = dis.readUnsignedShort();
+            int major = dis.readUnsignedShort();
 
-        p.sendMessage("");
-        p.sendMessage(format(" #00FF00&lDonate"));
-        p.sendMessage("");
-        p.sendMessage(format(" &fDoresti sa ai acces la comanda #00FF00/" + command + "&f?"));
-        p.sendMessage(format(" &fDoneaza acum si bucura-te de beneficii incredibile!"));
-        p.sendMessage(format(" #00FF00TE ASTEPTAM PE SITE &7| #00FF00&L/BUY"));
-        p.sendMessage("");
+            plugin.getLogger().log(Level.INFO, "Class file version: " + major + "." + minor + ", running on: " + System.getProperty("java.class.version"));
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
     /**
      * @hidden
      */
-    public static void sendNotPlayer()
-    {
-        Bukkit.getConsoleSender().sendMessage(Utils.format( "&c&lConsole > &fYou need to be a player in order to use this command."));
+    public static void sendNotPlayer() {
+        Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lConsole > &fYou need to be a player in order to use this command."));
     }
 
     /**
      * @hidden
      */
-    public static void sendTargetNull(Player p)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( "&fPlayer is offline");
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
-    }
-
-    /**
-     * @hidden
-     */
-    public static void sendSound(Player p)
-    {
+    public static void sendSound(Player p) {
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1.0F, 1.0F);
     }
 
     /**
-     * Send a player a certain sound
-     * @param p the player
-     * @param s the sound
-     */
-    public static void sendSound(Player p, Sound s)
-    {
-        p.playSound(p.getLocation(), s, 1.0F, 1.0F);
-    }
-
-    /**
      * @hidden
      */
-    public static void sendSoundHigh(Player p)
-    {
-        p.playSound(p.getLocation(), Sound.ENTITY_ARROW_HIT_PLAYER, 1.0F, 1.0F);
-    }
+    public static void sendBreakSound(Player p) {
+        if (p == null) return;
 
-    /**
-     * @hidden
-     */
-    public static void sendBreakSound(Player p)
-    {
+        String originalName = plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK");
+        String soundName = originalName.toLowerCase().replace("_", ".");
+        Sound sound = null;
 
+        try {
+
+            NamespacedKey key = NamespacedKey.minecraft(soundName);
+            sound = Registry.SOUNDS.get(key);
+
+        } catch (NoClassDefFoundError | NoSuchMethodError e) {
+            try {
+                sound = Sound.valueOf(originalName);
+            } catch (IllegalArgumentException ex) {
+                plugin.getLogger().warning("Invalid sound: " + soundName);
+            }
+        }
+
+        if (sound != null) {
+            p.playSound(p.getLocation(), sound, 1.0F, 1.0F);
+        }
+
+        /*
         Sound s;
 
         try
         {
-            s = Sound.valueOf(plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK"));
+            String soundString = plugin.getConfig().getString("settings.negative-sound", "BLOCK_ANVIL_BREAK");
+            s = Registry.SOUNDS.get(Key.key(soundString));
             p.playSound(p.getLocation(), s, 1.0F, 1.0F);
         }
         catch (IllegalArgumentException e)
@@ -1586,46 +1459,46 @@ public class Utils
             plugin.getLogger().log(Level.SEVERE, "Invalid negative sound", e);
         }
 
-    }
-
-    /**
-     * @hidden
-     */
-    public static void sendLevelupSound(Player p)
-    {
-
-        Sound s;
-
-        try
-        {
-            s = Sound.valueOf(plugin.getConfig().getString("settings.positive-sound", "ENTITY_PLAYER_LEVELUP"));
-            p.playSound(p.getLocation(), s, 1.0F, 1.0F);
-        }
-        catch (IllegalArgumentException e)
-        {
-            plugin.getLogger().log(Level.SEVERE, "Invalid positive sound", e);
-        }
+         */
 
     }
 
     /**
      * @hidden
      */
-    public static void sendNotInt(Player p)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( "&fArgumentul trebuie sa fie un numar");
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
+    public static void sendLevelupSound(Player p) {
+        if (p == null) return;
+
+        String originalName = plugin.getConfig().getString("settings.positive-sound", "ENTITY_PLAYER_LEVELUP");
+        String soundName = originalName.toLowerCase().replace("_", ".");
+        Sound sound = null;
+
+        try {
+
+            NamespacedKey key = NamespacedKey.minecraft(soundName);
+            sound = Registry.SOUNDS.get(key);
+
+        } catch (NoClassDefFoundError | NoSuchMethodError e) {
+            try {
+                sound = Sound.valueOf(originalName);
+            } catch (IllegalArgumentException ex) {
+                plugin.getLogger().warning("Invalid sound: " + soundName);
+            }
+        }
+
+        if (sound != null) {
+            p.playSound(p.getLocation(), sound, 1.0F, 1.0F);
+        }
+
     }
 
     /**
      * Check if a string contains only letters
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean validString(String s)
-    {
+    public static boolean validString(String s) {
         String regex = "^[a-zA-Z]*";
 
         Pattern pattern = Pattern.compile(regex);
@@ -1636,11 +1509,11 @@ public class Utils
 
     /**
      * Check if a string contains only alphanumerical characters
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean validAlphanumericString(String s)
-    {
+    public static boolean validAlphanumericString(String s) {
         String regex = "^[a-zA-Z0-9]+$";
 
         Pattern pattern = Pattern.compile(regex);
@@ -1650,54 +1523,26 @@ public class Utils
     }
 
     /**
-     * @hidden
-     */
-    public static void sendError(Player p, String s)
-    {
-        String i = Utils.format( "&c&lOops");
-        String m = Utils.format( s);
-        sendSound(p);
-        p.sendTitle(i, m, 30, 50, 30);
-    }
-
-    /**
-     * @hidden
-     */
-    public static String[] wrapText(String s)
-    {
-
-        StringBuilder sb = new StringBuilder(s);
-
-        int i = 0;
-        while ((i = sb.indexOf(" ", i + 30)) != -1) {
-            sb.replace(i, i + 1, "♥");
-        }
-
-        return sb.toString().split("♥");
-    }
-
-    /**
      * Checks if the player has all the slots of the inventory occupied
+     *
      * @param p the player
      * @return true/false
      */
-    public static boolean hasFullInventory(Player p)
-    {
+    public static boolean hasFullInventory(Player p) {
         return p.getInventory().firstEmpty() == -1;
     }
 
     /**
      * Checks if the player has all the slots of the inventory occupied
+     *
      * @param p the player
      * @return true/false
      */
-    public static boolean hasEmptySlot(Player p)
-    {
+    public static boolean hasEmptySlot(Player p) {
 
-        for(ItemStack is : p.getInventory().getContents())
-        {
+        for (ItemStack is : p.getInventory().getContents()) {
 
-            if(is == null || is.getType() == Material.AIR) return true;
+            if (is == null || is.getType() == Material.AIR) return true;
 
         }
 
@@ -1707,43 +1552,40 @@ public class Utils
 
     /**
      * Temporarily gives invulnerability to a player
-     * @param p the player
+     *
+     * @param p       the player
      * @param seconds how many seconds should the effect last
      */
-    public static void tempGod(Player p, int seconds)
-    {
+    public static void tempGod(Player p, int seconds) {
 
-        if(p.isInvulnerable()) return;
+        if (p.isInvulnerable()) return;
 
         p.setInvulnerable(true);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
         {
 
-            if(Bukkit.getPlayer(p.getName()) != null)
-            {
+            if (Bukkit.getPlayer(p.getName()) != null) {
                 p.setInvulnerable(false);
             }
 
-        }, seconds * 20);
+        }, seconds * 20L);
 
     }
 
     /**
      * Get how many free slots the inventory has
+     *
      * @param inv the inventory
      * @return how many free slots are in the inventory
      */
-    public static int getFreeSlots(Inventory inv)
-    {
+    public static int getFreeSlots(Inventory inv) {
 
         int x = 0;
 
-        for(int i = 0; i < inv.getSize(); i++)
-        {
+        for (int i = 0; i < inv.getSize(); i++) {
 
-            if(inv.getItem(i) == null || inv.getItem(i).getType().equals(Material.AIR))
-            {
+            if (inv.getItem(i) == null || inv.getItem(i).getType().equals(Material.AIR)) {
                 x++;
             }
 
@@ -1754,62 +1596,61 @@ public class Utils
 
     }
 
-    public static String setInternalPlaceholders(Player p, String s)
-    {
+    public static String setInternalPlaceholders(Player p, String s) {
 
         s = s.replace("%player%", p.getName());
         return s;
 
     }
 
-    public static void trySpawningParticle(Location location, Particle p)
-    {
-        try
-        {
+    public static void trySpawningParticle(Location location, Particle p) {
+        if (location == null || location.getWorld() == null || p == null) return;
+        try {
             location.getWorld().spawnParticle(p, location.clone().add(0, 3, 0), 1);
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE, "Invalid particle for falling treasure!");
         }
     }
 
-    public static ItemStack checkMaterial(String mat)
-    {
+    public static ItemStack checkMaterial(String mat) {
 
-        Material m;
-
-        try {
-
-            m = Material.getMaterial(mat);
-            return new ItemStack(m);
-
-        }
-        catch (NullPointerException e) {
-            plugin.getLogger().log(Level.SEVERE, "Invalid material " + mat  , e);
+        if (mat == null) {
+            plugin.getLogger().severe("Null material item in your treasure file! Probably from an invalid custom item.");
+            return new ItemStack(Material.STONE);
         }
 
-        return new ItemStack(Material.STONE);
+        Material m = Material.matchMaterial(mat);
+
+        if (m == null) {
+            plugin.getLogger().severe("Material '" + mat + "' not found! Falling back to STONE.");
+            return new ItemStack(Material.STONE);
+        }
+
+        return new ItemStack(m);
 
     }
 
     /**
      *
      * @param world, world to teleport into
-     * @param max, max coordinates to teleport
+     * @param max,   max coordinates to teleport
      * @return the highest block at a locations
      */
 
-    public static Location randomCoordonatesMoreThan(World world, double max, int min)
-    {
+    public static Location randomCoordonatesMoreThan(World world, double max, double min) {
 
-        int x = (int) (Math.random() * max + 1);
-        int z = (int) (Math.random() * max + 1);
+        //num = (Math.random() * (2 * MAX + 1)) - MAX;
+        int x = (int) ((Math.random() * 2 * max + 1) - min);
+        int z = (int) ((Math.random() * 2 * max + 1) - min);
 
-        while(x < min || z < min)
-        {
-            x = (int) (Math.random() * max + 1);
-            z = (int) (Math.random() * max + 1);
+        //plugin.getLogger().log(Level.INFO, "Debug: Initial spawn location candidate - X: " + x + ", Z: " + z);
+
+        double negativeMin = -1 * min;
+
+        while (x < negativeMin || z < negativeMin || x > max || z > max) {
+            //plugin.getLogger().log(Level.INFO, "Debug: Spawn location candidate - X: " + x + ", Z: " + z);
+            x = (int) ((Math.random() * 2 * max + 1) - min);
+            z = (int) ((Math.random() * 2 * max + 1) - min);
         }
 
         return getHighestBlock(world, x, z, world.getSpawnLocation());
@@ -1818,14 +1659,13 @@ public class Utils
 
     /**
      * Check if an inventory is empty
+     *
      * @param inv the inventory
      * @return true/false
      */
-    public static boolean isEmpty(Inventory inv)
-    {
-        for(ItemStack it : inv.getContents())
-        {
-            if(it != null) return false;
+    public static boolean isEmpty(Inventory inv) {
+        for (ItemStack it : inv.getContents()) {
+            if (it != null) return false;
         }
 
         return true;
@@ -1833,11 +1673,11 @@ public class Utils
 
     /**
      * Get the last char of the string
+     *
      * @param s the string
      * @return the last character
      */
-    public static String lastChar(String s)
-    {
+    public static String lastChar(String s) {
         return s.substring(s.length() - 1);
     }
 
@@ -1846,32 +1686,23 @@ public class Utils
      * @param s The time you wish to transform, formatted. (ex: 1d, 3h, 30m)
      * @return The millies corresponding to the value, defaults at minutes
      */
-    public static long getMillies(String s)
-    {
+    public static long getMillies(String s) {
 
-        if(!s.isEmpty())
-        {
+        if (!s.isEmpty()) {
 
-            if(isInt(s)) return 0;
-            if(!containsNumbers(s)) return 0;
+            if (isInt(s)) return 0;
+            if (!containsNumbers(s)) return 0;
 
             long l = Long.parseLong(s.replaceAll("[a-zA-z]", "").trim());
 
-            if(lastChar(s).equals("d"))
-            {
+            if (lastChar(s).equals("d")) {
                 return TimeUnit.DAYS.toMillis(l);
-            }
-            else if(lastChar(s).equals("h"))
-            {
+            } else if (lastChar(s).equals("h")) {
                 return TimeUnit.HOURS.toMillis(l);
 
-            }
-            else if(lastChar(s).equals("m"))
-            {
+            } else if (lastChar(s).equals("m")) {
                 return TimeUnit.MINUTES.toMillis(l);
-            }
-            else
-            {
+            } else {
                 return 0;
             }
 
@@ -1883,214 +1714,103 @@ public class Utils
 
     /**
      * Check if a string ends with a caracter used to distinguish time (like m for minutes, h for hours, d for days, etc)
+     *
      * @param s the string
      * @return true/false
      */
-    public static boolean endsWithSpecialCharacter(String s)
-    {
+    public static boolean endsWithSpecialCharacter(String s) {
         return s.endsWith("m") || s.endsWith("h") || s.endsWith("d");
     }
 
     /**
      * Check if a String is actually an int
+     *
      * @param str the string
      * @return true/false
      */
-    public static boolean isInt(String str)
-    {
-        try
-        {
+    public static boolean isInt(String str) {
+        try {
             Integer.parseInt(str);
             return true;
+        } catch (NumberFormatException e) {
         }
-        catch (NumberFormatException e) {}
         return false;
     }
 
     /**
      * Check if a char is actually an int
+     *
      * @param c the char
      * @return true/false
      */
-    public static boolean isInt(char c)
-    {
-        try
-        {
+    public static boolean isInt(char c) {
+        try {
             Integer.parseInt(String.valueOf(c));
             return true;
+        } catch (NumberFormatException e) {
         }
-        catch (NumberFormatException e) {}
         return false;
     }
 
 
     /**
      * Check if a String is actually a double
+     *
      * @param str the string
      * @return true/false
      */
-    public static boolean isDouble(String str)
-    {
-        try
-        {
+    public static boolean isDouble(String str) {
+        try {
             Double.parseDouble(str);
             return true;
+        } catch (NumberFormatException e) {
         }
-        catch (NumberFormatException e) {}
         return false;
     }
 
 
     /**
      * Convert seconds to hours
+     *
      * @param seconds the time in seconds
      * @return the rounded hours
      */
-    public static int hoursFromSeconds(int seconds)
-    {
+    public static int hoursFromSeconds(int seconds) {
         return seconds / 3600;
     }
 
     /**
      * Get a property from server.properties file
+     *
      * @param s the string you want to get
      * @param f the file you wish to access
      * @return the value you wish to get
      */
-    public static String getProperty(String s, File f)
-    {
+    public static String getProperty(String s, File f) {
         Properties pr = new Properties();
 
-        try
-        {
-            FileInputStream in = new FileInputStream(f);
-            pr.load(in);
-            String string = pr.getProperty(s);
-            return string;
+        try (FileInputStream in = new FileInputStream(f);
+             InputStreamReader reader = new InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8)) {
+            pr.load(reader);
+            return pr.getProperty(s, "");
+        } catch (IOException e) {
         }
-
-        catch (IOException e)
-        { }
 
         return "";
     }
 
     /**
      * Get the main world of the server
+     *
      * @return the main world's name
      */
-    public static String getMainWorld()
-    {
+    public static String getMainWorld() {
 
         File s = new File("server.properties");
         return getProperty("level-name", s);
 
     }
 
-
-    /**
-     * Encodes an array of ItemStacks into Base64
-     * @param is the array you want to encode
-     * @return the encoded string
-     */
-    public static String inventoryToBase64(ItemStack[] is) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            dataOutput.writeInt(is.length);
-
-            for (int i = 0; i < is.length; i++) {
-                dataOutput.writeObject(is[i]);
-            }
-
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-
-            //Converts the inventory and its contents to base64, This also saves item meta-data and inventory type
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not convert inventory to base64.", e);
-        }
-    }
-
-    /**
-     * Encodes an item into Base64
-     * @param is the item to encode
-     * @return the encoded string
-     */
-    public static String itemToBase64(ItemStack is) {
-        try {
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            dataOutput.writeObject(is);
-            dataOutput.close();
-            return Base64Coder.encodeLines(outputStream.toByteArray());
-
-            //Converts the inventory and its contents to base64, This also saves item meta-data and inventory type
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not convert inventory to base64.", e);
-        }
-    }
-
-    /**
-     * Decodes an item array from base64 back into an ItemStack array
-     * @param data the encoded string
-     * @return the decoded ItemStack array
-     * @throws IOException if there is a problem during the stream
-     */
-    public static ItemStack[] stackFromBase64(String data) throws IOException {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-            ItemStack[] is = new ItemStack[dataInput.readInt()];
-
-            for (int i = 0; i < is.length; i++) {
-                is[i] = (ItemStack) dataInput.readObject();
-            }
-
-            dataInput.close();
-            return is;
-
-        } catch (ClassNotFoundException e) {
-
-            e.printStackTrace();
-            throw new IOException("Could not decode inventory.", e);
-
-        }
-
-
-
-    }
-
-    /**
-     * Decodes an item from base64 back into an ItemStack
-     * @param data the encoded string
-     * @return the decoded ItemStack
-     * @throws IOException if there is a problem during the stream
-     */
-    public static ItemStack itemFromBase64(String data) throws IOException
-    {
-
-        try {
-
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-
-            ItemStack is = (ItemStack) dataInput.readObject();
-
-            dataInput.close();
-
-            return is;
-
-        } catch (ClassNotFoundException e) {
-
-            e.printStackTrace();
-            throw new IOException("Could not decode inventory.", e);
-
-        }
-    }
-
 }
+
 

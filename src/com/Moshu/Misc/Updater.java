@@ -1,38 +1,41 @@
+/*
+ * This software is licensed under the PolyForm Noncommercial License 1.0.0.
+ * You may obtain a copy of the License at:
+ * https://polyformproject.org/licenses/noncommercial/1.0.0
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ */
+
 package com.Moshu.Misc;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import com.Moshu.Main;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+
 public class Updater implements Listener {
 
-    private static Main plugin;
+    private final Main plugin;
 
-    public Updater(Main plugin)
-    {
+    public Updater(Main plugin) {
         this.plugin = plugin;
     }
 
 
-    private String url = "https://api.spigotmc.org/legacy/update.php?resource=";
-    private String id = "118535";
+    private static final String URL_BASE = "https://api.spigotmc.org/legacy/update.php?resource=";
+    private static final String RESOURCE_ID = "118535";
 
     private boolean isAvailable;
-
-    public Updater()
-    {
-
-    }
 
     public boolean isAvailable() {
         return isAvailable;
@@ -58,8 +61,7 @@ public class Updater implements Listener {
 
     private boolean checkUpdate() {
 
-        if(!plugin.getConfigFile().getBoolean("settings.updater", true))
-        {
+        if (!plugin.getConfigFile().getBoolean("settings.updater", true)) {
             return false;
         }
 
@@ -67,39 +69,42 @@ public class Updater implements Listener {
 
         try {
             String localVersion = plugin.getDescription().getVersion();
-            HttpsURLConnection connection = (HttpsURLConnection) new URL(url + id).openConnection();
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(URL_BASE + RESOURCE_ID).openConnection();
             connection.setRequestMethod("GET");
-            String raw = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
+
+            String raw;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+                raw = reader.readLine();
+            }
+
+            if (raw == null) {
+                return false;
+            }
 
             String remoteVersion;
-            if(raw.contains("-")) {
+            if (raw.contains("-")) {
                 remoteVersion = raw.split("-")[0].trim();
             } else {
                 remoteVersion = raw;
             }
 
-            if(!localVersion.equalsIgnoreCase(remoteVersion))
-            {
+            if (!localVersion.equalsIgnoreCase(remoteVersion)) {
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fAn update is ready for you:"));
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&fhttps://www.spigotmc.org/resources/mystic-treasures-animated-feature-packed-and-lightweight.118535/updates"));
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5Your version: &f" + localVersion + "&5, remote version: &f" + remoteVersion));
 
                 return true;
-            }
-            else
-            {
+            } else {
                 Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fYour version is up to date"));
                 return false;
             }
 
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             Bukkit.getConsoleSender().sendMessage(Utils.format("&5&lMystic&d&lTreasures: &fThere was a problem checking the updates."));
             return false;
         }
     }
 
 
-
-
 }
+

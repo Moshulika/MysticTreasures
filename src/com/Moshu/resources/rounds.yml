@@ -1,0 +1,49 @@
+rounds:
+  default_round:
+    debuff:
+      shockwave: true
+      clicks-to-debuff: 5
+      potion-effects:
+        - "POISON:1:200"
+        - "BLINDNESS:1:200"
+    mobs:
+      ZOMBIE:
+        mythic-mobs: false
+        entity-type: "ZOMBIE"
+        custom-name: "&c&lTreasure Keeper"
+        range: "3-5"
+        chance: 100
+        menu-item: "ZOMBIE_HEAD"
+        max-health: 20
+        potion-effects:
+          - "SPEED:1"
+        drops:
+          diamonds: # This key needs to be unique
+            item: "DIAMOND"
+            name: "&6Awesome Drop"
+            lore:
+              - "Some text here"
+            amount: "1-10"
+            chance: 0
+            enchantments:
+              - ""
+        equipment:
+          helmet: "DIAMOND_HELMET"
+          chestplate: "DIAMOND_CHESTPLATE"
+          leggings: "DIAMOND_LEGGINGS"
+          boots: "DIAMOND_BOOTS"
+          main-hand: "DIAMOND_SWORD"
+          off-hand: "SHIELD"
+    item-rewards:
+      DIAMOND:
+        item: "DIAMOND"
+        name: "&bDiamond"
+        amount: "1-3"
+        chance: 50
+        menu-item: "DIAMOND"
+        award-to-top: 0
+    command-rewards:
+      MONEY:
+        command: "eco give %player% 100"
+        chance: 50
+        menu-item: "SUNFLOWER"

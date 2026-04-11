@@ -1,0 +1,119 @@
+treasure:
+  ###############################################################################
+  # 💎 TREASURE ID INFORMATION
+  #
+  # The key below (e.g. `default`) represents the **Treasure ID**.
+  # - This ID **must be unique** across all treasures.
+  # - Only **ONE treasure with the same ID** can be active at once in a world.
+  # - A world can have **unlimited active treasures** as long as each has
+  #   a different ID.
+  #
+  ###############################################################################
+
+  default:
+
+    ###########################################################################
+    # 🟢 GENERAL TREASURE SETTINGS
+    ###########################################################################
+    world-name: "world"
+    treasure-name: "Hidden Treasure"
+    treasure-block: ENDER_CHEST
+    menu-item: ENDER_CHEST
+    treasure-particles: COMPOSTER
+    treasure-animation: "protection" # Options: none, spiral, orb, protection (⚠ only works if 'require-all-mobs-dead' is true)
+    treasure-icon: EMERALD # Used only if DecentHolograms / FancyHolograms is NOT installed
+    treasure-spawns-inside: false # If true, treasure spawns inside structures/areas
+    max-treasure-distance: 15000 # Overrides world border if smaller (useful if border unset)
+    duration: 20 # Minutes before treasure despawns
+    rounds:
+      - "default_round"
+    waypoint:
+      enabled: false # Only working on Spigot/Paper >= 1.21.6
+      color: "GOLD" # Minecraft colors
+      range: 1000   # Distance from treasure to show the waypoint to players
+    flare:
+      type: "none" # Options: none, few, many
+      particle: COMPOSTER
+    fireworks: true # Fireworks on treasure click
+    fall-from-the-sky: true # If false, treasure just appears instantly (useful for indoor spawns)
+
+    # ======================================================
+    #  🎁 AWARD METHOD - You must choose ONLY ONE from the list
+    # ======================================================
+    #
+    # Available options (case-insensitive):
+    #
+    #  CHEST          - Players get rewards directly from a loot chest - supports reward obfuscation
+    #  ALL_PLAYERS    - Every player who participated gets the rewards
+    #  HIGHEST_DAMAGE - Only the player with the highest damage dealt gets rewards
+    #  TOP_X          - The top X players with the most damage are rewarded
+    #                   (Configure the number with 'only-reward-top-x')
+    #                 - Example usage: `award-method: TOP_5`
+    #  DROP_ON_GROUND - Rewards are dropped on the ground
+    #
+    # NOTE:
+    # - Only ONE award method can be active at a time.
+    # - If you misconfigure this option, the plugin will fall back
+    #   to a safe default (CHEST).
+    #
+    award-method: CHEST
+    dropped-item-name: "&6Treasure Loot" # If DROP_ON_GROUND is true, this is the name of the dropped item
+
+    ###########################################################################
+    # ⚔️ TREASURE COMBAT & MOB SETTINGS
+    ###########################################################################
+    distance-from-player-to-spawn-mobs: 40 # 0 = spawn instantly; otherwise spawns when player enters radius
+    mob-wandering-distance: 40 # Max distance mobs can wander before being teleported back
+    enable-mob-tracker: true
+    coords-near-treasure: 0 # Offset for placeholders {x-offset}, {z-offset} → gives approximate coords
+    require-all-mobs-dead: true # Must kill mobs before claiming treasure
+    animate-mob-spawning: true # Show animation if mobs spawn >0 distance away
+    minutes-before-pickup: 5 # Players must wait X minutes before opening treasure
+    clicks-to-open: 10 # Number of right clicks required
+    cooldown-between-clicks: 10 # Milliseconds delay between clicks
+
+    ###########################################################################
+    # 📍 TREASURE SPAWN SETTINGS
+    ###########################################################################
+    spawn-to-certain-coords: false # True → treasure spawns only at coords below (if more than one, randomly selected)
+    spawn-coords:
+      - "101:100:55" # Use format X:Y:Z (must be inside border & safe enough)
+
+    ###########################################################################
+    # 📍 TREASURE RANDOM SPAWN TASK SETTINGS (RANDOMLY OCCURS THROUGHT THE DAY)
+    ###########################################################################
+    spawn-task:
+      chance-for-treasure: 20 # % Chance to spawn a random treasure
+      interval: 30 # Minutes between each spawn attempt (20% chance every 30 mins in this example)
+      cooldown: 15 # Minutes cooldown between treasures of same type
+      delay: 200 # Delay in ticks between announcement and spawn
+
+
+    ###########################################################################
+    # 📍 TREASURE SCHEDLUED SPAWN SETTINGS (FIXED TIME, REPEATING TREASURES)
+    ###########################################################################
+    scheduler:
+      schedule-1: # Multiple schedules supported
+        enabled: false
+        day: "monday" # Options: daily OR specific days (monday, tuesday, etc.)
+        time: "17:00" # 24h format (18:30 not 6:30PM)
+        world: "world"
+        coords: "101:100:55" # "random" OR X:Y:Z
+
+    ###########################################################################
+    # 🔑 TREASURE KEY (OPTIONAL) | Supports custom items from ItemsAdder, Oraxen, Nexo and MMOItems (check ItemRewards for more info)
+    ###########################################################################
+    treasure-key:
+      enabled: false
+      item: TRIPWIRE_HOOK
+      name: "&c&l&oTREASURE KEY"
+      lore:
+        - "&7&oOpen a treasure chest"
+        - "&7&ousing this mysterious key"
+
+    ###########################################################################
+    # ✨ TREASURE POTION EFFECTS (WHEN A PLAYERS WALKS INSIDE THE RANGE OF THE TREASURE)
+    #     RANGE CONFIGURABLE IN CONFIG.YML, OPTION `potion-effect-radius`
+    ###########################################################################
+    potion-effects:
+      - "REGENERATION:1"

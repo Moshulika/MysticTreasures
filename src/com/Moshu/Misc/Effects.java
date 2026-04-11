@@ -1,8 +1,22 @@
+/*
+ * This software is licensed under the PolyForm Noncommercial License 1.0.0.
+ * You may obtain a copy of the License at:
+ * https://polyformproject.org/licenses/noncommercial/1.0.0
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ */
+
 package com.Moshu.Misc;
 
-import com.Moshu.TreasureHunt.Hunt;
-import org.bukkit.*;
-import org.bukkit.entity.Player;
+import com.Moshu.Misc.Storage.Settings;
+import com.Moshu.TreasureHunt.Core.Hunt;
+import com.Moshu.TreasureHunt.Core.Treasure;
+import org.bukkit.Bukkit;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -10,7 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Effects {
 
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
 
     private static final Particle DUST = Settings.getCompatParticle("dust");
     private static final Particle WAX_OFF = Settings.getCompatParticle("wax_off");
@@ -21,20 +35,18 @@ public class Effects {
     private static final Particle FLAME = Settings.getCompatParticle("flame");
     private static final Particle CRIT = Settings.getCompatParticle("crit");
 
-    private static Location getGroundParticleLocation(Location loc)
-    {
+    private static Location getGroundParticleLocation(Location loc) {
         return loc.add(ThreadLocalRandom.current().nextDouble(-1.2, 1.2), 0, ThreadLocalRandom.current().nextDouble(-1.2, 1.2));
     }
 
-    public static void runCircle(Location base_loc)
-    {
+    public static void runCircle(Treasure t) {
+
+        Location base_loc = t.getLocation();
 
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            int radius = 1;
 
-            double i = 0;
             boolean rev;
             int step = 0;
             double x, y, z;
@@ -44,17 +56,13 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!Hunt.isActive(base_loc.getWorld()))
-                {
+                if (!t.isActive()) {
                     this.cancel();
                     return;
-                }
-                else
-                {
-                    h = Hunt.getHunt(base_loc.getWorld());
+                } else {
+                    h = t.getHunt();
 
-                    if(h.getTreasure() != null && h.getTreasure().isActive() && h.getTreasure().mobsCleared())
-                    {
+                    if (h.getTreasure() != null && h.getTreasure().isActive() && h.getTreasure().mobsCleared()) {
                         this.cancel();
                         return;
                     }
@@ -65,24 +73,20 @@ public class Effects {
 
                 step += rev ? -1 : 1;
 
-                if(step >= 30)
-                {
+                if (step >= 30) {
                     rev = true;
-                }
-                else if(step <= 0)
-                {
+                } else if (step <= 0) {
                     rev = false;
                 }
 
                 y = loc.getY() + (step / 10D) - 0.5;
 
-                for(int s = 0; s < 18; s++)
-                {
+                for (int s = 0; s < 18; s++) {
 
                     x = Math.cos(s);
                     z = Math.sin(s);
 
-                    loc.getWorld().spawnParticle(CRIT, loc.getX() + x + 0.5, y , loc.getZ() + 0.5 + z, 0, 0,0,0, 0.0001);
+                    loc.getWorld().spawnParticle(CRIT, loc.getX() + x + 0.5, y, loc.getZ() + 0.5 + z, 0, 0, 0, 0, 0.0001);
 
                 }
 
@@ -91,20 +95,18 @@ public class Effects {
 
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, 1);
-
+        run.runTaskTimerAsynchronously(plugin, 0, 2);
 
 
     }
 
-    public static void runOrbs(Location base_loc)
-    {
+    public static void runOrbs(Treasure t) {
 
+        Location base_loc = t.getLocation();
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            int radius = 1;
-            Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(255, 255, 0), 1);
+            final Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(255, 255, 0), 1);
 
             double c = 0;
             double i = 0;
@@ -115,8 +117,7 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!Hunt.isActive(base_loc.getWorld()))
-                {
+                if (!t.isActive()) {
                     this.cancel();
                     return;
                 }
@@ -129,22 +130,17 @@ public class Effects {
                 x2 = -x;
                 z2 = -z;
 
-                if(i <= 0)
-                {
+                if (i <= 0) {
                     rev = false;
                 }
 
-                if(i >= 0.3)
-                {
+                if (i >= 0.3) {
                     rev = true;
                 }
 
-                if(rev)
-                {
+                if (rev) {
                     i -= 0.01;
-                }
-                else
-                {
+                } else {
                     i += 0.01;
                 }
 
@@ -153,26 +149,26 @@ public class Effects {
 
                 c += 0.18;
 
-                loc.getWorld().spawnParticle(SOUL, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(SOUL, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
 
-                loc.getWorld().spawnParticle(SOUL_FIRE_FLAME, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
-                loc.getWorld().spawnParticle(WARPED_SPORE, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(SOUL_FIRE_FLAME, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
+                loc.getWorld().spawnParticle(WARPED_SPORE, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
 
             }
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, 1);
+        run.runTaskTimerAsynchronously(plugin, 0, 2);
 
     }
 
-    public static void createDoubleSpiral(Location base_loc) {
+    public static void createDoubleSpiral(Treasure t) {
 
+        Location base_loc = t.getLocation();
 
         BukkitRunnable run = new BukkitRunnable() {
 
             Location loc;
-            int radius = 1;
-            Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(0, 128, 255), 1);
+            final Particle.DustOptions dust = new Particle.DustOptions(Color.fromBGR(0, 128, 255), 1);
 
             int step = 0;
             boolean rev;
@@ -183,8 +179,7 @@ public class Effects {
             @Override
             public void run() {
 
-                if(!Hunt.isActive(base_loc.getWorld()))
-                {
+                if (!t.isActive()) {
                     this.cancel();
                     return;
                 }
@@ -199,25 +194,22 @@ public class Effects {
 
                 step += rev ? -1 : 1;
 
-                if(step >= 30)
-                {
+                if (step >= 30) {
                     rev = true;
                     loc.getWorld().spawnParticle(LAVA, loc, 3);
-                }
-                else if(step <= 0)
-                {
+                } else if (step <= 0) {
                     rev = false;
                     loc.getWorld().spawnParticle(LAVA, loc, 3);
                 }
 
                 y = loc.getY() + (step / 10D) - 0.5;
 
-                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x + 0.5, y , loc.getZ() + z + 0.5, 0, 0,0,0, 0.0001);
-                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x2 + 0.5, y , loc.getZ() + z2 + 0.5, 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x + 0.5, y, loc.getZ() + z + 0.5, 0, 0, 0, 0, 0.0001);
+                loc.getWorld().spawnParticle(Particle.FLAME, loc.getX() + x2 + 0.5, y, loc.getZ() + z2 + 0.5, 0, 0, 0, 0, 0.0001);
 
                 c += 0.2;
 
-                loc.getWorld().spawnParticle(FLAME, getGroundParticleLocation(loc), 0, 0,0,0, 0.0001);
+                loc.getWorld().spawnParticle(FLAME, getGroundParticleLocation(loc), 0, 0, 0, 0, 0.0001);
 
 
                 //i += 0.03;
@@ -226,9 +218,10 @@ public class Effects {
 
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, 1);
+        run.runTaskTimerAsynchronously(plugin, 0, 2);
 
     }
 
 
 }
+

@@ -1,91 +1,172 @@
+/*
+ * This software is licensed under the PolyForm Noncommercial License 1.0.0.
+ * You may obtain a copy of the License at:
+ * https://polyformproject.org/licenses/noncommercial/1.0.0
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ */
+
 package com.Moshu.TreasureHunt;
 
-import com.Moshu.Misc.Settings;
+import com.Moshu.Misc.Storage.Settings;
 import com.Moshu.Misc.Utils;
+import com.Moshu.TreasureHunt.Components.TreasureData;
+import com.Moshu.TreasureHunt.Core.Hunt;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
+/**
+ * Manages the scheduling and execution of treasure hunt tasks.
+ * This class handles both scheduled treasure spawns and random treasure generation
+ * based on configured intervals and conditions.
+ * <p>
+ * The class provides two main task types:
+ * - Scheduler tasks: Execute based on predefined schedules
+ * - Random tasks: Execute based on chance and cooldown systems
+ *
+ * @author Moshu
+ * @version 1.0
+ */
 public class TreasureTask {
 
-    private static Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
-    private static long lastHunt;
+    private static final Plugin plugin = Bukkit.getPluginManager().getPlugin("MysticTreasures");
+    private static final HashMap<String, Long> lastClaimTimestamps = new HashMap<>();
 
-    public static void updateLastHunt()
-    {
-        lastHunt = System.currentTimeMillis();
+    /**
+     * Updates the timestamp of the last treasure hunt for a specific identifier.
+     * Used to track cooldown periods between hunts of the same type.
+     */
+    public static void updateLastHunt(String identifier) {
+        lastClaimTimestamps.put(identifier, System.currentTimeMillis());
     }
 
-    public static void task()
-    {
+    /**
+     * Gets the last claim timestamp for a specific treasure identifier.
+     *
+     * @return The timestamp in milliseconds, or 0 if never claimed.
+     */
+    public static long getLastClaim(String identifier) {
+        return lastClaimTimestamps.getOrDefault(identifier, 0L);
+    }
+
+    /**
+     * Starts the scheduler task that checks for scheduled treasure spawns.
+     * Runs every 15 seconds (300 ticks) and processes all configured treasure schedulers.
+     * Prevents spawning treasures too frequently by maintaining timestamps.
+     */
+    public static void schedulerTask() {
+
+        BukkitRunnable task = new BukkitRunnable() {
+
+            final HashMap<String, Long> timestamps = new HashMap<String, Long>();
+
+            @Override
+            public void run() {
+
+                if (Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
+
+                for (TreasureScheduler s : TreasureData.getAllTreasureSchedulers()) {
+
+                    if (s.shouldSpawn()) {
+
+                        if (timestamps.containsKey(s.getId())) {
+                            if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - timestamps.get(s.getId())) < 5) {
+                                //plugin.getLogger().log(Level.WARNING, "Skipping scheduled treasure for being to close to previous treasure!");
+                                continue;
+                            }
+                        }
+
+                        if (s.spawn()) {
+                            plugin.getLogger().log(Level.INFO, "Spawning scheduled treasure: " + s.getId());
+                            timestamps.put(s.getId(), System.currentTimeMillis());
+                            break;
+                        } else
+                            plugin.getLogger().log(Level.SEVERE, "Something went wrong while trying to spawn scheduled treasure treasure!");
+
+                    }
+
+                }
+
+            }
+
+
+        };
+
+        task.runTaskTimer(plugin, 0, 300);
+
+    }
+
+    /**
+     * Checks if any scheduled treasure should spawn to prevent concurrent spawns.
+     *
+     * @return True if a scheduled treasure is about to spawn, false otherwise
+     */
+    private static boolean preventConcurrentSpawn() {
+
+        for (TreasureScheduler s : TreasureData.getAllTreasureSchedulers()) {
+            if (s.shouldSpawn()) return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Starts the random treasure generation task.
+     * Creates tasks for each treasure data configuration with random delays
+     * and processes them based on chance and cooldown systems.
+     */
+    public static void task() {
 
         int delay;
 
-        for(String s : plugin.getConfig().getConfigurationSection("settings.enabled-worlds").getKeys(false))
-        {
+        for (TreasureData d : TreasureData.getTreasureData()) {
 
             delay = ThreadLocalRandom.current().nextInt(200, 1200);
-            World w = Bukkit.getWorld(Settings.getWorldString(s, "world-name"));
+            final String identifier = d.getIdentifier();
 
-            if(w == null)
-            {
-                plugin.getLogger().log(Level.SEVERE, "Invalid world name: " + w.getName());
-                return;
+            World w = Bukkit.getWorld(d.getWorldName());
+
+            if (w == null) {
+                plugin.getLogger().log(Level.SEVERE, "Invalid world name inside " + identifier + "'s treasure configuration. Make sure the world declared in `world-name` exists on your server!");
+                continue;
             }
 
-            BukkitRunnable run = new BukkitRunnable()
-            {
+            BukkitRunnable run = new BukkitRunnable() {
 
                 @Override
                 public void run() {
 
-                    String worldName = w.getName();
+                    if (preventConcurrentSpawn()) return;
+                    if (Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
 
-                    if(Bukkit.getOnlinePlayers().size() < Settings.getWorldIntUnknown(worldName, "min-players-online")) return;
+                    if (Utils.chance() < d.getChanceForTreasure()) {
 
-                    int chance = Utils.chance();
+                        if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - getLastClaim(identifier)) < d.getCooldown())
+                            return;
+                        if (Hunt.isHuntActive(identifier)) return;
 
-                    if(chance < Settings.getWorldIntUnknown(worldName, "chance-for-treasure"))
-                    {
-                        if(TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - lastHunt) < Settings.getWorldIntUnknown(worldName, "cooldown")) return;
-
-                        if(Hunt.isActive(w)) return;
-                        if(Hunt.huntStarting(w)) return;
-
-                        Hunt.addHunt(w);
-                        Hunt h = new Hunt(w, Settings.getWorldIntUnknown(worldName, "duration"));
-
-                        BukkitRunnable run = new BukkitRunnable()
-                        {
-
-                            @Override
-                            public void run() {
-
-                                if(h.getLocation() == null) return;
-
-                                h.start();
-                                this.cancel();
-
-                            }
-                        };
-
-                        run.runTaskTimerAsynchronously(plugin, 0, 1);
-
+                        Hunt h = new Hunt(identifier, d.getDuration());
+                        h.startOnLocationFound();
 
                     }
 
                 }
             };
 
-            run.runTaskTimer(plugin, delay, (long) Settings.getWorldIntUnknown(w.getName(), "interval") * 1200);
+            run.runTaskTimer(plugin, delay, (long) d.getInterval() * 1200);
 
         }
 
     }
 
 }
+
