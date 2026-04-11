@@ -40,4 +40,4 @@ projectJDK: "21" #(Applied in CI/CD pipeline)
 #    total: 50
 
 #Specify Qodana linter for analysis (Applied in CI/CD pipeline)
-linter: jetbrains/qodana-jvm:2025.2
+linter: jetbrains/qodana-jvm-community
