@@ -1,6 +1,10 @@
-# 📝 MysticTreasures TODO
+# 📝 MysticTreasures TODO v3.1
 
 This list tracks planned improvements, bug fixes, and architectural changes for MysticTreasures.
+
+## Manual testing of all features is needed
+This is a major change of core plugins functionalities and this being a large update, in which AI has contributed, it is
+required that manual checks are done for all systems.
 
 ## 🚀 Performance & Optimization
 - [ ] **Cached Settings:** Implement full caching for all configuration values in `Settings.java` to avoid frequent `getConfig()` calls.
