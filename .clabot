@@ -4,6 +4,7 @@
     "dependabot[bot]",
     "github-actions[bot]"
   ],
+  "label": "cla-signed",
   "message": "Thank you for your pull request! We require contributors to sign our [Contributor License Agreement](https://github.com/Moshulika/MysticTreasures/blob/main/CONTRIBUTING.md#%EF%B8%8F-contributor-license-agreement-cla). @{{usersWithoutCLA}}, please sign the CLA and then reply with `recheck` to this comment.",
-  "recheckComment": "recheck"
+  "recheckComment": "The GitHub CLA Bot is rechecking to see that you have signed the CLA"
 }
