@@ -30,11 +30,17 @@ To maintain a consistent and high-quality codebase, please adhere to these stand
 
 - **Naming:** Follow standard Java naming conventions (e.g., `CamelCase` for classes, `camelCase` for variables and methods).
 - **Style:** Use 4 spaces for indentation.
-- **License Headers:** All new Java files **MUST** include the `PolyForm Noncommercial License` header. You can find this header in existing files or use the provided scripts to add it automatically.
+- **License Headers:** All new Java files **MUST** include the `Apache License 2.0 + Commons Clause` header. You can find this header in existing files or use the provided scripts to add it automatically.
 - **Quality Checks:** Before submitting, run our quality scripts:
   - **Windows:** `powershell ./scripts/quality-check.ps1`
   - **Linux/macOS:** `./scripts/quality-check.sh`
   - These scripts run JUnit tests, Checkstyle, and SpotBugs. Your PR should not have any linting errors or failing tests.
+
+## ✍️ Contributor License Agreement (CLA)
+
+By contributing to MysticTreasures, you agree that your contributions will be licensed under the project's Apache License 2.0 + Commons Clause. 
+
+We use a **CLA bot** to manage our agreements. When you submit your first Pull Request, the bot will automatically check if you have signed the CLA. If not, it will provide a link for you to review and sign it electronically. This is a one-time process for all your contributions to this repository.
 
 ## 🧪 Testing
 
