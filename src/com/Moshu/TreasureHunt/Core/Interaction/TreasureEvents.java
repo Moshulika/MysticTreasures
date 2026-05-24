@@ -346,6 +346,29 @@ public class TreasureEvents implements Listener {
 
     }
 
+    private void handleKeeperDamage(Player attacker, LivingEntity victim, double damage, boolean lethal) {
+        if (!TreasureKeeper.isTreasureKeeper(victim)) return;
+
+        Hunt h = TreasureKeeper.getHunt(victim);
+        if (h == null) return;
+
+        Treasure t = h.getTreasure();
+        if (t == null) return;
+
+        if (!t.getParticipants().contains(attacker)) {
+            t.addParticipant(attacker);
+            attacker.sendMessage(Messages.get("participating"));
+        }
+
+        t.addDamageGiven(attacker, damage);
+
+        if (lethal && t.remainingMobs() - 1 <= 0) {
+            for (Player p : t.getParticipants()) {
+                p.sendMessage(Messages.get("participating-cleared-mobs"));
+            }
+        }
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onDamage(EntityDamageByEntityEvent e) {
 
@@ -400,34 +423,7 @@ public class TreasureEvents implements Listener {
             } else if (e.getEntity() instanceof LivingEntity) {
 
                 LivingEntity victim = (LivingEntity) e.getEntity();
-
-                if (e.getFinalDamage() >= victim.getHealth()) {
-
-                    if (TreasureKeeper.isTreasureKeeper(victim)) {
-
-                        Hunt h = TreasureKeeper.getHunt(victim);
-                        if (h == null) return;
-
-                        Treasure t = h.getTreasure();
-                        if (t == null) return;
-
-                        if (!t.getParticipants().contains(attacker)) {
-                            t.addParticipant(attacker);
-                            attacker.sendMessage(Messages.get("participating"));
-                        }
-
-                        if (t.remainingMobs() - 1 <= 0) {
-
-                            for (Player p : t.getParticipants()) {
-                                p.sendMessage(Messages.get("participating-cleared-mobs"));
-                            }
-
-                        }
-
-                        t.addDamageGiven(attacker, e.getFinalDamage());
-
-                    }
-                }
+                handleKeeperDamage(attacker, victim, e.getFinalDamage(), e.getFinalDamage() >= victim.getHealth());
 
             }
 
@@ -465,34 +461,7 @@ public class TreasureEvents implements Listener {
                 } else if (e.getEntity() instanceof LivingEntity) {
 
                     LivingEntity victim = (LivingEntity) e.getEntity();
-
-                    if (e.getFinalDamage() >= victim.getHealth()) {
-
-                        if (TreasureKeeper.isTreasureKeeper(victim)) {
-
-                            Hunt h = TreasureKeeper.getHunt(victim);
-
-                            if (h == null) return;
-                            Treasure t = h.getTreasure();
-                            if (t == null) return;
-
-                            if (!t.getParticipants().contains(p)) {
-                                t.addParticipant(p);
-                                p.sendMessage(Messages.get("participating"));
-                            }
-
-                            if (t.remainingMobs() - 1 <= 0) {
-
-                                for (Player k : t.getParticipants()) {
-                                    k.sendMessage(Messages.get("participating-cleared-mobs"));
-                                }
-
-                            }
-
-                            t.addDamageGiven(p, e.getFinalDamage());
-
-                        }
-                    }
+                    handleKeeperDamage(p, victim, e.getFinalDamage(), e.getFinalDamage() >= victim.getHealth());
 
                 }
 

@@ -65,14 +65,9 @@ public class TreasureEffects {
 
                     if (Locations.distanceSquaredTo(p.getLocation(), h.getLocation()) <= (double) distance * distance) {
 
-                        Bukkit.getScheduler().runTask(plugin, () ->
-                        {
-
-                            for (PotionEffect effect : effects) {
-                                p.addPotionEffect(effect);
-                            }
-
-                        });
+                        for (PotionEffect effect : effects) {
+                            p.addPotionEffect(effect);
+                        }
 
                     }
 
@@ -81,7 +76,7 @@ public class TreasureEffects {
             }
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, 40);
+        run.runTaskTimer(plugin, 0, 40);
 
 
     }

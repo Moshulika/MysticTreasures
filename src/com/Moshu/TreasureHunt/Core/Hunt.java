@@ -199,18 +199,16 @@ public class Hunt {
             double distance = Math.min(Locations.getBorder(w) - 10, getTreasureData().getMaxTreasureDistance());
             int maxTreasureDistance = getTreasureData().getMaxTreasureDistance();
 
-            // Compute asynchronously; do NOT block or join
-            CompletableFuture
-                    .supplyAsync(() -> Locations.getRandomLocationMoreThan(w, maxTreasureDistance, distance, distance))
-                    .thenAccept(loc -> {
-                        this.l = loc;
-                        locationReady.complete(loc);
-                    })
-                    .exceptionally(ex -> {
-                        getPlugin().getLogger().severe("Failed to compute random treasure location: " + ex.getMessage());
-                        locationReady.completeExceptionally(ex);
-                        return null;
-                    });
+            Bukkit.getScheduler().runTask(getPlugin(), () -> {
+                try {
+                    Location loc = Locations.getRandomLocationMoreThan(w, maxTreasureDistance, distance, distance);
+                    this.l = loc;
+                    locationReady.complete(loc);
+                } catch (Throwable t) {
+                    getPlugin().getLogger().severe("Failed to compute random treasure location: " + t.getMessage());
+                    locationReady.completeExceptionally(t);
+                }
+            });
         }
     }
 
@@ -585,7 +583,8 @@ public class Hunt {
      */
 
     public long getElapsedTime() {
-        return getStartTime() - getRemainingTime();
+        if (getStartTime() <= 0) return 0;
+        return System.currentTimeMillis() - getStartTime();
     }
 
     /**

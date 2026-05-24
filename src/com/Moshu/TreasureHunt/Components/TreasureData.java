@@ -582,6 +582,7 @@ public class TreasureData {
                 plugin.getLogger().warning("You are using legacy award-method. Please add `award-method`" +
                         " to your treasure.yml and set to one of these values: CHEST, ALL_PLAYERS, HIGHEST_DAMAGE, DROP_ON_GROUND, TOP_X" +
                         ". Each of them correspond to the old fields in the treasure file. For TOP_X, you use it like this: `award-method: TOP_5`.");
+                break;
             }
 
             case TOP_X: {
@@ -594,23 +595,27 @@ public class TreasureData {
                     plugin.getLogger().warning("The award-method of the treasure is invalid, reading TOP_X, but has invalid format. Defaulting to 3");
                     rewardTopX = 3;
                 }
-
+                break;
             }
 
             case CHEST: {
                 this.openChest = true;
+                break;
             }
 
             case ALL_PLAYERS: {
                 this.rewardAllPlayersWhoParticipated = true;
+                break;
             }
 
             case HIGHEST_DAMAGE: {
                 this.rewardMostDamageGiven = true;
+                break;
             }
 
             case DROP_ON_GROUND: {
                 this.dropItemsOnGround = true;
+                break;
             }
 
         }

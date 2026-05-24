@@ -326,7 +326,6 @@ public class Treasure {
 
     public void runCommandPrizes(Player p, RoundData roundData) {
         for (CommandReward c : roundData.getCommandRewards()) {
-            if (Utils.chance() > c.getChance()) continue;
             c.run(p);
         }
         if (!receivedCommandRewards.contains(p)) {
@@ -943,7 +942,7 @@ public class Treasure {
 
             };
 
-            run.runTaskTimerAsynchronously(getPlugin(), 0, refresh);
+            run.runTaskTimer(getPlugin(), 0, refresh);
 
         }
 
@@ -1016,11 +1015,8 @@ public class Treasure {
             announceSpawnedTreasure();
             getTreasureData().getWaypoint().set(this);
 
-            Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () ->
-            {
-                DiscordWebhook webhook = DiscordWebhook.getInstance();
-                webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.SPAWN, this);
-            });
+            DiscordWebhook webhook = DiscordWebhook.getInstance();
+            webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.SPAWN, this);
 
         });
 
@@ -1270,7 +1266,7 @@ public class Treasure {
 
         };
 
-        run.runTaskTimerAsynchronously(getPlugin(), 0, 20);
+        run.runTaskTimer(getPlugin(), 0, 20);
     }
 
     private boolean isInLava(Entity e) {
@@ -1350,7 +1346,7 @@ public class Treasure {
             }
         };
 
-        runFallingParticles.runTaskTimerAsynchronously(getPlugin(), 0, 1);
+        runFallingParticles.runTaskTimer(getPlugin(), 0, 1);
 
         BukkitRunnable animationWatchdog = new BukkitRunnable() {
 
@@ -1540,7 +1536,7 @@ public class Treasure {
         int x_offset = x + Utils.randInt(-offset, offset);
         int z_offset = z + Utils.randInt(-offset, offset);
 
-        Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () ->
+        Bukkit.getScheduler().runTask(getPlugin(), () ->
         {
 
             for (Player p : Bukkit.getOnlinePlayers()) {
@@ -2006,7 +2002,7 @@ public class Treasure {
         String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
         double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
 
-        Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () ->
+        Bukkit.getScheduler().runTask(getPlugin(), () ->
         {
             for (Player p : Bukkit.getOnlinePlayers()) {
 
@@ -2031,11 +2027,8 @@ public class Treasure {
 
         TreasureTask.updateLastHunt(getTreasureData().getIdentifier());
 
-        Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () ->
-        {
-            DiscordWebhook webhook = DiscordWebhook.getInstance();
-            webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.CLAIM, this);
-        });
+        DiscordWebhook webhook = DiscordWebhook.getInstance();
+        webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.CLAIM, this);
 
     }
 
@@ -2052,7 +2045,7 @@ public class Treasure {
         String playerWithMostDamage = getPlayerWithMostDamage() == null ? "N/A" : getPlayerWithMostDamage().getName();
         double mostDamageGiven = getPlayerWithMostDamage() == null ? 0 : getDamageGiven(getPlayerWithMostDamage());
 
-        Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () ->
+        Bukkit.getScheduler().runTask(getPlugin(), () ->
         {
             for (Player p : Bukkit.getOnlinePlayers()) {
 
@@ -2073,11 +2066,8 @@ public class Treasure {
         });
 
         TreasureTask.updateLastHunt(getTreasureData().getIdentifier());
-        Bukkit.getScheduler().runTaskAsynchronously(getPlugin(), () ->
-        {
-            DiscordWebhook webhook = DiscordWebhook.getInstance();
-            webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.CLAIM, this);
-        });
+        DiscordWebhook webhook = DiscordWebhook.getInstance();
+        webhook.sendWebhookMessage(DiscordWebhook.DiscordTreasureEventType.CLAIM, this);
     }
 
     /**

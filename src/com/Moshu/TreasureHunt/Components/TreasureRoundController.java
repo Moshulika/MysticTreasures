@@ -57,7 +57,7 @@ public class TreasureRoundController {
     }
 
     public boolean isLastRound() {
-        return roundNumber == r.getRounds().size() - 1;
+        return roundNumber >= r.getRounds().size();
     }
 
     public boolean startRound() {

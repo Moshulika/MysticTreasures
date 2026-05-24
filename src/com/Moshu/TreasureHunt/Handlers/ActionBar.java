@@ -145,7 +145,7 @@ public class ActionBar {
 
         };
 
-        run.runTaskTimerAsynchronously(plugin, 0, Settings.actionbarRefresh());
+        run.runTaskTimer(plugin, 0, Settings.actionbarRefresh());
 
 
     }

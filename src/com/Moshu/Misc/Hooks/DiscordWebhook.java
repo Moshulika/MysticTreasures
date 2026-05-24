@@ -205,6 +205,26 @@ public class DiscordWebhook {
 
         if (getURL().isEmpty() || getURL().contains("Error")) return;
 
+        Runnable preparePayload = () -> {
+            try {
+                String payload = getPayloadWithAppliedPlaceholders(t, type);
+                Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> sendPayload(payload));
+            } catch (Exception e) {
+                plugin.getLogger().warning("Could not prepare Discord Webhook payload");
+                e.printStackTrace();
+            }
+        };
+
+        if (Bukkit.isPrimaryThread()) {
+            preparePayload.run();
+        } else {
+            Bukkit.getScheduler().runTask(plugin, preparePayload);
+    }
+
+}
+
+    private void sendPayload(String payload) {
+
         try {
 
             URL url = new URL(getURL());
@@ -215,7 +235,7 @@ public class DiscordWebhook {
             connection.setRequestProperty("Content-Type", "application/json");
 
             try (OutputStream os = connection.getOutputStream()) {
-                os.write(getPayloadWithAppliedPlaceholders(t, type).getBytes(StandardCharsets.UTF_8));
+                os.write(payload.getBytes(StandardCharsets.UTF_8));
             }
 
             int responseCode = connection.getResponseCode();
@@ -228,7 +248,7 @@ public class DiscordWebhook {
             e.printStackTrace();
         }
 
-    }
+        }
 
-}
+    }
 

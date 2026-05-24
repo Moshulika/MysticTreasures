@@ -593,18 +593,15 @@ public class Utils {
 
         ItemStack sticlafinal = sticla;
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
-        {
-            for (int i = 0; i < inv.getSize(); i++) {
+        for (int i = 0; i < inv.getSize(); i++) {
 
-                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
+            if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
 
-                    inv.setItem(i, sticlafinal);
-
-                }
+                inv.setItem(i, sticlafinal);
 
             }
-        });
+
+        }
     }
 
     /**
@@ -646,18 +643,15 @@ public class Utils {
             sticla.setItemMeta(sticlam);
         }
 
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
-        {
-            for (int i = 0; i < inv.getSize(); i++) {
+        for (int i = 0; i < inv.getSize(); i++) {
 
-                if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
+            if (inv.getItem(i) == null || inv.getItem(i).getType() == Material.AIR) {
 
-                    inv.setItem(i, sticla);
-
-                }
+                inv.setItem(i, sticla);
 
             }
-        });
+
+        }
     }
 
 
