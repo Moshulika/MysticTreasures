@@ -2,7 +2,7 @@
 
 ![Version](https://img.shields.io/badge/version-3.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Java](https://img.shields.io/badge/java-8+-orange.svg)
+![Java](https://img.shields.io/badge/java-25+-orange.svg)
 ![Build Status](https://github.com/Moshulika/MysticTreasures/actions/workflows/build.yml/badge.svg)
 ![Platform](https://img.shields.io/badge/platform-Paper%20%7C%20Spigot-yellow.svg)
 
@@ -22,8 +22,8 @@ A high-performance, feature-rich Treasure Hunt plugin for Minecraft servers. Cre
 
 ## 🛠️ Requirements
 
-- **Paper or Spigot** (1.13+)
-- **Java 8 or higher**
+- **Paper 26.2**
+- **Java 25 or higher**
 - *(Optional)* ItemsAdder, Nexo, Oraxen, MMOItems, DecentHolograms, FancyHolograms, WorldGuard, ProtocolLib.
 
 ## 📥 Installation
@@ -41,6 +41,12 @@ We maintain high code quality standards. You can run the following to verify you
 - **Windows:** `powershell ./scripts/quality-check.ps1`
 - **Linux/macOS:** `./scripts/quality-check.sh`
 - Runs JUnit 5 tests via **MockBukkit**, performs **Checkstyle** analysis, and executes **SpotBugs**.
+
+Maven must run with JDK 25 or newer. Verify the JDK Maven is actually using with:
+
+```powershell
+mvn -version
+```
 
 ---
 
