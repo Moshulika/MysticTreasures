@@ -9,8 +9,7 @@
     <version>3.1</version>
 
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -48,6 +47,28 @@
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.6.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-java-25</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireJavaVersion>
+                                    <version>[25,)</version>
+                                </requireJavaVersion>
+                            </rules>
                         </configuration>
                     </execution>
                 </executions>
@@ -96,7 +117,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.8.2.0</version>
+                <version>4.10.4.1</version>
                 <configuration>
                     <threshold>High</threshold>
                 </configuration>
@@ -209,21 +230,21 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <version>26.2.build.129-stable</version>
             <scope>provided</scope>
         </dependency>
         <!-- Kyori Adventure API (needed because Paper API exposes these types) -->
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-api</artifactId>
-            <version>4.26.1</version>
+            <version>5.2.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- Text serializer module used by some Paper/Adventure types -->
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>adventure-text-serializer-gson</artifactId>
-            <version>4.26.1</version>
+            <version>5.2.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- Kyori Examination API (provides net.kyori.examination.Examinable used by Adventure) -->
@@ -404,8 +425,8 @@
         </dependency>
         <dependency>
             <groupId>org.mockbukkit.mockbukkit</groupId>
-            <artifactId>mockbukkit-v1.21</artifactId>
-            <version>4.107.0</version>
+            <artifactId>mockbukkit-v26.2</artifactId>
+            <version>4.116.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

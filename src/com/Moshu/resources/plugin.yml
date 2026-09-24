@@ -11,7 +11,7 @@ description: The world is full of treasures!
 author: Moshu
 website: mc.b-zone.ro
 softdepend: [Vault, WorldGuard, ChunkyBorder, EssentialsX, Citizens, LuckPerms, MythicMobs, ItemsAdder, Oraxen, DecentHolograms, FancyHolograms, Nexo, ProtocolLib, MMOItems, packetevents, Lands]
-api-version: "1.13"
+api-version: "26.2"
 
 commands:
   hunt:
