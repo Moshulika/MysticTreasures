@@ -283,7 +283,7 @@ public class Treasure {
         } else if (roundData.getAwardMethod() == Treasure.AwardMethod.DROP_ON_GROUND) {
             // Drop for everyone or generic drop
             for (ItemReward r : roundData.getItemRewards()) {
-                if (Utils.chance() > r.getChance()) continue;
+                if (!Utils.chance(r.getChance())) continue;
                 dropItemOnGround(r);
             }
         }
@@ -291,7 +291,7 @@ public class Treasure {
 
     private void giveItemRewards(Player p, RoundData roundData, boolean dropOnGround) {
         for (ItemReward r : roundData.getItemRewards()) {
-            if (Utils.chance() > r.getChance()) continue;
+            if (!Utils.chance(r.getChance())) continue;
 
             if (dropOnGround) {
                 dropItemOnGround(r);
@@ -326,7 +326,6 @@ public class Treasure {
 
     public void runCommandPrizes(Player p, RoundData roundData) {
         for (CommandReward c : roundData.getCommandRewards()) {
-            if (Utils.chance() > c.getChance()) continue;
             c.run(p);
         }
         if (!receivedCommandRewards.contains(p)) {
@@ -340,7 +339,9 @@ public class Treasure {
         rewardInventory = Bukkit.createInventory(null, 54, title != null ? title : "Treasure Rewards");
 
         List<ItemReward> allPossibleRewards = new ArrayList<>();
-        for(TreasureRound round : treasureData.getRoundRegistry().getRounds()) {
+        int currentRoundIndex = roundController.getRoundNumber() - 1;
+        TreasureRound round = treasureData.getRoundRegistry().getRound(currentRoundIndex);
+        if (round != null && round.getRoundData() != null) {
             allPossibleRewards.addAll(round.getRoundData().getItemRewards());
         }
 
@@ -350,7 +351,7 @@ public class Treasure {
         }
 
         for (ItemReward i : allPossibleRewards) {
-            if (Utils.chance() > i.getChance()) continue;
+            if (!Utils.chance(i.getChance())) continue;
             ItemStack is = i.getItemStack();
             if (is == null || is.getType() == Material.AIR) continue;
 
@@ -497,6 +498,10 @@ public class Treasure {
      */
     public boolean haveTheMobsSpawned() {
         return spawned;
+    }
+
+    public void markMobsSpawned() {
+        spawned = true;
     }
 
     /**
@@ -848,7 +853,8 @@ public class Treasure {
 
     public static String renameWorld(World w) {
         String worldName = w.getName();
-        return worldName.replaceAll("[^-_A-Za-z0-9]", "_").trim();
+        String safeName = worldName.replaceAll("[^-_A-Za-z0-9]", "_").trim();
+        return safeName + "_" + Integer.toHexString(worldName.hashCode());
     }
 
     public static String getHologramName(World w, String id) {
@@ -1758,7 +1764,7 @@ public class Treasure {
             for (ItemReward i : getTreasureData().getItemRewards()) {
 
                 if (i.shouldGiveOnlyToTopX() && !i.isTopX(topCounter)) continue;
-                if (Utils.chance() > i.getChance()) continue;
+                if (!Utils.chance(i.getChance())) continue;
 
                 ItemStack item = i.getItemStack();
 
@@ -1828,7 +1834,7 @@ public class Treasure {
         boolean dropOnGround = getTreasureData().dropsItemsOnGround();
 
         for (ItemReward r : getTreasureData().getItemRewards()) {
-            if (Utils.chance() > r.getChance()) continue;
+            if (!Utils.chance(r.getChance())) continue;
 
             if (dropOnGround) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(getPlugin(), () ->
@@ -2152,4 +2158,3 @@ public class Treasure {
     }
 
 }
-

@@ -112,11 +112,10 @@ public class CommandReward {
      */
     public void run(Player p) {
 
-        if (Utils.chance() < getChance()) {
+        if (Utils.chance(getChance())) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("%player%", p.getName()));
         }
 
     }
 
 }
-
