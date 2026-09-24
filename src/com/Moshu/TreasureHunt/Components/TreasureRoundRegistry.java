@@ -77,9 +77,10 @@ public class TreasureRoundRegistry {
                     plugin.getLogger().info("Successfully linked round '" + id + "' to treasure '" + data.getIdentifier() + "' (Round #" + (index + 1) + ")");
                 }
             }
-            TreasureRound round = new TreasureRound(index, roundData);
-            rounds.add(round);
-            index++;
+            if (roundData != null) {
+                rounds.add(new TreasureRound(index, roundData));
+                index++;
+            }
         }
     }
 
@@ -101,4 +102,3 @@ public class TreasureRoundRegistry {
     }
 
 }
-

@@ -57,8 +57,8 @@ public class TreasureTest {
         when(world.getName()).thenReturn("World-123! Test");
 
         String renamed = Treasure.renameWorld(world);
-        // Pattern: [^-_A-Za-z] -> _
-        assertEquals("World-123__Test", renamed);
+        // The sanitized name is suffixed with a stable hash of the original name.
+        assertEquals("World-123__Test_77714d68", renamed);
     }
 
     @Test
@@ -67,6 +67,6 @@ public class TreasureTest {
         when(world.getName()).thenReturn("MyWorld");
 
         String name = Treasure.getHologramName(world, "GoldenChest");
-        assertEquals("treasure_myworld_goldenchest", name);
+        assertEquals("treasure_myworld_bcb86126_goldenchest", name);
     }
 }
