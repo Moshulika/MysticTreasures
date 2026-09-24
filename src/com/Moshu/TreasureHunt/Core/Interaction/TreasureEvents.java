@@ -695,7 +695,7 @@ public class TreasureEvents implements Listener {
 
             for (TreasureKeeperDrops.DropData data : d.getAllDrops().values()) {
 
-                if (Utils.chance() < data.getChance()) {
+                if (Utils.chance(data.getChance())) {
                     Item i = entity.getWorld().dropItemNaturally(entity.getLocation(), data.getItemStack());
 
                     if (!data.getName().equalsIgnoreCase("none")) {

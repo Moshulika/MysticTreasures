@@ -160,7 +160,7 @@ public class TreasureTask {
                     if (preventConcurrentSpawn()) return;
                     if (Bukkit.getOnlinePlayers().size() < Settings.getInt("min-players-online")) return;
 
-                    if (Utils.chance() < d.getChanceForTreasure()) {
+                    if (Utils.chance(d.getChanceForTreasure())) {
 
                         if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - getLastClaim(identifier)) < d.getCooldown())
                             return;
@@ -181,4 +181,3 @@ public class TreasureTask {
     }
 
 }
-
