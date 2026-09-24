@@ -1038,6 +1038,12 @@ public class Utils {
         return ThreadLocalRandom.current().nextInt(1, 101);
     }
 
+    public static boolean chance(int percentage) {
+        if (percentage <= 0) return false;
+        if (percentage >= 100) return true;
+        return chance() <= percentage;
+    }
+
     /**
      * Get a list of all the entities near the location in a radius in a chunk
      *
@@ -1824,5 +1830,4 @@ public class Utils {
     }
 
 }
-
 

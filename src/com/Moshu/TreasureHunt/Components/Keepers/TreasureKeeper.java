@@ -333,7 +333,7 @@ public class TreasureKeeper {
         Location loc = t.getLocation();
         Hunt h = t.getHunt();
 
-        if (Utils.chance() < chance) {
+        if (Utils.chance(chance)) {
 
             if (isMythicMob()) {
 
@@ -509,4 +509,3 @@ public class TreasureKeeper {
 
 
 }
-

@@ -57,7 +57,7 @@ public class TreasureRoundController {
     }
 
     public boolean isLastRound() {
-        return roundNumber == r.getRounds().size() - 1;
+        return roundNumber >= r.getRounds().size();
     }
 
     public boolean startRound() {
@@ -89,6 +89,10 @@ public class TreasureRoundController {
 
         if (round != null) {
             round.start(t);
+            t.markMobsSpawned();
+            if (round.getRoundData() != null && round.getRoundData().getAwardMethod() == Treasure.AwardMethod.CHEST) {
+                t.setupInventory();
+            }
         }
         
         roundNumber++;
@@ -98,4 +102,3 @@ public class TreasureRoundController {
 
 
 }
-
